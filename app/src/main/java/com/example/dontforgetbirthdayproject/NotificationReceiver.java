@@ -10,9 +10,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.example.dontforgetbirthdayproject.fragment.HomeFragment;
+
+import java.time.LocalDate;
 
 public class NotificationReceiver extends BroadcastReceiver {
 
@@ -26,6 +29,7 @@ public class NotificationReceiver extends BroadcastReceiver {
     private static String CHANNEL_NAME = "Channel1";
 
     //수신되는 인텐트 - The Intent being received.
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.e(TAG, "onReceive 알람이 들어옴!!");
@@ -33,6 +37,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         String contentValue = intent.getStringExtra("content");
         int requestCode = intent.getIntExtra("requestCode",0);
         int id = intent.getIntExtra("id",0);
+        int day = intent.getIntExtra("day",0);
         Log.e(TAG, "onReceive contentValue값 확인 : " + contentValue);
 
         builder = null;
@@ -65,9 +70,10 @@ public class NotificationReceiver extends BroadcastReceiver {
                     PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
-
+        LocalDate now = LocalDate.now(); //현재 날짜 가져오기
+        day = day- now.getDayOfMonth(); //생일 날짜 - 현재날 해서 생일로부터 남은 날 계산
         //알림창 제목
-        builder.setContentTitle(contentValue); //회의명노출
+        builder.setContentTitle(contentValue+day+"일 남았습니다."); //회의명노출
         //builder.setContentText(intent.getStringExtra("content")); //회의 내용
         //알림창 아이콘
         builder.setSmallIcon(R.drawable.cake_alarm_icon);

@@ -161,6 +161,7 @@ public class HomeFragment extends Fragment  {
             public void run() {
                 //화면에 보이는 그룹 리사이클러뷰의 첫번째 클릭
                 groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
+                mainActivity.setNotice(2023,2,10,3,15,1,"류승민님의 생일은 ",1);
             }
         },700);
 
@@ -171,7 +172,6 @@ public class HomeFragment extends Fragment  {
         itemAddBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.setNotice(02,8,17,25,1,"안녕",1);
                 //팝업 메뉴 생성
                 PopupMenu popup= new PopupMenu(getActivity().getApplicationContext(), view);//v는 클릭된 뷰를 의미
                 popup.getMenuInflater().inflate(R.menu.add_menu, popup.getMenu());

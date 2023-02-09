@@ -121,13 +121,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //알람매니저에 알람등록 처리
-    public void setNotice(int month,int day,int hour,int minute,int id,String content,int requestCode) {
+    public void setNotice(int year,int month,int day,int hour,int minute,int id,String content,int requestCode) {
 
         //알람을 수신할 수 있도록 하는 리시버로 인텐트 요청
         Intent receiverIntent = new Intent(this, NotificationReceiver.class);
         receiverIntent.putExtra("content", content);
         receiverIntent.putExtra("requestCode", requestCode);
         receiverIntent.putExtra("id",id);
+        receiverIntent.putExtra("day",day+2);
 
         /**
          * PendingIntent란?
@@ -143,25 +144,26 @@ public class MainActivity extends AppCompatActivity {
          * */
 
         PendingIntent pendingIntent;
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
-            pendingIntent= PendingIntent.getBroadcast(this, requestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_MUTABLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getBroadcast(this, requestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
         } else {
-            pendingIntent= PendingIntent.getBroadcast(this, requestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            pendingIntent = PendingIntent.getBroadcast(this, requestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         //date타입으로 변경된 알람시간을 캘린더 타임에 등록
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.MONTH,month);
-        calendar.set(Calendar.DATE,day);
-        calendar.set(Calendar.HOUR_OF_DAY,hour);
-        calendar.set(Calendar.MINUTE,minute);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month - 1);
+        calendar.set(Calendar.DATE, day);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
 
         //알람시간 설정
         //param 1)알람의 타입
         //param 2)알람이 울려야 하는 시간(밀리초)을 나타낸다.
         //param 3)알람이 울릴 때 수행할 작업을 나타냄
-        alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
-
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY * 3, pendingIntent);
     }
 
 }
