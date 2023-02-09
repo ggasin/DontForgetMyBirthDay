@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1405" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/alarm_toggle.xml" value="0.197" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/border.xml" value="0.2075" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/button_back.xml" value="0.1525" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/button_border.xml" value="0.2445" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/button_press.xml" value="0.1525" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/cake_gif_iconxml.xml" value="0.2335" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/edit_border.xml" value="0.2075" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/gift_gif_iconxml.xml" value="0.1635" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/group_item_not_selected.xml" value="0.118" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/group_item_selected.xml" value="0.118" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1525" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/item_border.xml" value="0.197" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/item_ly_border.xml" value="0.197" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/kakao_iconxml.xml" value="0.2075" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/kakao_login_border.xml" value="0.2075" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/login_border.xml" value="0.2075" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/memo_border.xml" value="0.128" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/memo_can_edit_border.xml" value="0.118" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/menu_item_color.xml" value="0.161" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/popup_back.xml" value="0.106" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/profile_border.xml" value="0.128" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/profile_resize.xml" value="0.1255" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/progile_resize.xml" value="0.128" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/drawable/recycler_border.xml" value="0.197" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/font/font.xml" value="0.18854166666666666" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout-w1240dp/activity_login.xml" value="0.160546875" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/activity_add_item.xml" value="0.2" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/activity_join.xml" value="0.176" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/activity_login.xml" value="0.2" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/activity_main.xml" value="0.176" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/activity_register.xml" value="0.176" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/activity_splash.xml" value="0.1403688524590164" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/birth_recycler_item.xml" value="0.264" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/fragment_add_item.xml" value="0.2" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/fragment_calander.xml" value="0.11031420765027322" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/fragment_calendar.xml" value="0.16631944444444444" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/fragment_home.xml" value="0.2" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/fragment_item_detail.xml" value="0.2" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/fragment_my_page_fragement.xml" value="0.1253415300546448" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/fragment_setting.xml" value="0.16909722222222223" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/group_add_dialog.xml" value="0.11031420765027322" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/group_recycler_item.xml" value="0.2" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/main_side_drawer.xml" value="0.11076388888888888" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/layout/side_drawer_header.xml" value="0.11145833333333334" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/menu/add_menu.xml" value="0.146875" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/menu/menu.xml" value="0.14270833333333333" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/menu/side_menu.xml" value="0.11076388888888888" />
+        <entry key="..\:/AndroidStudio/app/src/main/java/com/DontForgetBirthDayProject/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2335" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
