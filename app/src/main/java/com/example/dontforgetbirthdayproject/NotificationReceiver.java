@@ -1,5 +1,6 @@
 package com.example.dontforgetbirthdayproject;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,6 +14,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import com.example.dontforgetbirthdayproject.activity.MainActivity;
 import com.example.dontforgetbirthdayproject.fragment.HomeFragment;
 
 import java.time.LocalDate;
@@ -33,11 +35,17 @@ public class NotificationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.e(TAG, "onReceive 알람이 들어옴!!");
-
-        String contentValue = intent.getStringExtra("content");
+        String contentValue ="";
+        contentValue= intent.getStringExtra("content");
         int requestCode = intent.getIntExtra("requestCode",0);
         int id = intent.getIntExtra("id",0);
         int day = intent.getIntExtra("day",0);
+        int year = intent.getIntExtra("year",0);
+        int month = intent.getIntExtra("month",0);
+        int hour = intent.getIntExtra("hour",0);
+        int minute = intent.getIntExtra("minute",0);
+        int alarmStartDay = intent.getIntExtra("alarmStartDay",0);
+
         Log.e(TAG, "onReceive contentValue값 확인 : " + contentValue);
 
         builder = null;
@@ -71,9 +79,9 @@ public class NotificationReceiver extends BroadcastReceiver {
         }
 
         LocalDate now = LocalDate.now(); //현재 날짜 가져오기
-        day = day- now.getDayOfMonth(); //생일 날짜 - 현재날 해서 생일로부터 남은 날 계산
+        int dday = day-alarmStartDay; //생일 날짜 - 현재날 해서 생일로부터 남은 날 계산
         //알림창 제목
-        builder.setContentTitle(contentValue+day+"일 남았습니다."); //회의명노출
+        builder.setContentTitle(contentValue+dday+"일 남았습니다."); //회의명노출
         //builder.setContentText(intent.getStringExtra("content")); //회의 내용
         //알림창 아이콘
         builder.setSmallIcon(R.drawable.cake_alarm_icon);
@@ -87,5 +95,10 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         //NotificationManager를 이용하여 푸시 알림 보내기
         manager.notify(id,notification);
+        if(day+2- now.getDayOfMonth()>=0){
+            Log.d("인수 확인",String.valueOf(year)+String.valueOf(month)+String.valueOf(day)+String.valueOf(hour)+String.valueOf(minute)
+                    +String.valueOf(id)+contentValue+String.valueOf(requestCode));
+            MainActivity.isPushAlarmSend = true;
+        }
     }
 }

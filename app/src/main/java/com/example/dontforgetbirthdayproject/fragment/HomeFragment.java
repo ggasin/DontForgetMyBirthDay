@@ -4,8 +4,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -161,7 +163,7 @@ public class HomeFragment extends Fragment  {
             public void run() {
                 //화면에 보이는 그룹 리사이클러뷰의 첫번째 클릭
                 groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
-                mainActivity.setNotice(2023,2,10,3,15,1,"류승민님의 생일은 ",1);
+
             }
         },700);
 
@@ -170,8 +172,11 @@ public class HomeFragment extends Fragment  {
 
         //추가 아이콘 클릭 이벤트
         itemAddBtn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
+               mainActivity.setNotice(2023,2,11,13,22,10,1,"류승민님의 생일은 ",1);
+
                 //팝업 메뉴 생성
                 PopupMenu popup= new PopupMenu(getActivity().getApplicationContext(), view);//v는 클릭된 뷰를 의미
                 popup.getMenuInflater().inflate(R.menu.add_menu, popup.getMenu());

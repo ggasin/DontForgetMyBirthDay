@@ -179,6 +179,7 @@ public class AddItemFragment extends Fragment {
                             boolean success = jsonObject.getBoolean("success");
                             if(!name.equals("") &&!group.equals("") && !solarBirth.equals("") && isValidBirth){ //공백이 없고 생년월일이 유효하면
                                 if(success){
+                                    LocalDate now = LocalDate.now();
                                     Toast.makeText(getContext(),"추가 완료",Toast.LENGTH_SHORT).show();
                                     add_name_et.setText("");
                                     add_solar_birth_et.setText("");

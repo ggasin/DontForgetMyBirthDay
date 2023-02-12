@@ -1,6 +1,7 @@
 package com.example.dontforgetbirthdayproject.activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.RadioButton;
+import android.widget.Toast;
 
 import com.example.dontforgetbirthdayproject.fragment.AddItemFragment;
 import com.example.dontforgetbirthdayproject.BackKeyHandler;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     public String userId,selectedGroup,itemName,itemSolarBirth,itemlunarBirth,itemMemo,itemGroup;
     public int itemClickPosition;
     public int profile_id;
+    public static boolean isPushAlarmSend = false;
     //현재 시간,분 변수선언
     int currHour, currMinute;
     //시스템에서 알람 서비스를 제공하도록 도와주는 클래스
@@ -121,14 +125,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //알람매니저에 알람등록 처리
-    public void setNotice(int year,int month,int day,int hour,int minute,int id,String content,int requestCode) {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void setNotice(int year, int month, int alarmStartDay,int day, int hour, int minute, int id, String content, int requestCode) {
 
         //알람을 수신할 수 있도록 하는 리시버로 인텐트 요청
         Intent receiverIntent = new Intent(this, NotificationReceiver.class);
         receiverIntent.putExtra("content", content);
         receiverIntent.putExtra("requestCode", requestCode);
         receiverIntent.putExtra("id",id);
-        receiverIntent.putExtra("day",day+2);
+        receiverIntent.putExtra("year",year);
+        receiverIntent.putExtra("month",month);
+        receiverIntent.putExtra("day",day);
+        receiverIntent.putExtra("alarmStartDay",alarmStartDay);
+        receiverIntent.putExtra("hour",hour);
+        receiverIntent.putExtra("minute",minute);
 
         /**
          * PendingIntent란?
@@ -154,16 +164,30 @@ public class MainActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month - 1);
-        calendar.set(Calendar.DATE, day);
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.DATE, alarmStartDay);
+        calendar.set(Calendar.HOUR_OF_DAY,hour);
+        calendar.set(Calendar.MINUTE,minute);
+
 
         //알람시간 설정
         //param 1)알람의 타입
         //param 2)알람이 울려야 하는 시간(밀리초)을 나타낸다.
         //param 3)알람이 울릴 때 수행할 작업을 나타냄
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY * 3, pendingIntent);
+        LocalDate now = LocalDate.now();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+
+        }
+        if(alarmStartDay<=day ){
+            Log.d("왜안돼",String.valueOf(alarmStartDay));
+            setNotice(year,month,alarmStartDay+1,day,hour,minute,id,content,requestCode);
+        }
     }
+
 
 }
