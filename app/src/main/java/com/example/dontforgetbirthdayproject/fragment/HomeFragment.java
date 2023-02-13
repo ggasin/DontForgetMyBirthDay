@@ -175,7 +175,6 @@ public class HomeFragment extends Fragment  {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
-               mainActivity.setNotice(2023,2,11,13,22,10,1,"류승민님의 생일은 ",1);
 
                 //팝업 메뉴 생성
                 PopupMenu popup= new PopupMenu(getActivity().getApplicationContext(), view);//v는 클릭된 뷰를 의미
@@ -255,16 +254,15 @@ public class HomeFragment extends Fragment  {
                                     String group = jsonObject.getString("itemGroup");
                                     int is_alarm_on = jsonObject.getInt("itemAlarmOn");
                                     String gender = jsonObject.getString("itemGender");
-                                    Log.d("젠더","----------------------------");
-                                    Log.d("젠더",gender);
+
                                     if(gender.equals("남")){
                                         ItemData itemData= new ItemData(name, group,R.drawable.profile_man_icon,so_birth, lu_birth, memo, is_alarm_on,"",""); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                                         itemList.add(itemData);
-                                        Log.d("젠더남",gender);
+
                                     } else {
                                         ItemData itemData= new ItemData(name, group,R.drawable.profile_woman_icon,so_birth, lu_birth, memo, is_alarm_on,"",""); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                                         itemList.add(itemData);
-                                        Log.d("젠더여",gender);
+
                                     }
                                     homeAdapter.notifyItemInserted(i);
 
@@ -279,7 +277,7 @@ public class HomeFragment extends Fragment  {
                         @Override
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(getActivity().getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
-                        Log.d("로드디비","ㄱ");
+
                     }
                 }
         ){

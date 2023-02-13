@@ -22,8 +22,12 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.dontforgetbirthdayproject.request.ItemAddRequest;
 import com.example.dontforgetbirthdayproject.R;
@@ -42,10 +46,13 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 //아이템 추가 화면 fragment
 public class AddItemFragment extends Fragment {
     MainActivity mainActivity;
+
     private Button add_complete_btn,add_close_btn;
     private EditText add_name_et,add_solar_birth_et,add_memo_et;
     private TextView add_group_t;
@@ -54,7 +61,9 @@ public class AddItemFragment extends Fragment {
     private RadioGroup addGenderGroup;
     String selectedGroup,gender="남";
     String lunarBirth="--" , solarBirth;
+    String requestCodeURL = "http://dfmbd.ivyro.net/loadTotalRequestCode.php";
     boolean isValidBirth = false; //유효한 생년월일인지 파악
+    int totalRequestCode=0;
     //onAttach 는 fragment가 activity에 올라온 순간
     @Override
     public void onAttach(Context context) {
@@ -180,6 +189,14 @@ public class AddItemFragment extends Fragment {
                             if(!name.equals("") &&!group.equals("") && !solarBirth.equals("") && isValidBirth){ //공백이 없고 생년월일이 유효하면
                                 if(success){
                                     LocalDate now = LocalDate.now();
+                                    int month = Integer.parseInt(solarBirth.substring(4,6));
+                                    int day = Integer.parseInt(solarBirth.substring(6,8));
+                                    //db로부터 requestCode 가져오기
+                                    loadTotalRequestCode(requestCodeURL);
+                                    Log.d("Load requestCode in cm",String.valueOf(totalRequestCode));
+                                    //알람 추가
+                                    mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,totalRequestCode,
+                                            name+"님의 생일이 ",totalRequestCode);
                                     Toast.makeText(getContext(),"추가 완료",Toast.LENGTH_SHORT).show();
                                     add_name_et.setText("");
                                     add_solar_birth_et.setText("");
@@ -225,6 +242,7 @@ public class AddItemFragment extends Fragment {
                 add_solar_birth_et.setText("");
                 add_memo_et.setText("");
                 mainActivity.onFragmentChange(0);
+
             }
         });
         return rootView;
@@ -337,5 +355,42 @@ public class AddItemFragment extends Fragment {
         }
 
         return arr;
+    }
+    public void loadTotalRequestCode(String url){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            boolean success = jsonObject.getBoolean("success");
+                            if(success){
+                                totalRequestCode = jsonObject.getInt("totalRequestCode");
+                            } else {
+                                Log.d("Load requestCode1",String.valueOf(String.valueOf(success)));
+                            }
+
+                        } catch (JSONException e) {
+                            StringWriter sw = new StringWriter();
+                            e.printStackTrace(new PrintWriter(sw));
+                            String exceptionAsStrting = sw.toString();
+                            Log.e("Load request 오류", exceptionAsStrting);
+                            e.printStackTrace();
+
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                }){
+
+        };
+        RequestQueue requestQueue= Volley.newRequestQueue(getActivity().getApplicationContext());
+        //요청큐에 요청 객체 생성
+        requestQueue.add(stringRequest);
+
     }
 }

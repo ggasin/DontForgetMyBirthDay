@@ -8,8 +8,10 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -64,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     //특정 시점에 알람이 울리도록 도와준다
     private AlarmManager alarmManager;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,17 +81,41 @@ public class MainActivity extends AppCompatActivity {
         HomeFragment homeFragment = new HomeFragment();
         transaction.replace(R.id.frameLayout, fragmentHome).commit();
 
+        //하단바 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.menu_bottom_navigation);
         bottomNavigationView.setOnItemSelectedListener(new ItemSelectedListener());
         bottomNavigationView.setSelectedItemId(R.id.home_menu);
 
-
-
         //푸시알림을 보내기 위해, 시스템에서 알림 서비스를 생성해주는 코드
         alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 
+        //NotificationReceiver로부터 액션 등록(푸시알림이 울리고 나서 메인액티비티에서 다시 setNotice를 실행하기 위함)
+        registerReceiver(notificationReceiver,new IntentFilter("INTERNET_LOST"));
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("INTERNET_LOST");
 
-
+    }
+    //푸시알림이 울리고 난 뒤 액션을 받고나서 실행되는 부분. setNotice 실행
+    BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int year = intent.getIntExtra("year",0);
+            int month = intent.getIntExtra("month",0);
+            int alarmStartDay = intent.getIntExtra("alarmStartDay",0);
+            int day = intent.getIntExtra("day",0);
+            int hour = intent.getIntExtra("hour",0);
+            int minute = intent.getIntExtra("minute",0);
+            String content = intent.getStringExtra("content");
+            int id = intent.getIntExtra("id",0);
+            int requestCode = intent.getIntExtra("requestCode",0);
+            setNotice(year,month,alarmStartDay,day,hour,minute,id,content,requestCode);
+            Log.d("year",String.valueOf(year));
+        }
+    };
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        unregisterReceiver(notificationReceiver);
     }
     //프래그먼트 선택 리스너
     class ItemSelectedListener implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -125,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //알람매니저에 알람등록 처리
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     public void setNotice(int year, int month, int alarmStartDay,int day, int hour, int minute, int id, String content, int requestCode) {
 
         //알람을 수신할 수 있도록 하는 리시버로 인텐트 요청
@@ -173,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         //param 1)알람의 타입
         //param 2)알람이 울려야 하는 시간(밀리초)을 나타낸다.
         //param 3)알람이 울릴 때 수행할 작업을 나타냄
-        LocalDate now = LocalDate.now();
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
@@ -182,10 +210,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 
-        }
-        if(alarmStartDay<=day ){
-            Log.d("왜안돼",String.valueOf(alarmStartDay));
-            setNotice(year,month,alarmStartDay+1,day,hour,minute,id,content,requestCode);
         }
     }
 

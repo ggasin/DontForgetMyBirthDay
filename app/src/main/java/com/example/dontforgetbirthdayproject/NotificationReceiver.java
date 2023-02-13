@@ -19,7 +19,11 @@ import com.example.dontforgetbirthdayproject.fragment.HomeFragment;
 
 import java.time.LocalDate;
 
+
+
+
 public class NotificationReceiver extends BroadcastReceiver {
+
 
     private String TAG = this.getClass().getSimpleName();
 
@@ -34,6 +38,7 @@ public class NotificationReceiver extends BroadcastReceiver {
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onReceive(Context context, Intent intent) {
+
         Log.e(TAG, "onReceive 알람이 들어옴!!");
         String contentValue ="";
         contentValue= intent.getStringExtra("content");
@@ -45,6 +50,8 @@ public class NotificationReceiver extends BroadcastReceiver {
         int hour = intent.getIntExtra("hour",0);
         int minute = intent.getIntExtra("minute",0);
         int alarmStartDay = intent.getIntExtra("alarmStartDay",0);
+
+
 
         Log.e(TAG, "onReceive contentValue값 확인 : " + contentValue);
 
@@ -95,10 +102,32 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         //NotificationManager를 이용하여 푸시 알림 보내기
         manager.notify(id,notification);
-        if(day+2- now.getDayOfMonth()>=0){
+
+        //생일날이 오기 전까지 다음날 알람 추가
+        if(dday>0){
             Log.d("인수 확인",String.valueOf(year)+String.valueOf(month)+String.valueOf(day)+String.valueOf(hour)+String.valueOf(minute)
                     +String.valueOf(id)+contentValue+String.valueOf(requestCode));
-            MainActivity.isPushAlarmSend = true;
+            try{
+                Intent i = new Intent("INTERNET_LOST");
+                i.putExtra("year",year);
+                i.putExtra("month",month);
+                i.putExtra("alarmStartDay",alarmStartDay+1);
+                i.putExtra("day",day);
+                i.putExtra("hour",hour);
+                i.putExtra("minute",minute);
+                i.putExtra("id",id);
+                i.putExtra("content",contentValue);
+                i.putExtra("requestCode",requestCode);
+                context.sendBroadcast(i); //푸시알림이 울리고나서 메인액티비티에 있는 메소드를 실행하기 위해 메인액티비티에 액션 전달
+                Log.d("리시버에서 setNotice 호출 성공","");
+            }catch (NullPointerException e){
+                Log.d("리시버에서 setNotice 호출 오류","");
+
+            }
+
+
         }
     }
+
+
 }
