@@ -29,6 +29,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.dontforgetbirthdayproject.data.ItemData;
+import com.example.dontforgetbirthdayproject.data.RequestCodeData;
 import com.example.dontforgetbirthdayproject.request.ItemAddRequest;
 import com.example.dontforgetbirthdayproject.R;
 import com.example.dontforgetbirthdayproject.activity.MainActivity;
@@ -49,21 +51,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+
 //아이템 추가 화면 fragment
 public class AddItemFragment extends Fragment {
     MainActivity mainActivity;
 
     private Button add_complete_btn,add_close_btn;
     private EditText add_name_et,add_solar_birth_et,add_memo_et;
-    private TextView add_group_t;
+    private TextView add_group_t,requestCode_t;
     private CheckBox add_lunar_chk;
     private RadioButton addGenderMan,addGenderWoman;
     private RadioGroup addGenderGroup;
+
+    private int totalRequestCode;
+    static int solarRequestCode;
+    static int lunarRequestCode;
+
+
     String selectedGroup,gender="남";
     String lunarBirth="--" , solarBirth;
     String requestCodeURL = "http://dfmbd.ivyro.net/loadTotalRequestCode.php";
     boolean isValidBirth = false; //유효한 생년월일인지 파악
-    int totalRequestCode=0;
+
+
     //onAttach 는 fragment가 activity에 올라온 순간
     @Override
     public void onAttach(Context context) {
@@ -97,6 +107,8 @@ public class AddItemFragment extends Fragment {
         addGenderMan = rootView.findViewById(R.id.add_gender_man);
         addGenderWoman = rootView.findViewById(R.id.add_gender_woman);
         addGenderGroup = rootView.findViewById(R.id.add_gender_radio_group);
+        requestCode_t = rootView.findViewById(R.id.requestCode_text);
+
 
         //선택된 그룹 이름으로 group text 초기화
         add_group_t.setText(selectedGroup);
@@ -129,9 +141,27 @@ public class AddItemFragment extends Fragment {
                 solarBirth = add_solar_birth_et.getText().toString();
                 if(solarBirth.length()==8){
                     int solarBirthYear = Integer.parseInt(solarBirth.substring(0,4)); //생년 인트형 변환
+                    int solarBirthMonth = Integer.parseInt(solarBirth.substring(4,6));
+                    int solarBirthDay = Integer.parseInt(solarBirth.substring(6,8));
                     //유효한 생년월일인지 체크
-                    if(solarBirthYear>1900 && solarBirthYear<=now.getYear()){
-                        isValidBirth = true;
+                    //1850년보다 많고 오늘날의 연도보다 생년월일이 적어야하고, 달은 1보다 크고 12보다 작아야한다
+                    if(solarBirthYear>1850 && solarBirthYear<=now.getYear() && solarBirthMonth>=1 && solarBirthMonth<=12){
+                        //30일이 끝인 달은 생일이 30일보다 작아야 유효하다
+                        if(solarBirthMonth==4 && solarBirthMonth==6 && solarBirthMonth==9 && solarBirthMonth==11 ){
+                            if(solarBirthDay>=1 && solarBirthDay<=30){
+                                isValidBirth = true;
+                            }
+                        } else if(solarBirthMonth == 2){
+                            //생일이 2월인데 윤년이면 29일까지 허용
+                            if( ((solarBirthYear%4==0 && solarBirthYear %100 !=0)||solarBirthYear % 400==0) && (solarBirthDay<=29 && solarBirthDay>=1)){
+                                isValidBirth = true;
+                            } else if(solarBirthDay<=28) {
+                                isValidBirth = true;
+                            }
+                        } else if(solarBirthDay<=31 && solarBirthDay>=1){
+                            isValidBirth = true;
+                        }
+
                     } else {
                         isValidBirth = false;
                     }
@@ -180,6 +210,17 @@ public class AddItemFragment extends Fragment {
                 String group = add_group_t.getText().toString();
                 String memo = add_memo_et.getText().toString() ;
 
+                    if (add_lunar_chk.isChecked()) {
+                        loadTotalRequestCode(requestCodeURL);
+                        solarRequestCode = RequestCodeData.getRequestCode();
+                        loadTotalRequestCode(requestCodeURL);
+                        lunarRequestCode = solarRequestCode+1;
+                    } else {
+                        loadTotalRequestCode(requestCodeURL);
+                        solarRequestCode = RequestCodeData.getRequestCode();
+                    }
+
+
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -192,11 +233,23 @@ public class AddItemFragment extends Fragment {
                                     int month = Integer.parseInt(solarBirth.substring(4,6));
                                     int day = Integer.parseInt(solarBirth.substring(6,8));
                                     //db로부터 requestCode 가져오기
-                                    loadTotalRequestCode(requestCodeURL);
-                                    Log.d("Load requestCode in cm",String.valueOf(totalRequestCode));
-                                    //알람 추가
-                                    mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,totalRequestCode,
-                                            name+"님의 생일이 ",totalRequestCode);
+                                    Log.d("Load requestCode in cm",String.valueOf(solarRequestCode));
+                                    //음력 체크 돼있으면
+                                    if(add_lunar_chk.isChecked()){
+                                        int lunarMonth = Integer.parseInt(lunarBirth.substring(4,6));
+                                        int lunarDay = Integer.parseInt(lunarBirth.substring(6,8));
+                                        //알람 추가(양력)
+                                        mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,solarRequestCode,
+                                                name+"님의 생일이 ",solarRequestCode);
+                                        Log.d("Load requestCode in lu",String.valueOf(lunarRequestCode));
+                                        mainActivity.setNotice(now.getYear(),lunarMonth,lunarDay-2,lunarDay,0,0,lunarRequestCode,
+                                                name+"님의 음력 생일이 ",lunarRequestCode);
+                                    } else {
+                                        //알람 추가
+                                        mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,solarRequestCode,
+                                                name+"님의 생일이 ",solarRequestCode);
+                                    }
+
                                     Toast.makeText(getContext(),"추가 완료",Toast.LENGTH_SHORT).show();
                                     add_name_et.setText("");
                                     add_solar_birth_et.setText("");
@@ -226,9 +279,10 @@ public class AddItemFragment extends Fragment {
                             Log.e("오류", exceptionAsStrting);
                             e.printStackTrace();
                         }
+
                     }
                 };
-                ItemAddRequest itemAddRequest = new ItemAddRequest(id,group,name,solarBirth,lunarBirth,memo,1,gender,responseListener);
+                ItemAddRequest itemAddRequest = new ItemAddRequest(id,group,name,solarBirth,lunarBirth,memo,1,gender,RequestCodeData.getRequestCode(),responseListener);
                 RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
                 queue.add(itemAddRequest);
 
@@ -356,16 +410,21 @@ public class AddItemFragment extends Fragment {
 
         return arr;
     }
+
     public void loadTotalRequestCode(String url){
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
+
                     @Override
                     public void onResponse(String response) {
                         try {
+
                             JSONObject jsonObject = new JSONObject(response);
                             boolean success = jsonObject.getBoolean("success");
                             if(success){
                                 totalRequestCode = jsonObject.getInt("totalRequestCode");
+                                RequestCodeData.setRequestCode(totalRequestCode);
+                                Log.d("Load requestCode loadRe",String.valueOf(totalRequestCode));
                             } else {
                                 Log.d("Load requestCode1",String.valueOf(String.valueOf(success)));
                             }
@@ -376,21 +435,27 @@ public class AddItemFragment extends Fragment {
                             String exceptionAsStrting = sw.toString();
                             Log.e("Load request 오류", exceptionAsStrting);
                             e.printStackTrace();
-
                         }
                     }
+
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                }){
-
+                }
+                ){
+            @Override
+            public Request.Priority getPriority() {
+                return Priority.HIGH;
+            }
         };
         RequestQueue requestQueue= Volley.newRequestQueue(getActivity().getApplicationContext());
         //요청큐에 요청 객체 생성
         requestQueue.add(stringRequest);
 
+
     }
+
 }

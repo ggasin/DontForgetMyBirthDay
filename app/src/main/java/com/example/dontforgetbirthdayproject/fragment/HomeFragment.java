@@ -165,7 +165,7 @@ public class HomeFragment extends Fragment  {
                 groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
 
             }
-        },700);
+        },750);
 
 
 
