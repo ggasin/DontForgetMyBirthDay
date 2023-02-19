@@ -73,12 +73,14 @@ public class MyPageFragement extends Fragment {
         logoutTextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mainActivity.allCancelAlarm("http://dfmbd.ivyro.net/LoadItemDB.php","전체");
                 Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                 startActivity(intent);
                 SharedPreferences auto = mainActivity.getSharedPreferences("autoLogin", Activity.MODE_PRIVATE);
                 SharedPreferences.Editor editor = auto.edit();
                 editor.clear();
                 editor.commit();
+
                 Toast.makeText(getActivity().getApplicationContext(), "로그아웃", Toast.LENGTH_SHORT).show();
                 getActivity().finish();
             }

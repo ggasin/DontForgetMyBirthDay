@@ -50,6 +50,7 @@ import org.json.JSONObject;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -122,6 +123,11 @@ public class HomeFragment extends Fragment  {
 
 
         loadGroupFromDB(loadGroupURL);
+        Log.d("home first Login",String.valueOf(mainActivity.firstLogin));
+        if(mainActivity.firstLogin){
+            allAlarmStart(loadItemURL,"전체");
+            mainActivity.firstLogin=false;
+        }
 
 
 
@@ -137,6 +143,7 @@ public class HomeFragment extends Fragment  {
                 mainActivity.itemMemo = item.getTv_item_memo();
                 mainActivity.profile_id = item.getIv_profile();
                 mainActivity.itemClickPosition = position;
+                mainActivity.itemRequestCode = item.getItem_request_code();
                 mainActivity.onFragmentChange(2);
                 Log.d("아이템 클릭","클릭");
             }
@@ -214,8 +221,6 @@ public class HomeFragment extends Fragment  {
 
                                             }
                                         }).show();
-
-
                                 break;
                             case R.id.add_item_menu:
                                 mainActivity.onFragmentChange(1);
@@ -254,13 +259,14 @@ public class HomeFragment extends Fragment  {
                                     String group = jsonObject.getString("itemGroup");
                                     int is_alarm_on = jsonObject.getInt("itemAlarmOn");
                                     String gender = jsonObject.getString("itemGender");
+                                    int itemRequestCode = jsonObject.getInt("itemRequestCode");
 
                                     if(gender.equals("남")){
-                                        ItemData itemData= new ItemData(name, group,R.drawable.profile_man_icon,so_birth, lu_birth, memo, is_alarm_on,"",""); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
+                                        ItemData itemData= new ItemData(name, group,R.drawable.profile_man_icon,so_birth, lu_birth, memo, is_alarm_on,"","",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                                         itemList.add(itemData);
 
                                     } else {
-                                        ItemData itemData= new ItemData(name, group,R.drawable.profile_woman_icon,so_birth, lu_birth, memo, is_alarm_on,"",""); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
+                                        ItemData itemData= new ItemData(name, group,R.drawable.profile_woman_icon,so_birth, lu_birth, memo, is_alarm_on,"","",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                                         itemList.add(itemData);
 
                                     }
@@ -372,6 +378,69 @@ public class HomeFragment extends Fragment  {
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("itemId", mainActivity.userId);
+                return params;
+            }
+        };
+        //실제 요청 작업을 수행해주는 요청큐 객체 생성
+        RequestQueue requestQueue= Volley.newRequestQueue(getActivity().getApplicationContext());
+        //요청큐에 요청 객체 생성
+        requestQueue.add(request);
+        Log.d("로드디비2","ㄱ");
+    }
+    public void allAlarmStart(String url,String group){
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                url,
+                new Response.Listener<String>() {  //응답을 문자열로 받아서 여기다 넣어달란말임(응답을 성공적으로 받았을 떄 이메소드가 자동으로 호출됨
+                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @Override
+                    public void onResponse(String response) {
+                        itemList.clear();
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            itemRecyclerView.setAdapter(homeAdapter);
+                            LocalDate now = LocalDate.now();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                String name = jsonObject.getString("itemName"); //no가 문자열이라서 바꿔야함.
+                                String so_birth = jsonObject.getString("itemSolarBirth");
+                                String lu_birth = jsonObject.getString("itemLunarBirth");
+                                int itemRequestCode = jsonObject.getInt("itemRequestCode");
+                                if(lu_birth.equals("--")){
+                                    mainActivity.setNotice(now.getYear(),Integer.parseInt(so_birth.substring(4,6)),Integer.parseInt(so_birth.substring(6,8))-2
+                                            ,Integer.parseInt(so_birth.substring(6,8)),0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
+
+                                } else {
+                                    mainActivity.setNotice(now.getYear(),Integer.parseInt(so_birth.substring(4,6)),Integer.parseInt(so_birth.substring(6,8))-2
+                                            ,Integer.parseInt(so_birth.substring(6,8)),0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
+                                    mainActivity.setNotice(now.getYear(),Integer.parseInt(lu_birth.substring(4,6)),Integer.parseInt(lu_birth.substring(6,8))-2
+                                            ,Integer.parseInt(lu_birth.substring(6,8)),0,0,itemRequestCode+1,name+"님의 음력생일",itemRequestCode+1);
+                                }
+
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener(){ //에러발생시 호출될 리스너 객체
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getActivity().getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+        ){
+            //만약 POST 방식에서 전달할 요청 파라미터가 있다면 getParams 메소드에서 반환하는 HashMap 객체에 넣어줍니다.
+            //이렇게 만든 요청 객체는 요청 큐에 넣어주는 것만 해주면 됩니다.
+            //POST방식으로 안할거면 없어도 되는거같다.
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("itemId", mainActivity.userId);
+                params.put("itemGroup",group);
+                Log.d("아이템아이디",mainActivity.userId);
                 return params;
             }
         };

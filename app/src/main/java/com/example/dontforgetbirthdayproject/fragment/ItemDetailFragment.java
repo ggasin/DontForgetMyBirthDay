@@ -52,6 +52,7 @@ public class ItemDetailFragment extends Fragment {
     private Button itemDetailCompleteBtn,itemDetailCalcelBtn;
     private LinearLayout itemDetailBtnLy;
     private ImageView itemDetailProfile;
+    int requestCode;
 
     boolean isValidBirth = false;
     //onAttach 는 fragment가 activity에 올라온 순간
@@ -108,6 +109,8 @@ public class ItemDetailFragment extends Fragment {
         itemDetailGroup.setText(mainActivity.itemGroup);
         itemDetailSolar.setText(mainActivity.itemSolarBirth);
         itemDetailLunar.setText(mainActivity.itemlunarBirth);
+        requestCode = mainActivity.itemRequestCode;
+        Log.d("itemRequestCode",String.valueOf(mainActivity.itemRequestCode));
 
         itemDetailMemoLy.setBackgroundResource(R.drawable.memo_cant_edit_border);//배경색 설정
         itemDetailMemo.setEnabled(false);
@@ -136,6 +139,7 @@ public class ItemDetailFragment extends Fragment {
                                             boolean success = jsonObject.getBoolean("success");
                                             if (success) {
                                                 Toast.makeText(getContext(), "삭제 완료", Toast.LENGTH_SHORT).show();
+                                                mainActivity.cancelAlarm(requestCode);
                                                 editModeOff();
                                                 mainActivity.onFragmentChange(0);
 

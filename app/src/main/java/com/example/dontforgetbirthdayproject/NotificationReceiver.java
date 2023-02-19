@@ -87,8 +87,13 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         LocalDate now = LocalDate.now(); //현재 날짜 가져오기
         int dday = day-alarmStartDay; //생일 날짜 - 현재날 해서 생일로부터 남은 날 계산
-        //알림창 제목
-        builder.setContentTitle(contentValue+dday+"일 남았습니다."); //회의명노출
+        if(dday>0){
+            //알림창 제목
+            builder.setContentTitle(contentValue+"이 "+dday+"일 남았습니다."); //회의명노출
+        } else {
+            builder.setContentTitle(contentValue+"입니다! 축하해주세요!"); //회의명노출
+        }
+
         //builder.setContentText(intent.getStringExtra("content")); //회의 내용
         //알림창 아이콘
         builder.setSmallIcon(R.drawable.cake_alarm_icon);

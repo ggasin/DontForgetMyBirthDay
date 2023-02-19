@@ -19,6 +19,11 @@ import android.view.MenuItem;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.example.dontforgetbirthdayproject.fragment.AddItemFragment;
 import com.example.dontforgetbirthdayproject.BackKeyHandler;
 import com.example.dontforgetbirthdayproject.fragment.CalendarFragment;
@@ -29,6 +34,9 @@ import com.example.dontforgetbirthdayproject.NotificationReceiver;
 import com.example.dontforgetbirthdayproject.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -39,6 +47,8 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     // 뒤로가기 이벤트 핸들러 변수
@@ -57,15 +67,16 @@ public class MainActivity extends AppCompatActivity {
     private CalendarFragment fragmentCalendar = new CalendarFragment();
     private RadioButton mpAlarmOne, mpAlarmThree, mpAlarmSeven;
     public String userId,selectedGroup,itemName,itemSolarBirth,itemlunarBirth,itemMemo,itemGroup;
-    public int itemClickPosition;
+    public int itemClickPosition,itemRequestCode;
     public int profile_id;
     public static boolean isPushAlarmSend = false;
+    public boolean firstLogin = false;
     //현재 시간,분 변수선언
     int currHour, currMinute;
     //시스템에서 알람 서비스를 제공하도록 도와주는 클래스
     //특정 시점에 알람이 울리도록 도와준다
-    private AlarmManager alarmManager;
-
+    public static AlarmManager alarmManager;
+    public static PendingIntent pendingIntent;
 
 
     @Override
@@ -93,7 +104,8 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(notificationReceiver,new IntentFilter("INTERNET_LOST"));
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("INTERNET_LOST");
-
+        firstLogin = intent.getBooleanExtra("firstLogin",false);
+        Log.d("first Login",String.valueOf(firstLogin));
     }
     //푸시알림이 울리고 난 뒤 액션을 받고나서 실행되는 부분. setNotice 실행
     BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
@@ -181,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
          * 이전 알람을 취소시키지 않으려면 requestCode를 다르게 줘야 한다.
          * */
 
-        PendingIntent pendingIntent;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             pendingIntent = PendingIntent.getBroadcast(this, requestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
         } else {
@@ -209,8 +221,65 @@ public class MainActivity extends AppCompatActivity {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-
         }
+    }
+    public void cancelAlarm(int requestCode){
+        Intent receiverIntent = new Intent(this, NotificationReceiver.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getBroadcast(this, requestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        } else {
+            pendingIntent = PendingIntent.getBroadcast(this, requestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+        alarmManager.cancel(pendingIntent);
+        pendingIntent.cancel();
+    }
+    public void allCancelAlarm(String url , String group){
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                url,
+                new Response.Listener<String>() {  //응답을 문자열로 받아서 여기다 넣어달란말임(응답을 성공적으로 받았을 떄 이메소드가 자동으로 호출됨
+                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            LocalDate now = LocalDate.now();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                String lu_birth = jsonObject.getString("itemLunarBirth");
+                                int itemRequestCode = jsonObject.getInt("itemRequestCode");
+                                if(lu_birth.equals("--")){
+                                    cancelAlarm(itemRequestCode);
+                                    cancelAlarm(itemRequestCode+1);
+                                } else {
+                                    cancelAlarm(itemRequestCode);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener(){ //에러발생시 호출될 리스너 객체
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+        ){
+            //만약 POST 방식에서 전달할 요청 파라미터가 있다면 getParams 메소드에서 반환하는 HashMap 객체에 넣어줍니다.
+            //이렇게 만든 요청 객체는 요청 큐에 넣어주는 것만 해주면 됩니다.
+            //POST방식으로 안할거면 없어도 되는거같다.
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("itemId", userId);
+                params.put("itemGroup",group);
+                Log.d("아이템아이디",userId);
+                return params;
+            }
+        };
     }
 
 

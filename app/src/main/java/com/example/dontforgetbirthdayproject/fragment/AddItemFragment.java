@@ -63,7 +63,7 @@ public class AddItemFragment extends Fragment {
     private RadioButton addGenderMan,addGenderWoman;
     private RadioGroup addGenderGroup;
 
-    private int totalRequestCode;
+    private int userRequestCode;
     static int solarRequestCode;
     static int lunarRequestCode;
 
@@ -149,17 +149,17 @@ public class AddItemFragment extends Fragment {
                         //30일이 끝인 달은 생일이 30일보다 작아야 유효하다
                         if(solarBirthMonth==4 && solarBirthMonth==6 && solarBirthMonth==9 && solarBirthMonth==11 ){
                             if(solarBirthDay>=1 && solarBirthDay<=30){
-                                isValidBirth = true;
+                                ifSolarValidLoadRequestCode();
                             }
                         } else if(solarBirthMonth == 2){
                             //생일이 2월인데 윤년이면 29일까지 허용
                             if( ((solarBirthYear%4==0 && solarBirthYear %100 !=0)||solarBirthYear % 400==0) && (solarBirthDay<=29 && solarBirthDay>=1)){
-                                isValidBirth = true;
+                                ifSolarValidLoadRequestCode();
                             } else if(solarBirthDay<=28) {
-                                isValidBirth = true;
+                                ifSolarValidLoadRequestCode();
                             }
                         } else if(solarBirthDay<=31 && solarBirthDay>=1){
-                            isValidBirth = true;
+                            ifSolarValidLoadRequestCode();
                         }
 
                     } else {
@@ -184,6 +184,8 @@ public class AddItemFragment extends Fragment {
                                 ArrayList<String> lunarArr = getLunar(solarBirth.substring(0,4),solarBirth.substring(4,6),solarBirth.substring(6,8));
                                 ArrayList<String> solarArr = getSolar(String.valueOf(now.getYear()),lunarArr.get(1),lunarArr.get(0));
                                 lunarBirth = solarArr.get(2)+solarArr.get(1)+solarArr.get(0);
+                                lunarRequestCode = solarRequestCode+1;
+                                loadTotalRequestCode(requestCodeURL); //db에 있는 requestCode도 +1하기위해
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 lunarBirth = "&&";
@@ -193,9 +195,11 @@ public class AddItemFragment extends Fragment {
                     }).start();
                 } else if(isChecked && !isValidBirth) {
                     add_lunar_chk.setChecked(false);
+
                     Toast.makeText(getContext(), "양력을 제대로 입력했는지 확인해주세요", Toast.LENGTH_SHORT).show();
                 } else {
                     lunarBirth = "--";
+
                 }
             }
         });
@@ -209,17 +213,15 @@ public class AddItemFragment extends Fragment {
                 String name = add_name_et.getText().toString();
                 String group = add_group_t.getText().toString();
                 String memo = add_memo_et.getText().toString() ;
-
-                    if (add_lunar_chk.isChecked()) {
-                        loadTotalRequestCode(requestCodeURL);
-                        solarRequestCode = RequestCodeData.getRequestCode();
-                        loadTotalRequestCode(requestCodeURL);
-                        lunarRequestCode = solarRequestCode+1;
-                    } else {
-                        loadTotalRequestCode(requestCodeURL);
-                        solarRequestCode = RequestCodeData.getRequestCode();
-                    }
-
+                if(!add_lunar_chk.isChecked()){
+                    solarRequestCode = RequestCodeData.getRequestCode();
+                    Log.d("Load reCode in soValid",String.valueOf(solarRequestCode));
+                } else {
+                    solarRequestCode = RequestCodeData.getRequestCode();
+                    Log.d("Load reCode in soValid",String.valueOf(solarRequestCode));
+                    lunarRequestCode = solarRequestCode+1;
+                    loadTotalRequestCode(requestCodeURL);
+                }
 
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
@@ -240,14 +242,14 @@ public class AddItemFragment extends Fragment {
                                         int lunarDay = Integer.parseInt(lunarBirth.substring(6,8));
                                         //알람 추가(양력)
                                         mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,solarRequestCode,
-                                                name+"님의 생일이 ",solarRequestCode);
+                                                name+"님의 생일",solarRequestCode);
                                         Log.d("Load requestCode in lu",String.valueOf(lunarRequestCode));
                                         mainActivity.setNotice(now.getYear(),lunarMonth,lunarDay-2,lunarDay,0,0,lunarRequestCode,
-                                                name+"님의 음력 생일이 ",lunarRequestCode);
+                                                name+"님의 음력 생일",lunarRequestCode);
                                     } else {
                                         //알람 추가
                                         mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,solarRequestCode,
-                                                name+"님의 생일이 ",solarRequestCode);
+                                                name+"님의 생일",solarRequestCode);
                                     }
 
                                     Toast.makeText(getContext(),"추가 완료",Toast.LENGTH_SHORT).show();
@@ -410,25 +412,25 @@ public class AddItemFragment extends Fragment {
 
         return arr;
     }
-
+    public void ifSolarValidLoadRequestCode(){
+        isValidBirth = true;
+        loadTotalRequestCode(requestCodeURL);
+    }
     public void loadTotalRequestCode(String url){
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
-
                     @Override
                     public void onResponse(String response) {
                         try {
-
                             JSONObject jsonObject = new JSONObject(response);
                             boolean success = jsonObject.getBoolean("success");
                             if(success){
-                                totalRequestCode = jsonObject.getInt("totalRequestCode");
-                                RequestCodeData.setRequestCode(totalRequestCode);
-                                Log.d("Load requestCode loadRe",String.valueOf(totalRequestCode));
+                                userRequestCode = jsonObject.getInt("userRequestCode");
+                                RequestCodeData.setRequestCode(userRequestCode);
+                                Log.d("Load requestCode loadRe",String.valueOf(userRequestCode));
                             } else {
                                 Log.d("Load requestCode1",String.valueOf(String.valueOf(success)));
                             }
-
                         } catch (JSONException e) {
                             StringWriter sw = new StringWriter();
                             e.printStackTrace(new PrintWriter(sw));
@@ -437,7 +439,6 @@ public class AddItemFragment extends Fragment {
                             e.printStackTrace();
                         }
                     }
-
                 },
                 new Response.ErrorListener() {
                     @Override
@@ -446,9 +447,15 @@ public class AddItemFragment extends Fragment {
                     }
                 }
                 ){
+            //만약 POST 방식에서 전달할 요청 파라미터가 있다면 getParams 메소드에서 반환하는 HashMap 객체에 넣어줍니다.
+            //이렇게 만든 요청 객체는 요청 큐에 넣어주는 것만 해주면 됩니다.
+            //POST방식으로 안할거면 없어도 되는거같다.
             @Override
-            public Request.Priority getPriority() {
-                return Priority.HIGH;
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("userId", mainActivity.userId);
+                Log.d("userId in Additem",mainActivity.userId);
+                return params;
             }
         };
         RequestQueue requestQueue= Volley.newRequestQueue(getActivity().getApplicationContext());
@@ -457,5 +464,6 @@ public class AddItemFragment extends Fragment {
 
 
     }
+
 
 }

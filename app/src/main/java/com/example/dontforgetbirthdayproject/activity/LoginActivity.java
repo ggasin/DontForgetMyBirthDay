@@ -36,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginBtn;
     private TextView goJoinBtn;
     private EditText et_id,et_pwd;
-    private CheckBox auto_login_btn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         goJoinBtn = findViewById(R.id.go_join_text_btn);
         et_id = findViewById(R.id.login_edit_id);
         et_pwd = findViewById(R.id.login_edit_pwd);
-        auto_login_btn = findViewById(R.id.auto_login_btn);
+
         //로그인 버튼 이벤트
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,14 +63,12 @@ public class LoginActivity extends AppCompatActivity {
                             boolean success = jsonObject.getBoolean("success");
                             if(!et_id.getText().toString().equals("") && !et_pwd.getText().toString().equals("")){ //공백이 아니면
                                 if(success){
-                                    if(auto_login_btn.isChecked()){
-                                        SharedPreferences auto = getSharedPreferences("autoLogin", Activity.MODE_PRIVATE);
-                                        SharedPreferences.Editor autoLoginEdit = auto.edit();
-                                        autoLoginEdit.putString("userID", userID);
-                                        autoLoginEdit.putString("userPwd", userPwd);
-                                        autoLoginEdit.commit();
-                                        Log.d("userName",jsonObject.getString("userName"));
-                                    }
+                                    SharedPreferences auto = getSharedPreferences("autoLogin", Activity.MODE_PRIVATE);
+                                    SharedPreferences.Editor autoLoginEdit = auto.edit();
+                                    autoLoginEdit.putString("userID", userID);
+                                    autoLoginEdit.putString("userPwd", userPwd);
+                                    autoLoginEdit.commit();
+                                    Log.d("userName",jsonObject.getString("userName"));
                                     String UserID = jsonObject.getString("userID");
                                     String UserPwd = jsonObject.getString("userPassword");
                                     Log.d("userName",jsonObject.getString("userName"));
@@ -78,6 +76,7 @@ public class LoginActivity extends AppCompatActivity {
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                     intent.putExtra("userId",userID);
                                     intent.putExtra("userPwd",userPwd);
+                                    intent.putExtra("firstLogin",true);
                                     startActivity(intent);
 
                                 } else{
