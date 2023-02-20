@@ -21,9 +21,11 @@ import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.dontforgetbirthdayproject.fragment.AddItemFragment;
 import com.example.dontforgetbirthdayproject.BackKeyHandler;
 import com.example.dontforgetbirthdayproject.fragment.CalendarFragment;
@@ -224,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void cancelAlarm(int requestCode){
+        Log.d("all cancel success2","cancel");
         Intent receiverIntent = new Intent(this, NotificationReceiver.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             pendingIntent = PendingIntent.getBroadcast(this, requestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
@@ -232,8 +235,10 @@ public class MainActivity extends AppCompatActivity {
         }
         alarmManager.cancel(pendingIntent);
         pendingIntent.cancel();
+
     }
     public void allCancelAlarm(String url , String group){
+        Log.d("all cancel success3","cancel");
         StringRequest request = new StringRequest(
                 Request.Method.POST,
                 url,
@@ -251,8 +256,10 @@ public class MainActivity extends AppCompatActivity {
                                 if(lu_birth.equals("--")){
                                     cancelAlarm(itemRequestCode);
                                     cancelAlarm(itemRequestCode+1);
+                                    Log.d("all cancel success","cancel");
                                 } else {
                                     cancelAlarm(itemRequestCode);
+                                    Log.d("all cancel success1","cancel");
                                 }
                             }
                         } catch (JSONException e) {
@@ -280,6 +287,10 @@ public class MainActivity extends AppCompatActivity {
                 return params;
             }
         };
+        //실제 요청 작업을 수행해주는 요청큐 객체 생성
+        RequestQueue requestQueue= Volley.newRequestQueue(getApplicationContext());
+        //요청큐에 요청 객체 생성
+        requestQueue.add(request);
     }
 
 

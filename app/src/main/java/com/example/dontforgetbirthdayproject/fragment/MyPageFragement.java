@@ -73,6 +73,7 @@ public class MyPageFragement extends Fragment {
         logoutTextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //로그아웃하면 알람 울리지 않도록 모든 알람 끄기
                 mainActivity.allCancelAlarm("http://dfmbd.ivyro.net/LoadItemDB.php","전체");
                 Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                 startActivity(intent);

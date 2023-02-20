@@ -87,6 +87,7 @@
                 android:id="@+id/item_detail_edit_name"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
                 android:hint="이름"
                 android:visibility="gone" />
 

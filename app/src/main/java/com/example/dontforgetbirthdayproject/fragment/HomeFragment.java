@@ -35,6 +35,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.dontforgetbirthdayproject.GetGroupPositionListener;
+import com.example.dontforgetbirthdayproject.OnGroupLongClickListener;
 import com.example.dontforgetbirthdayproject.adapter.GroupAdapter;
 import com.example.dontforgetbirthdayproject.request.GroupAddRequest;
 import com.example.dontforgetbirthdayproject.data.GroupData;
@@ -43,6 +44,8 @@ import com.example.dontforgetbirthdayproject.data.ItemData;
 import com.example.dontforgetbirthdayproject.OnItemClickListener;
 import com.example.dontforgetbirthdayproject.R;
 import com.example.dontforgetbirthdayproject.activity.MainActivity;
+import com.example.dontforgetbirthdayproject.request.GroupDeleteRequest;
+import com.example.dontforgetbirthdayproject.request.ItemDeleteRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -120,10 +123,10 @@ public class HomeFragment extends Fragment  {
 
 
         //db로부터 데이터를 가져와 recyclerView에 바인딩
-
-
         loadGroupFromDB(loadGroupURL);
+
         Log.d("home first Login",String.valueOf(mainActivity.firstLogin));
+        //로그인을 처음 한 상태라면 로그아웃때 다 취소한 알람을 다시 설정해야함.
         if(mainActivity.firstLogin){
             allAlarmStart(loadItemURL,"전체");
             mainActivity.firstLogin=false;
@@ -149,6 +152,7 @@ public class HomeFragment extends Fragment  {
             }
         });
 
+
         groupAdapter.setOnGroupClicklistener(new GetGroupPositionListener() {
             @Override
             public void getGroupPosition(int position) {
@@ -173,8 +177,66 @@ public class HomeFragment extends Fragment  {
 
             }
         },750);
-
-
+        //그룹 꾹 누르면 삭제 다이얼로그 나옴.
+        groupAdapter.setOnGroupLongCLickListener(new OnGroupLongClickListener() {
+            @Override
+            public void onGroupLongClick(GroupAdapter.CustomViewHolder holder, View view, int position) {
+                Log.d("group LongCLick",groupAdapter.getItem(position).getGroup());
+                String group = groupAdapter.getItem(position).getGroup();
+                if(groupAdapter.getItem(position).getGroup().equals("전체")){
+                    Toast.makeText(getContext(),"전체 그룹은 삭제할 수 없습니다.",Toast.LENGTH_SHORT).show();
+                } else {
+                    //안전을 위해서 다이얼로그 추가
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("정말 삭제하시겠습니까?\n그룹 내 데이터는 모두 삭제됩니다.")
+                            .setPositiveButton("네", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    mainActivity.allCancelAlarm("http://dfmbd.ivyro.net/LoadItemDB.php",group);
+                                    groupAdapter.remove(position);
+                                    Handler handler = new Handler();
+                                    handler.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Response.Listener<String> responseListener = new Response.Listener<String>() {
+                                                @Override
+                                                public void onResponse(String response) {
+                                                    try {
+                                                        JSONObject jsonObject = new JSONObject(response);
+                                                        boolean success = jsonObject.getBoolean("success");
+                                                        if (success) {
+                                                            Toast.makeText(getContext(), "삭제 완료", Toast.LENGTH_SHORT).show();
+                                                            groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
+                                                        } else {
+                                                            Toast.makeText(getContext(), "삭제 실패.", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    } catch (JSONException e) {
+                                                        Toast.makeText(getContext(), "삭제 오류", Toast.LENGTH_SHORT).show();
+                                                        StringWriter sw = new StringWriter();
+                                                        e.printStackTrace(new PrintWriter(sw));
+                                                        String exceptionAsStrting = sw.toString();
+                                                        Log.e("삭제 오류", exceptionAsStrting);
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            };
+                                            Log.d("group LongCLick1", String.valueOf(position));
+                                            GroupDeleteRequest groupDeleteRequest = new GroupDeleteRequest(mainActivity.userId, group, responseListener);
+                                            RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
+                                            queue.add(groupDeleteRequest);
+                                        }
+                                    },700);
+                                }
+                            })
+                            .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Log.d("Item delete event", "cancel");
+                                }
+                            }).show();
+                }
+            }
+        });
 
 
         //추가 아이콘 클릭 이벤트
@@ -406,15 +468,32 @@ public class HomeFragment extends Fragment  {
                                 String so_birth = jsonObject.getString("itemSolarBirth");
                                 String lu_birth = jsonObject.getString("itemLunarBirth");
                                 int itemRequestCode = jsonObject.getInt("itemRequestCode");
-                                if(lu_birth.equals("--")){
-                                    mainActivity.setNotice(now.getYear(),Integer.parseInt(so_birth.substring(4,6)),Integer.parseInt(so_birth.substring(6,8))-2
-                                            ,Integer.parseInt(so_birth.substring(6,8)),0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
+                                int month = Integer.parseInt(so_birth.substring(4,6));
+                                int day = Integer.parseInt(so_birth.substring(6,8));
 
+                                if(lu_birth.equals("--")){ //음력을 설정 안했다면 양력생일만 알림설정
+                                    //생일이 이미 지났다면 다음년도로 알림설정
+                                    if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
+                                        mainActivity.setNotice(now.getYear()+1,month,day-2
+                                                ,day,0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
+                                    } else {
+                                        mainActivity.setNotice(now.getYear(),month,day-2
+                                                ,day,0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
+                                    }
                                 } else {
-                                    mainActivity.setNotice(now.getYear(),Integer.parseInt(so_birth.substring(4,6)),Integer.parseInt(so_birth.substring(6,8))-2
-                                            ,Integer.parseInt(so_birth.substring(6,8)),0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
-                                    mainActivity.setNotice(now.getYear(),Integer.parseInt(lu_birth.substring(4,6)),Integer.parseInt(lu_birth.substring(6,8))-2
-                                            ,Integer.parseInt(lu_birth.substring(6,8)),0,0,itemRequestCode+1,name+"님의 음력생일",itemRequestCode+1);
+                                    int lunarMonth = Integer.parseInt(lu_birth.substring(4,6));
+                                    int lunarDay = Integer.parseInt(lu_birth.substring(6,8));
+                                    if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)) {
+                                        mainActivity.setNotice(now.getYear()+1, month, day - 2
+                                                , day, 0, 0, itemRequestCode, name + "님의 생일", itemRequestCode);
+                                        mainActivity.setNotice(now.getYear()+1, lunarMonth, lunarDay - 2
+                                                , lunarDay, 0, 0, itemRequestCode + 1, name + "님의 음력생일", itemRequestCode + 1);
+                                    } else {
+                                        mainActivity.setNotice(now.getYear(), month, day - 2
+                                                , day, 0, 0, itemRequestCode, name + "님의 생일", itemRequestCode);
+                                        mainActivity.setNotice(now.getYear(), lunarMonth, lunarDay - 2
+                                                , lunarDay, 0, 0, itemRequestCode + 1, name + "님의 음력생일", itemRequestCode + 1);
+                                    }
                                 }
 
 

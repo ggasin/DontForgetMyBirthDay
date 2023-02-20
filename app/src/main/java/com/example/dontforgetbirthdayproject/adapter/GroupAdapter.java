@@ -12,18 +12,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dontforgetbirthdayproject.GetGroupPositionListener;
+import com.example.dontforgetbirthdayproject.OnGroupLongClickListener;
 import com.example.dontforgetbirthdayproject.data.GroupData;
 import com.example.dontforgetbirthdayproject.R;
 
 import java.util.ArrayList;
 
-public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHolder> implements GetGroupPositionListener {
+public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHolder> implements GetGroupPositionListener,OnGroupLongClickListener{
 
     private Context context;
     private ArrayList<GroupData> arrayList;
     GetGroupPositionListener listener;
+    OnGroupLongClickListener groupLongClickListener;
     private int selectedItemPosition = -1;
-    boolean firstBind = true;
+
 
 
     public GroupAdapter(Context context,ArrayList<GroupData> arrayList) {
@@ -37,9 +39,6 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
     public CustomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.group_recycler_item,parent,false);
         CustomViewHolder holder = new CustomViewHolder(view);
-
-
-
         return holder;
     }
 
@@ -61,6 +60,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
                 notifyDataSetChanged();
             }
         });
+
 
     }
 
@@ -87,10 +87,20 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
             listener.getGroupPosition(position);
         }
     }
+    public void setOnGroupLongCLickListener(OnGroupLongClickListener groupLongClickListener){
+        this.groupLongClickListener = groupLongClickListener;
+    }
+    @Override
+    public void onGroupLongClick(GroupAdapter.CustomViewHolder holder, View view, int position){
+        if(groupLongClickListener != null){
+            groupLongClickListener.onGroupLongClick(holder,view,position);
+        }
+    }
 
     public GroupData getItem(int position){
         return arrayList.get(position);
     }
+
 
 
 
@@ -102,6 +112,17 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
 
             this.tv_group = (TextView)itemView.findViewById(R.id.group_recycler_group);
             this.groupLayout = (LinearLayout) itemView.findViewById(R.id.group_recycler_ly);
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    int position = getBindingAdapterPosition() ;
+                    if(groupLongClickListener != null){
+                        groupLongClickListener.onGroupLongClick(GroupAdapter.CustomViewHolder.this, view, position);
+                    }
+                    return true;
+                }
+            });
 
         }
     }

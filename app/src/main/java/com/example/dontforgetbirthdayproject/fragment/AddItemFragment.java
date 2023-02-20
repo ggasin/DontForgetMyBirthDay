@@ -240,16 +240,29 @@ public class AddItemFragment extends Fragment {
                                     if(add_lunar_chk.isChecked()){
                                         int lunarMonth = Integer.parseInt(lunarBirth.substring(4,6));
                                         int lunarDay = Integer.parseInt(lunarBirth.substring(6,8));
-                                        //알람 추가(양력)
-                                        mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,solarRequestCode,
-                                                name+"님의 생일",solarRequestCode);
-                                        Log.d("Load requestCode in lu",String.valueOf(lunarRequestCode));
-                                        mainActivity.setNotice(now.getYear(),lunarMonth,lunarDay-2,lunarDay,0,0,lunarRequestCode,
-                                                name+"님의 음력 생일",lunarRequestCode);
+                                        //추가하는 생일이 이미 지났다면 내년 생일 알림으로 등록
+                                        if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
+                                            //알람 추가(양력)
+                                            mainActivity.setNotice(now.getYear()+1,month,day-2,day,0,0,solarRequestCode,
+                                                    name+"님의 생일",solarRequestCode);
+                                            Log.d("Load requestCode in lu",String.valueOf(lunarRequestCode));
+                                            mainActivity.setNotice(now.getYear()+1,lunarMonth,lunarDay-2,lunarDay,0,0,lunarRequestCode,
+                                                    name+"님의 음력 생일",lunarRequestCode);
+                                        } else {
+                                            //알람 추가(양력)
+                                            mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,solarRequestCode,
+                                                    name+"님의 생일",solarRequestCode);
+                                        }
                                     } else {
-                                        //알람 추가
-                                        mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,solarRequestCode,
-                                                name+"님의 생일",solarRequestCode);
+                                        if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
+                                            //알람 추가(양력)
+                                            mainActivity.setNotice(now.getYear()+1,month,day-2,day,0,0,solarRequestCode,
+                                                    name+"님의 생일",solarRequestCode);
+                                        } else {
+                                            //알람 추가(양력)
+                                            mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,solarRequestCode,
+                                                    name+"님의 생일",solarRequestCode);
+                                        }
                                     }
 
                                     Toast.makeText(getContext(),"추가 완료",Toast.LENGTH_SHORT).show();

@@ -139,7 +139,7 @@ public class ItemDetailFragment extends Fragment {
                                             boolean success = jsonObject.getBoolean("success");
                                             if (success) {
                                                 Toast.makeText(getContext(), "삭제 완료", Toast.LENGTH_SHORT).show();
-                                                mainActivity.cancelAlarm(requestCode);
+                                                mainActivity.cancelAlarm(requestCode); //삭제된 아이템의 알림을 삭제
                                                 editModeOff();
                                                 mainActivity.onFragmentChange(0);
 
