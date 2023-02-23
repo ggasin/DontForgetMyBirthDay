@@ -44,7 +44,10 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     implementation 'com.android.volley:volley:1.2.1' //서버통신을 위한 라이브러리
-    implementation 'com.github.bumptech.glide:glide:4.10.0' // gif 파일을 사용하기 위한 라이브러리
+    implementation 'com.github.bumptech.glide:glide:4.10.0'// gif 파일을 사용하기 위한 라이브러리
+    implementation files('libs\\activation.jar')
+    implementation files('libs\\additionnal.jar')
+    implementation files('libs\\mail.jar')
     annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0' //gif 파일을 사용하기 위한 라이브러리
     implementation 'androidx.drawerlayout:drawerlayout:1.1.1' //사이드 네비게이션 바
     implementation 'com.google.android.material:material:1.0.0-rc01' // 메뉴 디자인

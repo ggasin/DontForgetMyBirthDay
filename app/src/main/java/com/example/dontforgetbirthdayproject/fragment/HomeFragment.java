@@ -177,6 +177,8 @@ public class HomeFragment extends Fragment  {
 
             }
         },750);
+
+
         //그룹 꾹 누르면 삭제 다이얼로그 나옴.
         groupAdapter.setOnGroupLongCLickListener(new OnGroupLongClickListener() {
             @Override

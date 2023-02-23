@@ -6,4 +6,11 @@
         android:font="@font/gmarket_sans_ttf_medium"
         >
     </font>
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="700"
+        android:font="@font/gmarket_sans_ttf_bold"
+        >
+    </font>
+
 </font-family>

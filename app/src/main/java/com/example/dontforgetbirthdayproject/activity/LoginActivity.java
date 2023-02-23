@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private Button loginBtn;
-    private TextView goJoinBtn;
+    private TextView goJoinBtn,goFindIdPwdBtn;
     private EditText et_id,et_pwd;
 
     @Override
@@ -47,6 +47,15 @@ public class LoginActivity extends AppCompatActivity {
         goJoinBtn = findViewById(R.id.go_join_text_btn);
         et_id = findViewById(R.id.login_edit_id);
         et_pwd = findViewById(R.id.login_edit_pwd);
+        goFindIdPwdBtn = findViewById(R.id.go_find_id_pwd_text_btn);
+
+        goFindIdPwdBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(LoginActivity.this, FindIdPwdActivity.class);
+                startActivity(intent);
+            }
+        });
 
         //로그인 버튼 이벤트
         loginBtn.setOnClickListener(new View.OnClickListener() {

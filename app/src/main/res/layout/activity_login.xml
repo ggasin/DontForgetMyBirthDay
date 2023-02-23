@@ -54,10 +54,11 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/findIdPwd_text_btn"
+        android:id="@+id/go_find_id_pwd_text_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
+        android:clickable="true"
         android:text="아이디/비밀번호 찾기"
         android:textSize="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
