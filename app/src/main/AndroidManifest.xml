@@ -25,7 +25,10 @@
             android:name=".activity.MainActivity"
             android:exported="true"></activity>
         <activity
-            android:name=".activity.FindIdPwdActivity"
+            android:name=".activity.FindIdActivity"
+            android:exported="true"></activity>
+        <activity
+            android:name=".activity.FindPwdActivity"
             android:exported="true"></activity>
         <activity
             android:name=".activity.SplashActivity"

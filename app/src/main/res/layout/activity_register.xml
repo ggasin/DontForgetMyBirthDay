@@ -8,7 +8,7 @@
     tools:context=".activity.RegisterActivity">
 
     <LinearLayout
-        android:id="@+id/rg_check_pwd_layout"
+        android:id="@+id/rg_check_pwd_ly"
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:layout_marginTop="30dp"
@@ -27,7 +27,7 @@
             app:passwordToggleEnabled="true">
 
             <EditText
-                android:id="@+id/rg_edit_check_pwd"
+                android:id="@+id/rg_check_pwd_et"
                 android:layout_width="300dp"
                 android:layout_height="50dp"
                 android:background="@android:color/transparent"
@@ -39,10 +39,10 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/rg_title"
+        android:id="@+id/rg_title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="130dp"
+        android:layout_marginTop="40dp"
         android:text="회원가입"
         android:textColor="@color/title_blue"
         android:textSize="50dp"
@@ -71,7 +71,7 @@
             android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/rg_edit_id"
+                android:id="@+id/rg_id_et"
                 android:layout_width="210dp"
                 android:layout_height="50dp"
                 android:background="@android:color/transparent"
@@ -98,15 +98,15 @@
         android:id="@+id/rg_join_btn"
         android:layout_width="200dp"
         android:layout_height="60dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginTop="30dp"
         android:background="@drawable/button_back"
         android:text="가입하기"
         android:textColor="@color/white"
         android:textSize="20dp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rg_check_pwd_ly" />
 
     <LinearLayout
         android:id="@+id/rg_pwd_validation_ly"
@@ -131,16 +131,16 @@
         android:id="@+id/rg_edit_nickname_ly"
         android:layout_width="350dp"
         android:layout_height="50dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="50dp"
         android:background="@drawable/edit_border"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_title">
+        app:layout_constraintTop_toBottomOf="@+id/rg_title_text">
 
         <EditText
-            android:id="@+id/rg_edit_nickname"
+            android:id="@+id/rg_nickname_et"
             android:layout_width="300dp"
             android:layout_height="50dp"
             android:background="@android:color/transparent"
@@ -151,27 +151,92 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/rg_edit_email_ly"
+        android:id="@+id/rg_email_ly"
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:layout_marginTop="30dp"
-        android:background="@drawable/edit_border"
-        android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rg_id_ly">
 
-        <EditText
-            android:id="@+id/rg_edit_email"
-            android:layout_width="300dp"
+        <LinearLayout
+            android:id="@+id/rg_edit_email_ly"
+            android:layout_width="260dp"
             android:layout_height="50dp"
-            android:background="@android:color/transparent"
-            android:hint="이메일"
-            android:inputType="textEmailAddress"
-            android:textSize="15dp">
+            android:background="@drawable/edit_border"
+            android:gravity="center"
+            android:orientation="horizontal">
 
-        </EditText>
+            <EditText
+                android:id="@+id/rg_email_et"
+                android:layout_width="210dp"
+                android:layout_height="50dp"
+                android:background="@android:color/transparent"
+                android:hint="이메일"
+                android:inputType="textEmailAddress"
+                android:textSize="15dp">
+
+            </EditText>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/rg_send_email_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_back"
+            android:text="인 증"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rg_email_certification_ly"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rg_email_ly">
+
+        <LinearLayout
+            android:id="@+id/rg_edit_email_certification_ly"
+            android:layout_width="260dp"
+            android:layout_height="50dp"
+            android:background="@drawable/edit_border"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/rg_email_certification_et"
+                android:layout_width="210dp"
+                android:layout_height="50dp"
+                android:background="@android:color/transparent"
+                android:hint="인증번호"
+                android:inputType="textEmailAddress"
+                android:textSize="15dp">
+
+            </EditText>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/rg_certification_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_back"
+            android:text="확 인"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -184,10 +249,10 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_edit_email_ly">
+        app:layout_constraintTop_toBottomOf="@+id/rg_email_certification_ly">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/rg_edit_tily"
+            android:id="@+id/rg_pwd_tily"
             android:layout_width="300dp"
             android:layout_height="50dp"
             app:hintAnimationEnabled="false"
@@ -195,7 +260,7 @@
             app:passwordToggleEnabled="true">
 
             <EditText
-                android:id="@+id/rg_edit_pwd"
+                android:id="@+id/rg_pwd_et"
                 android:layout_width="300dp"
                 android:layout_height="50dp"
                 android:background="@android:color/transparent"
@@ -206,5 +271,27 @@
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/rg_timer_title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="8dp"
+        android:text="남은 시간 : "
+        android:textSize="14dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rg_email_certification_ly" />
+
+    <TextView
+        android:id="@+id/rg_timer_value_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@+id/rg_timer_title_text"
+        app:layout_constraintTop_toBottomOf="@+id/rg_email_certification_ly" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
