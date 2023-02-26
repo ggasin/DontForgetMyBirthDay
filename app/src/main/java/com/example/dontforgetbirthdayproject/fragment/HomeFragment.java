@@ -55,6 +55,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,10 +67,7 @@ public class HomeFragment extends Fragment  {
     public void onAttach(Context context) {
         super.onAttach(context);
         mainActivity = (MainActivity) getActivity();
-
-
     }
-
     @Override
     public void onDetach() {
         super.onDetach();
@@ -81,12 +79,7 @@ public class HomeFragment extends Fragment  {
     private GroupAdapter groupAdapter;
     private RecyclerView itemRecyclerView,groupRecyclerView;
     private LinearLayoutManager ItemLinearLayoutManager,GroupLinearLayoutManager;
-
-
-    private Button item_add_btn;
     private ImageButton itemAddBtn;
-
-    String userId,selectedGroup;
 
 
     @Override
@@ -119,7 +112,7 @@ public class HomeFragment extends Fragment  {
 
         itemAddBtn = rootView.findViewById(R.id.item_add_btn);
         homeAdapter = new HomeAdapter(getActivity().getApplicationContext(),itemList);
-        groupAdapter = new GroupAdapter(getActivity().getApplicationContext(),groupList);
+        groupAdapter = new GroupAdapter(getActivity().getApplicationContext(),groupList,this);
 
 
         //db로부터 데이터를 가져와 recyclerView에 바인딩
@@ -147,6 +140,7 @@ public class HomeFragment extends Fragment  {
                 mainActivity.profile_id = item.getIv_profile();
                 mainActivity.itemClickPosition = position;
                 mainActivity.itemRequestCode = item.getItem_request_code();
+                mainActivity.ifTrueCalenderElseHome = false;
                 mainActivity.onFragmentChange(2);
                 Log.d("아이템 클릭","클릭");
             }
@@ -162,21 +156,10 @@ public class HomeFragment extends Fragment  {
             }
         });
 
-        //그룹의 첫번째가 선택되도록 함. findViewHolderForAdapterPosition을 이용하려는데 자꾸 안됨.
-        //이유는 groupAdapter에서 아직 recyclerview에 attach 되어있지 않아서.
-        //이 기능에 살짝의 딜레이를 넣어줬더니 작동함.
-        //23-01-09 아직 문제 해결 x findViewHolderForAdapterPosition으로 하면 선택됐던 아이템이 화면에서 사라진상태로 다른 화면으로 갔다오면
-        //어플 꺼짐.
-        GroupLinearLayoutManager.scrollToPositionWithOffset(0,0); //그룹 리사이클러뷰 스크롤을 최상단으로 이동
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                //화면에 보이는 그룹 리사이클러뷰의 첫번째 클릭
-                groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
 
-            }
-        },750);
+
+
+
 
 
         //그룹 꾹 누르면 삭제 다이얼로그 나옴.
@@ -207,8 +190,20 @@ public class HomeFragment extends Fragment  {
                                                         JSONObject jsonObject = new JSONObject(response);
                                                         boolean success = jsonObject.getBoolean("success");
                                                         if (success) {
+                                                            GroupLinearLayoutManager.scrollToPositionWithOffset(0,0); //그룹 리사이클러뷰 스크롤을 최상단으로 이동
                                                             Toast.makeText(getContext(), "삭제 완료", Toast.LENGTH_SHORT).show();
-                                                            groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
+                                                            //첫번째 그룹 클릭
+                                                            Handler handler = new Handler();
+                                                            handler.postDelayed(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    GroupLinearLayoutManager.scrollToPositionWithOffset(0,0); //그룹 리사이클러뷰 스크롤을 최상단으로 이동
+                                                                    //화면에 보이는 그룹 리사이클러뷰의 첫번째 클릭
+                                                                    groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
+
+                                                                }
+                                                            },20);
+
                                                         } else {
                                                             Toast.makeText(getContext(), "삭제 실패.", Toast.LENGTH_SHORT).show();
                                                         }
@@ -404,6 +399,7 @@ public class HomeFragment extends Fragment  {
         RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
         queue.add(groupAddRequest);
     }
+    //그룹 불러올때 랜덤으로 불러와서 뒤죽박죽임 나중에 해결 ㄱㄱ 23.02.27
     public void loadGroupFromDB(String url){
         StringRequest request = new StringRequest(
                 Request.Method.POST,
@@ -418,8 +414,15 @@ public class HomeFragment extends Fragment  {
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                                 String group = jsonObject.getString("myGroup"); //no가 문자열이라서 바꿔야함.
+
                                 GroupData groupData= new GroupData(group); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
-                                groupList.add(groupData);
+                                if(group.equals("전체")){
+                                    groupList.add(groupData);
+                                    Collections.swap(groupList,0,i);
+                                } else {
+                                    groupList.add(groupData);
+                                }
+
                                 groupAdapter.notifyItemInserted(i);
                             }
                         } catch (JSONException e) {
@@ -473,32 +476,14 @@ public class HomeFragment extends Fragment  {
                                 int month = Integer.parseInt(so_birth.substring(4,6));
                                 int day = Integer.parseInt(so_birth.substring(6,8));
 
-                                if(lu_birth.equals("--")){ //음력을 설정 안했다면 양력생일만 알림설정
-                                    //생일이 이미 지났다면 다음년도로 알림설정
-                                    if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
-                                        mainActivity.setNotice(now.getYear()+1,month,day-2
-                                                ,day,0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
-                                    } else {
-                                        mainActivity.setNotice(now.getYear(),month,day-2
-                                                ,day,0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
-                                    }
+                                //생일이 이미 지났다면 다음년도로 알림설정
+                                if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
+                                    mainActivity.setNotice(now.getYear()+1,month,day-2
+                                            ,day,0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
                                 } else {
-                                    int lunarMonth = Integer.parseInt(lu_birth.substring(4,6));
-                                    int lunarDay = Integer.parseInt(lu_birth.substring(6,8));
-                                    if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)) {
-                                        mainActivity.setNotice(now.getYear()+1, month, day - 2
-                                                , day, 0, 0, itemRequestCode, name + "님의 생일", itemRequestCode);
-                                        mainActivity.setNotice(now.getYear()+1, lunarMonth, lunarDay - 2
-                                                , lunarDay, 0, 0, itemRequestCode + 1, name + "님의 음력생일", itemRequestCode + 1);
-                                    } else {
-                                        mainActivity.setNotice(now.getYear(), month, day - 2
-                                                , day, 0, 0, itemRequestCode, name + "님의 생일", itemRequestCode);
-                                        mainActivity.setNotice(now.getYear(), lunarMonth, lunarDay - 2
-                                                , lunarDay, 0, 0, itemRequestCode + 1, name + "님의 음력생일", itemRequestCode + 1);
-                                    }
+                                    mainActivity.setNotice(now.getYear(),month,day-2
+                                            ,day,0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
                                 }
-
-
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -530,6 +515,20 @@ public class HomeFragment extends Fragment  {
         //요청큐에 요청 객체 생성
         requestQueue.add(request);
         Log.d("로드디비2","ㄱ");
+    }
+    //그룹 첫번째를 클릭하는 메소드
+    public void clickFirstGroup(){
+        //딜레이를 살짝 주지 않으면 클릭할 그룹이 없어서 오류남
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                GroupLinearLayoutManager.scrollToPositionWithOffset(0,0); //그룹 리사이클러뷰 스크롤을 최상단으로 이동
+                //화면에 보이는 그룹 리사이클러뷰의 첫번째 클릭
+                groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
+
+            }
+        },10);
     }
 
 }

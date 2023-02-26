@@ -39,6 +39,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
         return holder;
     }
 
+
+
+
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
         holder.iv_profile.setImageResource(arrayList.get(position).getIv_profile());

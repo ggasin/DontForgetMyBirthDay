@@ -43,10 +43,10 @@ import javax.mail.internet.MimeMessage;
 public class FindPwdActivity extends AppCompatActivity {
 
 
-    private Button nextBtn,completeBtn,goLoginBtn,sendEmailBtn;
+    private Button nextBtn,sendEmailBtn;
     private ImageButton backBtn;
-    private TextView goFindIdBtn, timerText, timerTitleText,findUserIdValue , infoText;
-    private EditText emailEt,certificationEt , idEt;
+    private TextView goFindIdBtn , infoText;
+    private EditText emailEt , idEt;
     private boolean isSuccessSendEmail=false;
     private static ArrayList userIdArr = new ArrayList();
     private String userEmail="",userId="",userEmailInDB="";
@@ -55,7 +55,7 @@ public class FindPwdActivity extends AppCompatActivity {
     private LinearLayout certificationLy,emailLy,idLy;
     SendEmailThread sendEmailThread;
     private AlertDialog dialog;
-    String findIdUrl = "http://dfmbd.ivyro.net/FindPwd.php";
+
 
 
     @Override
@@ -73,7 +73,7 @@ public class FindPwdActivity extends AppCompatActivity {
         infoText = findViewById(R.id.find_pwd_info_t);
         backBtn = findViewById(R.id.find_pwd_back_btn);
         certificationLy = findViewById(R.id.find_pwd_certification_layout);
-        certificationEt = findViewById(R.id.find_pwd_certification_et);
+
 
 
         //아이디 찾기로 이동

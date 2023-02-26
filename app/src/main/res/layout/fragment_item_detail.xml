@@ -135,7 +135,8 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:hint="ex)19981208"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:inputType="number"/>
 
         </LinearLayout>
 
@@ -160,12 +161,14 @@
                 android:text="TextView"
                 android:textSize="15dp" />
 
-            <EditText
-                android:id="@+id/item_detail_edit_lunar"
-                android:layout_width="200dp"
+            <CheckBox
+                android:id="@+id/item_detail_lunar_chk_box"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="ex)19981109"
+                android:layout_marginLeft="10dp"
+                android:text="음력 체크"
                 android:visibility="gone" />
+
         </LinearLayout>
 
         <LinearLayout

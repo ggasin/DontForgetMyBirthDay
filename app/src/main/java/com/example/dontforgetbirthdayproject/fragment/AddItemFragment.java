@@ -29,7 +29,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.dontforgetbirthdayproject.data.ItemData;
 import com.example.dontforgetbirthdayproject.data.RequestCodeData;
 import com.example.dontforgetbirthdayproject.request.ItemAddRequest;
 import com.example.dontforgetbirthdayproject.R;
@@ -56,16 +55,15 @@ import java.util.Map;
 public class AddItemFragment extends Fragment {
     MainActivity mainActivity;
 
-    private Button add_complete_btn,add_close_btn;
-    private EditText add_name_et,add_solar_birth_et,add_memo_et;
-    private TextView add_group_t,requestCode_t;
-    private CheckBox add_lunar_chk;
-    private RadioButton addGenderMan,addGenderWoman;
+    private Button addCompleteBtn, addCloseBtn;
+    private EditText addNameEt, addSolarBirthEt, addMemoEt;
+    private TextView addGroupT, requestCodeT;
+    private CheckBox addLunarChk;
     private RadioGroup addGenderGroup;
 
     private int userRequestCode;
     static int solarRequestCode;
-    static int lunarRequestCode;
+
 
 
     String selectedGroup,gender="남";
@@ -97,21 +95,19 @@ public class AddItemFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup)inflater.inflate(R.layout.fragment_add_item, container, false);
-        add_complete_btn = rootView.findViewById(R.id.add_complete_btn);
-        add_close_btn = rootView.findViewById(R.id.add_close_btn);
-        add_name_et = rootView.findViewById(R.id.add_name_et);
-        add_group_t = rootView.findViewById(R.id.add_group_t);
-        add_solar_birth_et = rootView.findViewById(R.id.add_solar_birth_et);
-        add_memo_et = rootView.findViewById(R.id.add_memo_et);
-        add_lunar_chk = rootView.findViewById(R.id.add_lunar_check_box);
-        addGenderMan = rootView.findViewById(R.id.add_gender_man);
-        addGenderWoman = rootView.findViewById(R.id.add_gender_woman);
+        addCompleteBtn = rootView.findViewById(R.id.add_complete_btn);
+        addCloseBtn = rootView.findViewById(R.id.add_close_btn);
+        addNameEt = rootView.findViewById(R.id.add_name_et);
+        addGroupT = rootView.findViewById(R.id.add_group_t);
+        addSolarBirthEt = rootView.findViewById(R.id.add_solar_birth_et);
+        addMemoEt = rootView.findViewById(R.id.add_memo_et);
+        addLunarChk = rootView.findViewById(R.id.add_lunar_check_box);
         addGenderGroup = rootView.findViewById(R.id.add_gender_radio_group);
-        requestCode_t = rootView.findViewById(R.id.requestCode_text);
+        requestCodeT = rootView.findViewById(R.id.requestCode_text);
 
 
         //선택된 그룹 이름으로 group text 초기화
-        add_group_t.setText(selectedGroup);
+        addGroupT.setText(selectedGroup);
         Log.d("selectedGroup on Add1",selectedGroup);
 
         //라디오그룹 체크 이벤트
@@ -125,20 +121,21 @@ public class AddItemFragment extends Fragment {
                 }
             }
         });
-        add_solar_birth_et.addTextChangedListener(new TextWatcher() {
+
+        addSolarBirthEt.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                add_lunar_chk.setChecked(false);
+                addLunarChk.setChecked(false);
             }
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void afterTextChanged(Editable editable) {
                 LocalDate now = LocalDate.now(); //현재 날짜 가져오기
-                solarBirth = add_solar_birth_et.getText().toString();
+                solarBirth = addSolarBirthEt.getText().toString();
                 if(solarBirth.length()==8){
                     int solarBirthYear = Integer.parseInt(solarBirth.substring(0,4)); //생년 인트형 변환
                     int solarBirthMonth = Integer.parseInt(solarBirth.substring(4,6));
@@ -171,21 +168,17 @@ public class AddItemFragment extends Fragment {
                 Log.d("양력입력 이후",String.valueOf(isValidBirth));
             }
         });
-        add_lunar_chk.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+        addLunarChk.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if(isChecked && isValidBirth){
                     new Thread(new Runnable() {
-                        @RequiresApi(api = Build.VERSION_CODES.O)
                         @Override
                         public void run() {
                             try {
-                                LocalDate now = LocalDate.now();
                                 ArrayList<String> lunarArr = getLunar(solarBirth.substring(0,4),solarBirth.substring(4,6),solarBirth.substring(6,8));
-                                ArrayList<String> solarArr = getSolar(String.valueOf(now.getYear()),lunarArr.get(1),lunarArr.get(0));
-                                lunarBirth = solarArr.get(2)+solarArr.get(1)+solarArr.get(0);
-                                lunarRequestCode = solarRequestCode+1;
-                                loadTotalRequestCode(requestCodeURL); //db에 있는 requestCode도 +1하기위해
+                                lunarBirth = lunarArr.get(2)+lunarArr.get(1)+lunarArr.get(0);
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 lunarBirth = "&&";
@@ -194,8 +187,7 @@ public class AddItemFragment extends Fragment {
                         }
                     }).start();
                 } else if(isChecked && !isValidBirth) {
-                    add_lunar_chk.setChecked(false);
-
+                    addLunarChk.setChecked(false);
                     Toast.makeText(getContext(), "양력을 제대로 입력했는지 확인해주세요", Toast.LENGTH_SHORT).show();
                 } else {
                     lunarBirth = "--";
@@ -205,23 +197,17 @@ public class AddItemFragment extends Fragment {
         });
 
         //완료 버튼 이벤트
-        add_complete_btn.setOnClickListener(new View.OnClickListener() {
+        addCompleteBtn.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
                 String id = mainActivity.userId;
-                String name = add_name_et.getText().toString();
-                String group = add_group_t.getText().toString();
-                String memo = add_memo_et.getText().toString() ;
-                if(!add_lunar_chk.isChecked()){
-                    solarRequestCode = RequestCodeData.getRequestCode();
-                    Log.d("Load reCode in soValid",String.valueOf(solarRequestCode));
-                } else {
-                    solarRequestCode = RequestCodeData.getRequestCode();
-                    Log.d("Load reCode in soValid",String.valueOf(solarRequestCode));
-                    lunarRequestCode = solarRequestCode+1;
-                    loadTotalRequestCode(requestCodeURL);
-                }
+                String name = addNameEt.getText().toString();
+                String group = addGroupT.getText().toString();
+                String memo = addMemoEt.getText().toString() ;
+
+                //db로부터 가져온 requestCode를 저장
+                solarRequestCode = RequestCodeData.getRequestCode();
 
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
@@ -234,43 +220,21 @@ public class AddItemFragment extends Fragment {
                                     LocalDate now = LocalDate.now();
                                     int month = Integer.parseInt(solarBirth.substring(4,6));
                                     int day = Integer.parseInt(solarBirth.substring(6,8));
-                                    //db로부터 requestCode 가져오기
-                                    Log.d("Load requestCode in cm",String.valueOf(solarRequestCode));
-                                    //음력 체크 돼있으면
-                                    if(add_lunar_chk.isChecked()){
-                                        int lunarMonth = Integer.parseInt(lunarBirth.substring(4,6));
-                                        int lunarDay = Integer.parseInt(lunarBirth.substring(6,8));
-                                        //추가하는 생일이 이미 지났다면 내년 생일 알림으로 등록
-                                        if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
-                                            //알람 추가(양력)
-                                            mainActivity.setNotice(now.getYear()+1,month,day-2,day,0,0,solarRequestCode,
-                                                    name+"님의 생일",solarRequestCode);
-                                            Log.d("Load requestCode in lu",String.valueOf(lunarRequestCode));
-                                            mainActivity.setNotice(now.getYear()+1,lunarMonth,lunarDay-2,lunarDay,0,0,lunarRequestCode,
-                                                    name+"님의 음력 생일",lunarRequestCode);
-                                        } else {
-                                            //알람 추가(양력)
-                                            mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,solarRequestCode,
-                                                    name+"님의 생일",solarRequestCode);
-                                        }
+                                    //추가하는 생일이 이미 지났다면 내년 생일 알림으로 등록
+                                    if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
+                                        //알람 추가(양력)
+                                        mainActivity.setNotice(now.getYear()+1,month,day-2,day,0,0,solarRequestCode,
+                                                name+"님의 생일",solarRequestCode);
                                     } else {
-                                        if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
-                                            //알람 추가(양력)
-                                            mainActivity.setNotice(now.getYear()+1,month,day-2,day,0,0,solarRequestCode,
-                                                    name+"님의 생일",solarRequestCode);
-                                        } else {
-                                            //알람 추가(양력)
-                                            mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,solarRequestCode,
-                                                    name+"님의 생일",solarRequestCode);
-                                        }
+                                        //알람 추가(양력)
+                                        mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,solarRequestCode,
+                                                name+"님의 생일",solarRequestCode);
                                     }
-
                                     Toast.makeText(getContext(),"추가 완료",Toast.LENGTH_SHORT).show();
-                                    add_name_et.setText("");
-                                    add_solar_birth_et.setText("");
-                                    add_memo_et.setText("");
+                                    addNameEt.setText("");
+                                    addSolarBirthEt.setText("");
+                                    addMemoEt.setText("");
                                     mainActivity.onFragmentChange(0);
-
                                 } else{
                                     Toast.makeText(getContext(),"이름이 중복되지 않도록 기입해주세요.",Toast.LENGTH_SHORT).show();
                                     return;
@@ -282,19 +246,14 @@ public class AddItemFragment extends Fragment {
                                     Toast.makeText(getContext(),"모든 항목에 입력값을 넣었는지 확인해주세요.",Toast.LENGTH_SHORT).show();
                                 }
                             }
-
                         } catch (JSONException e) {
                             Toast.makeText(getContext(),"오류",Toast.LENGTH_SHORT).show();
                             StringWriter sw = new StringWriter();
-
                             e.printStackTrace(new PrintWriter(sw));
-
                             String exceptionAsStrting = sw.toString();
-
                             Log.e("오류", exceptionAsStrting);
                             e.printStackTrace();
                         }
-
                     }
                 };
                 ItemAddRequest itemAddRequest = new ItemAddRequest(id,group,name,solarBirth,lunarBirth,memo,1,gender,RequestCodeData.getRequestCode(),responseListener);
@@ -304,12 +263,12 @@ public class AddItemFragment extends Fragment {
             }
         });
         //닫기 버튼 이벤트
-        add_close_btn.setOnClickListener(new View.OnClickListener() {
+        addCloseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                add_name_et.setText("");
-                add_solar_birth_et.setText("");
-                add_memo_et.setText("");
+                addNameEt.setText("");
+                addSolarBirthEt.setText("");
+                addMemoEt.setText("");
                 mainActivity.onFragmentChange(0);
 
             }
@@ -373,58 +332,7 @@ public class AddItemFragment extends Fragment {
 
     }
 
-    //양력 받아오기기
-    public ArrayList<String> getSolar(String year, String month, String day){
-        StringBuffer buffer=new StringBuffer();
-        String key="%2FFuD9koHUvAqYGTL1DrKzBYNcJcVxuraDgxxPn5TpZr%2B5m6YCmEc1Bf%2BJB1tEUn5MqMMXXxtZ6wr9ngFMyJOoQ%3D%3D";
-        ArrayList<String> arr = new ArrayList<>();
-        String queryUrl="http://apis.data.go.kr/B090041/openapi/service/LrsrCldInfoService/getSolCalInfo?lunYear="+year+"&lunMonth="+month+"&lunDay="+day+"&ServiceKey="+key;
-        try{
-            URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
-            InputStream is= url.openStream(); //url위치로 입력스트림 연결
-            XmlPullParserFactory factory= XmlPullParserFactory.newInstance();//xml파싱을 위한
-            XmlPullParser xpp= factory.newPullParser();
-            xpp.setInput( new InputStreamReader(is, "UTF-8") ); //inputstream 으로부터 xml 입력받기
-
-            String tag;
-
-            xpp.next();
-            int eventType= xpp.getEventType();
-            while( eventType != XmlPullParser.END_DOCUMENT ){
-                switch( eventType ){
-                    case XmlPullParser.START_DOCUMENT:
-                        break;
-                    case XmlPullParser.START_TAG:
-                        tag= xpp.getName();//테그 이름 얻어오기
-                        if(tag.equals("item")) ;// 첫번째 검색결과
-                        else if(tag.equals("solYear")){
-                            xpp.next();
-                            arr.add(xpp.getText());//title 요소의 TEXT 읽어와서 문자열버퍼에 추가
-                        }
-                        else if(tag.equals("solMonth")){
-                            xpp.next();
-                            arr.add(xpp.getText());
-                        } else if(tag.equals("solDay")){
-                            xpp.next();
-                            arr.add(xpp.getText());
-                        }
-                        break;
-
-                    case XmlPullParser.TEXT:
-                        break;
-                    case XmlPullParser.END_TAG:
-                        break;
-                }
-
-                eventType= xpp.next();
-            }
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return arr;
-    }
+    //양력이 유효하면 db로부터 requestCode 가져옴
     public void ifSolarValidLoadRequestCode(){
         isValidBirth = true;
         loadTotalRequestCode(requestCodeURL);
@@ -477,6 +385,63 @@ public class AddItemFragment extends Fragment {
 
 
     }
+
+
+    //양력 받아오기기
+    /*
+    public ArrayList<String> getSolar(String year, String month, String day){
+        StringBuffer buffer=new StringBuffer();
+        String key="%2FFuD9koHUvAqYGTL1DrKzBYNcJcVxuraDgxxPn5TpZr%2B5m6YCmEc1Bf%2BJB1tEUn5MqMMXXxtZ6wr9ngFMyJOoQ%3D%3D";
+        ArrayList<String> arr = new ArrayList<>();
+        String queryUrl="http://apis.data.go.kr/B090041/openapi/service/LrsrCldInfoService/getSolCalInfo?lunYear="+year+"&lunMonth="+month+"&lunDay="+day+"&ServiceKey="+key;
+        try{
+            URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
+            InputStream is= url.openStream(); //url위치로 입력스트림 연결
+            XmlPullParserFactory factory= XmlPullParserFactory.newInstance();//xml파싱을 위한
+            XmlPullParser xpp= factory.newPullParser();
+            xpp.setInput( new InputStreamReader(is, "UTF-8") ); //inputstream 으로부터 xml 입력받기
+
+            String tag;
+
+            xpp.next();
+            int eventType= xpp.getEventType();
+            while( eventType != XmlPullParser.END_DOCUMENT ){
+                switch( eventType ){
+                    case XmlPullParser.START_DOCUMENT:
+                        break;
+                    case XmlPullParser.START_TAG:
+                        tag= xpp.getName();//테그 이름 얻어오기
+                        if(tag.equals("item")) ;// 첫번째 검색결과
+                        else if(tag.equals("solYear")){
+                            xpp.next();
+                            arr.add(xpp.getText());//title 요소의 TEXT 읽어와서 문자열버퍼에 추가
+                        }
+                        else if(tag.equals("solMonth")){
+                            xpp.next();
+                            arr.add(xpp.getText());
+                        } else if(tag.equals("solDay")){
+                            xpp.next();
+                            arr.add(xpp.getText());
+                        }
+                        break;
+
+                    case XmlPullParser.TEXT:
+                        break;
+                    case XmlPullParser.END_TAG:
+                        break;
+                }
+
+                eventType= xpp.next();
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return arr;
+    }
+    */
+
 
 
 }

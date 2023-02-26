@@ -9,18 +9,21 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dontforgetbirthdayproject.GetGroupPositionListener;
 import com.example.dontforgetbirthdayproject.OnGroupLongClickListener;
 import com.example.dontforgetbirthdayproject.data.GroupData;
 import com.example.dontforgetbirthdayproject.R;
+import com.example.dontforgetbirthdayproject.fragment.HomeFragment;
 
 import java.util.ArrayList;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHolder> implements GetGroupPositionListener,OnGroupLongClickListener{
 
     private Context context;
+    private HomeFragment homeFragment;
     private ArrayList<GroupData> arrayList;
     GetGroupPositionListener listener;
     OnGroupLongClickListener groupLongClickListener;
@@ -28,9 +31,20 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
 
 
 
-    public GroupAdapter(Context context,ArrayList<GroupData> arrayList) {
+
+
+
+    public GroupAdapter(Context context,ArrayList<GroupData> arrayList,HomeFragment homeFragment) {
         this.context = context;
         this.arrayList = arrayList;
+        this.homeFragment = homeFragment;
+    }
+
+    //리사이클러뷰가 attach되면 homefragment에 있는 clickFirstCorup 실행
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        homeFragment.clickFirstGroup();
     }
 
 
@@ -41,6 +55,9 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
         CustomViewHolder holder = new CustomViewHolder(view);
         return holder;
     }
+
+
+
 
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
@@ -61,8 +78,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
             }
         });
 
-
     }
+
 
     @Override
     public int getItemCount() {
@@ -112,6 +129,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
 
             this.tv_group = (TextView)itemView.findViewById(R.id.group_recycler_group);
             this.groupLayout = (LinearLayout) itemView.findViewById(R.id.group_recycler_ly);
+
 
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override

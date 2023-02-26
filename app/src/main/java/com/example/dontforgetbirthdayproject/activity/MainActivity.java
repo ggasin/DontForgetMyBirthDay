@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     public int profile_id;
     public static boolean isPushAlarmSend = false;
     public boolean firstLogin = false;
+    public boolean ifTrueCalenderElseHome = true;
     //현재 시간,분 변수선언
     int currHour, currMinute;
     //시스템에서 알람 서비스를 제공하도록 도와주는 클래스
@@ -162,7 +163,8 @@ public class MainActivity extends AppCompatActivity {
             Log.d("메인에서 선택된 그룹",selectedGroup);
         } else if(index==2){
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragmentItemDetail).commit();
-
+        } else if(index==3){
+            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragmentCalendar).commit();
         }
     }
 
