@@ -75,11 +75,13 @@ public class HomeFragment extends Fragment  {
     }
     private ArrayList<ItemData> itemList;
     private ArrayList<GroupData> groupList;
+    public static ArrayList<String> groupSpinnerArr;
     private HomeAdapter homeAdapter;
     private GroupAdapter groupAdapter;
     private RecyclerView itemRecyclerView,groupRecyclerView;
     private LinearLayoutManager ItemLinearLayoutManager,GroupLinearLayoutManager;
     private ImageButton itemAddBtn;
+
 
 
     @Override
@@ -108,6 +110,7 @@ public class HomeFragment extends Fragment  {
 
         itemList = new ArrayList<>();
         groupList = new ArrayList<>();
+        groupSpinnerArr = new ArrayList<>();
 
 
         itemAddBtn = rootView.findViewById(R.id.item_add_btn);
@@ -117,6 +120,8 @@ public class HomeFragment extends Fragment  {
 
         //db로부터 데이터를 가져와 recyclerView에 바인딩
         loadGroupFromDB(loadGroupURL);
+
+
 
         Log.d("home first Login",String.valueOf(mainActivity.firstLogin));
         //로그인을 처음 한 상태라면 로그아웃때 다 취소한 알람을 다시 설정해야함.
@@ -141,6 +146,13 @@ public class HomeFragment extends Fragment  {
                 mainActivity.itemClickPosition = position;
                 mainActivity.itemRequestCode = item.getItem_request_code();
                 mainActivity.ifTrueCalenderElseHome = false;
+                for(int i=0;i<groupSpinnerArr.size();i++){
+                    Log.d("그룹 스피너 추가1",groupSpinnerArr.get(i));
+                }
+                mainActivity.groupArr = groupSpinnerArr;
+                for(int i=0;i<mainActivity.groupArr.size();i++){
+                    Log.d("그룹 스피너 추가2",mainActivity.groupArr.get(i));
+                }
                 mainActivity.onFragmentChange(2);
                 Log.d("아이템 클릭","클릭");
             }
@@ -375,6 +387,7 @@ public class HomeFragment extends Fragment  {
                         if(success){
                             GroupData groupData= new GroupData(group); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                             groupList.add(groupData);
+                            groupSpinnerArr.add(group);
                             groupAdapter.notifyDataSetChanged();
                             Toast.makeText(getContext(),"추가 완료",Toast.LENGTH_SHORT).show();
                         } else{
@@ -414,7 +427,7 @@ public class HomeFragment extends Fragment  {
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                                 String group = jsonObject.getString("myGroup"); //no가 문자열이라서 바꿔야함.
-
+                                groupSpinnerArr.add(group);
                                 GroupData groupData= new GroupData(group); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                                 if(group.equals("전체")){
                                     groupList.add(groupData);

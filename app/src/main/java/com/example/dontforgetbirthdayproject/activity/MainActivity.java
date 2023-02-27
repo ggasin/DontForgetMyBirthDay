@@ -26,6 +26,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.dontforgetbirthdayproject.data.GroupData;
 import com.example.dontforgetbirthdayproject.fragment.AddItemFragment;
 import com.example.dontforgetbirthdayproject.BackKeyHandler;
 import com.example.dontforgetbirthdayproject.fragment.CalendarFragment;
@@ -50,6 +51,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private CalendarFragment fragmentCalendar = new CalendarFragment();
     private RadioButton mpAlarmOne, mpAlarmThree, mpAlarmSeven;
     public String userId,selectedGroup,itemName,itemSolarBirth,itemlunarBirth,itemMemo,itemGroup;
+    public ArrayList<String> groupArr;
     public int itemClickPosition,itemRequestCode;
     public int profile_id;
     public static boolean isPushAlarmSend = false;
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         HomeFragment homeFragment = new HomeFragment();
         transaction.replace(R.id.frameLayout, fragmentHome).commit();
+
 
         //하단바 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.menu_bottom_navigation);

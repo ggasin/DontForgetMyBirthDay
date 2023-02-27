@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -22,6 +24,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +36,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.dontforgetbirthdayproject.data.RequestCodeData;
+
 import com.example.dontforgetbirthdayproject.request.ItemUpdateRequest;
 import com.example.dontforgetbirthdayproject.R;
 import com.example.dontforgetbirthdayproject.activity.MainActivity;
@@ -67,9 +71,10 @@ public class ItemDetailFragment extends Fragment {
     private ImageButton itemDetailCloseBtn,itemDetailDeleteBtn,itemDetailAlterBtn;
     private LinearLayout itemDetailMemoLy;
     private Button itemDetailCompleteBtn,itemDetailCalcelBtn;
-    private LinearLayout itemDetailBtnLy;
+    private LinearLayout itemDetailBtnLy,itemDetailEditNameLy;
     private ImageView itemDetailProfile;
     private CheckBox itemDetailLunarChkBox;
+    private Spinner groupSpinner;
 
     boolean isValidBirth = false;
     String solarBirth,lunarBirth="";
@@ -120,27 +125,43 @@ public class ItemDetailFragment extends Fragment {
         itemDetailEditName = rootView.findViewById(R.id.item_detail_edit_name);
         itemDetailEditSolar = rootView.findViewById(R.id.item_detail_edit_solar);
         itemDetailLunarChkBox = rootView.findViewById(R.id.item_detail_lunar_chk_box);
+        groupSpinner = rootView.findViewById(R.id.item_detail_group_spinner);
+        itemDetailEditNameLy = rootView.findViewById(R.id.item_detail_edit_name_ly);
 
 
         itemDetailBtnLy = rootView.findViewById(R.id.item_detail_btn_ly);
         itemDetailMemo = rootView.findViewById(R.id.item_detail_memo_et);
 
-        //사용자 정보로 세팅
+        //사용자 정보 및 초기 세팅
         itemDetailProfile.setImageResource(mainActivity.profile_id);
         itemDetailName.setText(mainActivity.itemName);
         itemDetailGroup.setText(mainActivity.itemGroup);
-        itemDetailSolar.setText(mainActivity.itemSolarBirth);
-        itemDetailLunar.setText(mainActivity.itemlunarBirth);
+        itemDetailSolar.setText(changeBirthForm(mainActivity.itemSolarBirth));
+        if(mainActivity.itemlunarBirth.equals("--")){
+            itemDetailLunar.setText(mainActivity.itemlunarBirth);
+        } else {
+            itemDetailLunar.setText(changeBirthForm(mainActivity.itemlunarBirth));
+        }
         requestCode = mainActivity.itemRequestCode;
-
-        lunarBirth = mainActivity.itemlunarBirth;
         Log.d("itemRequestCode",String.valueOf(mainActivity.itemRequestCode));
-
+        //메모 세팅
         itemDetailMemoLy.setBackgroundResource(R.drawable.memo_cant_edit_border);//배경색 설정
         itemDetailMemo.setEnabled(false);
-
         itemList = new ArrayList<>();
         homeAdapter = new HomeAdapter(getActivity().getApplicationContext(),itemList);
+
+
+        //그룹 스피너 설정.
+        ArrayAdapter<String> groupSpinnerAdapter = new ArrayAdapter<String>(
+                getActivity().getApplicationContext(), android.R.layout.simple_spinner_item,mainActivity.groupArr
+        );
+        groupSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        groupSpinner.setAdapter(groupSpinnerAdapter);
+        groupSpinner.setDropDownWidth(350);
+
+
+
+
 
         //양력 editText 입력 이벤트
         itemDetailEditSolar.addTextChangedListener(new TextWatcher() {
@@ -184,6 +205,7 @@ public class ItemDetailFragment extends Fragment {
                     }
 
                     itemDetailLunar.setText(lunarBirth);
+                    Log.d("루나1",itemDetailLunar.getText().toString());
 
                 } else if(isChecked && !isValidBirth) {
                     itemDetailLunarChkBox.setChecked(false);
@@ -191,6 +213,7 @@ public class ItemDetailFragment extends Fragment {
                 } else {
                     lunarBirth = "--";
                     itemDetailLunar.setText(lunarBirth);
+                    Log.d("루나2",itemDetailLunar.getText().toString());
 
                 }
             }
@@ -255,6 +278,8 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 editModeOn();
+                //현재 이 아이템의 그룹을 디폴트로 설정
+                groupSpinner.setSelection(getIndex(groupSpinner,mainActivity.itemGroup));
             }
         });
         //완료 버튼
@@ -265,7 +290,7 @@ public class ItemDetailFragment extends Fragment {
 
                LocalDate now = LocalDate.now(); //현재 날짜 가져오기
                String name = itemDetailEditName.getText().toString();
-               String group = itemDetailGroup.getText().toString();
+               String group = groupSpinner.getSelectedItem().toString();
                String beforeName = itemDetailName.getText().toString();
                String solar = itemDetailEditSolar.getText().toString();
                String lunar = itemDetailLunar.getText().toString();
@@ -363,27 +388,49 @@ public class ItemDetailFragment extends Fragment {
         //TextView 없애기
         itemDetailName.setVisibility(View.GONE);
         itemDetailSolar.setVisibility(View.GONE);
-        //EditText와 완료,취소 버튼 보이기
-        itemDetailEditName.setVisibility(View.VISIBLE);
+        itemDetailGroup.setVisibility(View.GONE);
+        //EditText와 그룹 스피너, 완료,취소 버튼 보이기
+        groupSpinner.setVisibility(View.VISIBLE);
+        itemDetailEditNameLy.setVisibility(View.VISIBLE);
         itemDetailLunarChkBox.setVisibility(View.VISIBLE);
         itemDetailEditName.setText(itemDetailName.getText().toString());
         itemDetailEditSolar.setVisibility(View.VISIBLE);
-        itemDetailEditSolar.setText(itemDetailSolar.getText().toString());
+        itemDetailEditSolar.setText(mainActivity.itemSolarBirth);
+        itemDetailLunar.setText(mainActivity.itemlunarBirth);
         itemDetailBtnLy.setVisibility(View.VISIBLE);
         itemDetailMemoLy.setBackgroundResource(R.drawable.memo_can_edit_border);
         itemDetailMemo.setEnabled(true);
     }
     public void editModeOff(){
+        itemDetailLunarChkBox.setChecked(false); //체크 안풀면 나중에 다시 상세정보 클릭하면 체크가 된 상태라서 음력계산을 맘대로 해버림.
         itemDetailName.setVisibility(View.VISIBLE);
         itemDetailSolar.setVisibility(View.VISIBLE);
         itemDetailLunar.setVisibility(View.VISIBLE);
-        itemDetailEditName.setVisibility(View.GONE);
+        if(mainActivity.itemlunarBirth.equals("--")){
+            itemDetailLunar.setText(mainActivity.itemlunarBirth);
+            Log.d("루나4",itemDetailLunar.getText().toString());
+        } else {
+            itemDetailLunar.setText(changeBirthForm(mainActivity.itemlunarBirth));
+            Log.d("루나3",itemDetailLunar.getText().toString());
+        }
+        itemDetailGroup.setVisibility(View.VISIBLE);
+        itemDetailEditNameLy.setVisibility(View.GONE);
         itemDetailEditSolar.setVisibility(View.GONE);
         itemDetailBtnLy.setVisibility(View.GONE);
         itemDetailLunarChkBox.setVisibility(View.GONE);
-        itemDetailLunarChkBox.setChecked(false); //체크 안풀면 나중에 다시 상세정보 클릭하면 체크가 된 상태라서 음력계산을 맘대로 해버림.
+        groupSpinner.setVisibility(View.GONE);
         itemDetailMemoLy.setBackgroundResource(R.drawable.memo_cant_edit_border);
         itemDetailMemo.setEnabled(false);
+    }
+    //그룹 스피너 디폴트 값을 현재 아이템의 그룹으로 설정해두기 위해 현재 아이템의 그룹의 인덱스를 갖고 오기 위한 메소드
+    private int getIndex(Spinner spinner , String item){
+        Log.d("디폴트 아이템",item);
+        for(int i=0;i<spinner.getCount();i++){
+            if(spinner.getItemAtPosition(i).toString().equalsIgnoreCase(item)){
+                return i;
+            }
+        }
+        return 0;
     }
     //음력 받아오기
     public ArrayList<String> getLunar(String year,String month,String day) throws IOException {
@@ -441,12 +488,18 @@ public class ItemDetailFragment extends Fragment {
         return arr;
 
     }
-
+    //양력이 유효하면 isValidBirth 를 true로 하고 requestCode를 db로 부터 가져옴
     public void ifSolarValidLoadRequestCode(){
         isValidBirth = true;
         solarBirth = itemDetailEditSolar.getText().toString();
         loadItemRequestCode(itemRequestCodeURL);
     }
+    //생일을 보기 좋게 바꿈. ex) 19981208 -> 1998년 12월 08일
+    public String changeBirthForm(String birth){
+        String changeBirth = birth.substring(0,4)+"년 "+ birth.substring(4,6)+"월 "+ birth.substring(6,8)+"일";
+        return changeBirth;
+    }
+    //이 사람에게 해당하는 requestCode를 db로부터 가져옴. 바뀐 날짜로 알림설정을 다시 하기 위해.
     public void loadItemRequestCode(String url){
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -494,7 +547,7 @@ public class ItemDetailFragment extends Fragment {
         //요청큐에 요청 객체 생성
         requestQueue.add(stringRequest);
     }
-
+    //양력 유효성 체크
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void solarValidCheck(){
         LocalDate now = LocalDate.now(); //현재 날짜 가져오기

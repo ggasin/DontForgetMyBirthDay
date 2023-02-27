@@ -62,10 +62,17 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginTop="20dp"
             android:gravity="center"
             android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/item_detail_group_spinner"
+                android:layout_width="120dp"
+                android:layout_height="30dp"
+
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/item_detail_group_tv"
@@ -73,7 +80,8 @@
                 android:layout_height="wrap_content"
                 android:text="그룹"
                 android:textColor="@color/more_gray"
-                android:textSize="25dp" />
+                android:textSize="25dp"
+                android:visibility="visible" />
 
             <TextView
                 android:id="@+id/item_detail_name_tv"
@@ -83,20 +91,31 @@
                 android:text="이름"
                 android:textSize="25dp" />
 
-            <EditText
-                android:id="@+id/item_detail_edit_name"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:hint="이름"
-                android:visibility="gone" />
+            <LinearLayout
+                android:id="@+id/item_detail_edit_name_ly"
+                android:layout_width="170dp"
+                android:layout_height="40dp"
+                android:background="@drawable/item_detail_edit_not_border"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/item_detail_edit_name"
+                    android:layout_width="140dp"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:hint="이름"
+                    android:maxLength="8"
+                    android:maxLines="1" />
+            </LinearLayout>
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="30dp"
             android:orientation="horizontal">
 
             <TextView
@@ -112,7 +131,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="30dp"
             android:orientation="horizontal">
 
             <TextView
@@ -135,8 +154,8 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:hint="ex)19981208"
-                android:visibility="gone"
-                android:inputType="number"/>
+                android:inputType="number"
+                android:visibility="gone" />
 
         </LinearLayout>
 
@@ -175,7 +194,7 @@
             android:id="@+id/item_detail_memo_ly"
             android:layout_width="380dp"
             android:layout_height="200dp"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="30dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -196,7 +215,7 @@
             android:id="@+id/item_detail_btn_ly"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal"
             android:visibility="gone">
 

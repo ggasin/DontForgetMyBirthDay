@@ -41,7 +41,8 @@
                 android:layout_height="60dp"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:hint="이름(중복X)" />
+                android:hint="이름(중복X, 최대 8글자)"
+                android:maxLength="8"/>
 
         </LinearLayout>
 
@@ -83,7 +84,8 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
                 android:hint="생일(양력) ex)19981208"
-                android:maxLength="8" />
+                android:maxLength="8"
+                android:inputType="number"/>
         </LinearLayout>
 
         <LinearLayout

@@ -47,8 +47,15 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
         holder.iv_profile.setImageResource(arrayList.get(position).getIv_profile());
         holder.tv_group.setText(arrayList.get(position).getTv_item_group());
         holder.tv_name.setText(arrayList.get(position).getTv_item_name());
-        holder.tv_so_birth.setText(arrayList.get(position).getTv_item_solar_birth());
-        holder.tv_lu_birth.setText(arrayList.get(position).getTv_item_lunar_birth());
+        holder.tv_so_birth.setText(arrayList.get(position).getTv_item_solar_birth().substring(0,4)+"년 "+
+                arrayList.get(position).getTv_item_solar_birth().substring(4,6)+"월 "+arrayList.get(position).getTv_item_solar_birth().substring(6,8)+"일");
+        if(arrayList.get(position).getTv_item_lunar_birth().equals("--")){
+            holder.tv_lu_birth.setText(arrayList.get(position).getTv_item_lunar_birth());
+        } else {
+            holder.tv_lu_birth.setText(arrayList.get(position).getTv_item_lunar_birth().substring(0,4)+"년 "+
+                    arrayList.get(position).getTv_item_lunar_birth().substring(4,6)+"월 "+arrayList.get(position).getTv_item_lunar_birth().substring(6,8)+"일");
+        }
+
         holder.tv_memo.setText(arrayList.get(position).getTv_item_memo());
         holder.tv_so_dday.setText(arrayList.get(position).getTv_item_so_dday());
         holder.tv_lu_dday.setText(arrayList.get(position).getTv_item_lu_dday());
