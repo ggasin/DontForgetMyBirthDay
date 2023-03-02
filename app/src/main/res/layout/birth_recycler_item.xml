@@ -151,6 +151,7 @@
                                     android:id="@+id/recycler_item_so_dday_tv"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
                                     android:text="D-364" />
                             </LinearLayout>
 

@@ -23,7 +23,9 @@
         <!-- usesCleartextTraffic 회원가입 db 작업후 버튼 무반응일경우 넣으라 함 -->
         <activity
             android:name=".activity.MainActivity"
-            android:exported="true"></activity>
+            android:exported="true"
+            android:windowSoftInputMode="adjustNothing"
+            ></activity>
         <activity
             android:name=".activity.FindIdActivity"
             android:exported="true"></activity>

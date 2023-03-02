@@ -1,5 +1,9 @@
 package com.example.dontforgetbirthdayproject.fragment;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
+
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,15 +18,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,7 +54,9 @@ import com.example.dontforgetbirthdayproject.OnItemClickListener;
 import com.example.dontforgetbirthdayproject.R;
 import com.example.dontforgetbirthdayproject.activity.MainActivity;
 import com.example.dontforgetbirthdayproject.request.GroupDeleteRequest;
+import com.example.dontforgetbirthdayproject.request.GroupUpdateRequest;
 import com.example.dontforgetbirthdayproject.request.ItemDeleteRequest;
+import com.example.dontforgetbirthdayproject.request.ItemUpdateRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,9 +64,13 @@ import org.json.JSONObject;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,14 +88,21 @@ public class HomeFragment extends Fragment  {
         super.onDetach();
         mainActivity = null;
     }
-    private ArrayList<ItemData> itemList;
+    private ArrayList<ItemData> itemList,search_list;
     private ArrayList<GroupData> groupList;
+    // 검색시 같은 이름이 있는 아이템이 담길 리스트
     public static ArrayList<String> groupSpinnerArr;
     private HomeAdapter homeAdapter;
     private GroupAdapter groupAdapter;
     private RecyclerView itemRecyclerView,groupRecyclerView;
     private LinearLayoutManager ItemLinearLayoutManager,GroupLinearLayoutManager;
-    private ImageButton itemAddBtn;
+    private LinearLayout searchEditLy,upsideBtnLy;
+    private ImageButton itemAddBtn,searchBtn,searchCloseBtn,sortBtn;
+    private EditText searchEt;
+    private TextView solarDdayText;
+    String loadItemURL = "http://dfmbd.ivyro.net/LoadItemDB.php";
+    String loadGroupURL = "http://dfmbd.ivyro.net/LoadGroupDB.php";
+    String groupUpdateURL = "http://dfmbd.ivyro.net/GroupUpdate.php";
 
 
 
@@ -92,8 +114,17 @@ public class HomeFragment extends Fragment  {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup)inflater.inflate(R.layout.fragment_home, container, false);
-        String loadItemURL = "http://dfmbd.ivyro.net/LoadItemDB.php";
-        String loadGroupURL = "http://dfmbd.ivyro.net/LoadGroupDB.php";
+
+
+
+        searchBtn = rootView.findViewById(R.id.home_search_btn);
+        searchEt = rootView.findViewById(R.id.home_search_et);
+        searchEditLy = rootView.findViewById(R.id.home_search_et_ly);
+        searchCloseBtn = rootView.findViewById(R.id.home_search_close_btn);
+        sortBtn = rootView.findViewById(R.id.home_sort_btn);
+        solarDdayText = rootView.findViewById(R.id.recycler_item_so_dday_tv);
+        upsideBtnLy = rootView.findViewById(R.id.home_btn_ly);
+
         ItemLinearLayoutManager = new LinearLayoutManager(getActivity());
         itemRecyclerView = (RecyclerView)rootView.findViewById(R.id.home_birth_rv);
         itemRecyclerView.setHasFixedSize(true);
@@ -110,6 +141,7 @@ public class HomeFragment extends Fragment  {
 
         itemList = new ArrayList<>();
         groupList = new ArrayList<>();
+        search_list = new ArrayList<>();
         groupSpinnerArr = new ArrayList<>();
 
 
@@ -122,7 +154,6 @@ public class HomeFragment extends Fragment  {
         loadGroupFromDB(loadGroupURL);
 
 
-
         Log.d("home first Login",String.valueOf(mainActivity.firstLogin));
         //로그인을 처음 한 상태라면 로그아웃때 다 취소한 알람을 다시 설정해야함.
         if(mainActivity.firstLogin){
@@ -130,6 +161,84 @@ public class HomeFragment extends Fragment  {
             mainActivity.firstLogin=false;
         }
 
+        //검색 버튼 클릭 이벤트
+        searchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               upsideBtnLy.setVisibility(View.GONE);
+               searchEditLy.setVisibility(View.VISIBLE);
+            }
+        });
+
+        //검색창 안에 x 버튼 클릭 이벤트
+        searchCloseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                upsideBtnLy.setVisibility(View.VISIBLE);
+                searchEt.setText("");
+                searchEditLy.setVisibility(View.INVISIBLE);
+                loadDB(loadItemURL,mainActivity.selectedGroup);
+                InputMethodManager imm = (InputMethodManager) getActivity().getApplicationContext().getSystemService(INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+            }
+        });
+
+        // 검색 리스너 작성
+        searchEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String searchText = searchEt.getText().toString();
+                search_list.clear();
+                if(searchText.equals("")){
+                    homeAdapter.filterList(itemList);
+                } else {
+                    for (int i = 0; i < itemList.size(); i++) {
+                        if (itemList.get(i).getTv_item_name().toLowerCase().contains(searchText.toLowerCase())) {
+                            search_list.add(itemList.get(i));
+                        }
+                    }
+                    homeAdapter.filterList(search_list);
+                }
+            }
+        });
+
+        //정렬 버튼 클릭
+        sortBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //팝업 메뉴 생성
+                PopupMenu popup= new PopupMenu(getActivity().getApplicationContext(), view);//v는 클릭된 뷰를 의미
+                popup.getMenuInflater().inflate(R.menu.sort_menu, popup.getMenu());
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            //이름 오름차순
+                            case R.id.sort_asc_menu:
+                                recyclerViewAcsSort(itemList);
+                                break;
+                                //이름 내림차순
+                            case R.id.sort_des_menu:
+                                recyclerViewDesSort(itemList);
+                                break;
+                                //임박한 생일 순
+                            case R.id.sort_dday_menu:
+                                recyclerViewDaySort(itemList);
+                                break;
+                            default:
+                                break;
+                        }
+                        return false;
+                    }
+                });
+                popup.show();
+            }
+        });
 
 
         //아이템 클릭 이벤트
@@ -146,6 +255,7 @@ public class HomeFragment extends Fragment  {
                 mainActivity.itemClickPosition = position;
                 mainActivity.itemRequestCode = item.getItem_request_code();
                 mainActivity.ifTrueCalenderElseHome = false;
+                searchEt.setText(""); //검색하고나서 나온 아이템을 클릭하고 상세정보에 갔다가 다시 메인으로 돌아오면 검색edit에 글씨가 남아있어서 어댑터가 엉뚱한 list를 잡음
                 for(int i=0;i<groupSpinnerArr.size();i++){
                     Log.d("그룹 스피너 추가1",groupSpinnerArr.get(i));
                 }
@@ -158,7 +268,7 @@ public class HomeFragment extends Fragment  {
             }
         });
 
-
+        //그룹 클릭 시
         groupAdapter.setOnGroupClicklistener(new GetGroupPositionListener() {
             @Override
             public void getGroupPosition(int position) {
@@ -168,82 +278,127 @@ public class HomeFragment extends Fragment  {
             }
         });
 
-
-
-
-
-
-
-        //그룹 꾹 누르면 삭제 다이얼로그 나옴.
+        //그룹 꾹 눌렀을 때
         groupAdapter.setOnGroupLongCLickListener(new OnGroupLongClickListener() {
             @Override
             public void onGroupLongClick(GroupAdapter.CustomViewHolder holder, View view, int position) {
-                Log.d("group LongCLick",groupAdapter.getItem(position).getGroup());
-                String group = groupAdapter.getItem(position).getGroup();
-                if(groupAdapter.getItem(position).getGroup().equals("전체")){
-                    Toast.makeText(getContext(),"전체 그룹은 삭제할 수 없습니다.",Toast.LENGTH_SHORT).show();
-                } else {
-                    //안전을 위해서 다이얼로그 추가
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("정말 삭제하시겠습니까?\n그룹 내 데이터는 모두 삭제됩니다.")
-                            .setPositiveButton("네", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    mainActivity.allCancelAlarm("http://dfmbd.ivyro.net/LoadItemDB.php",group);
-                                    groupAdapter.remove(position);
-                                    Handler handler = new Handler();
-                                    handler.postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Response.Listener<String> responseListener = new Response.Listener<String>() {
-                                                @Override
-                                                public void onResponse(String response) {
-                                                    try {
-                                                        JSONObject jsonObject = new JSONObject(response);
-                                                        boolean success = jsonObject.getBoolean("success");
-                                                        if (success) {
-                                                            GroupLinearLayoutManager.scrollToPositionWithOffset(0,0); //그룹 리사이클러뷰 스크롤을 최상단으로 이동
-                                                            Toast.makeText(getContext(), "삭제 완료", Toast.LENGTH_SHORT).show();
-                                                            //첫번째 그룹 클릭
-                                                            Handler handler = new Handler();
-                                                            handler.postDelayed(new Runnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    GroupLinearLayoutManager.scrollToPositionWithOffset(0,0); //그룹 리사이클러뷰 스크롤을 최상단으로 이동
-                                                                    //화면에 보이는 그룹 리사이클러뷰의 첫번째 클릭
-                                                                    groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
-
-                                                                }
-                                                            },20);
-
-                                                        } else {
-                                                            Toast.makeText(getContext(), "삭제 실패.", Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    } catch (JSONException e) {
-                                                        Toast.makeText(getContext(), "삭제 오류", Toast.LENGTH_SHORT).show();
-                                                        StringWriter sw = new StringWriter();
-                                                        e.printStackTrace(new PrintWriter(sw));
-                                                        String exceptionAsStrting = sw.toString();
-                                                        Log.e("삭제 오류", exceptionAsStrting);
-                                                        e.printStackTrace();
-                                                    }
+                //선택된 그룹의 이름
+                String selectedGroup = groupAdapter.getItem(position).getGroup();
+                //팝업 메뉴 생성
+                PopupMenu popup= new PopupMenu(getActivity().getApplicationContext(), view);//v는 클릭된 뷰를 의미
+                popup.getMenuInflater().inflate(R.menu.group_menu, popup.getMenu());
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            //그룹 이름 변경
+                            case R.id.group_name_update_menu:
+                                final EditText groupUpdateEt = new EditText(getActivity());
+                                groupUpdateEt.setTextColor(Color.BLACK);
+                                FrameLayout container = new FrameLayout(getActivity());
+                                FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                params.leftMargin = 60;
+                                params.width = 1100;
+                                groupUpdateEt.setLayoutParams(params);
+                                container.addView(groupUpdateEt);
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                builder.setTitle("그룹 이름 변경")
+                                        .setMessage("\n변경하고자 하는 그룹의 이름을 작성해주세요.(최대 6글자)")
+                                        .setView(container)
+                                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                String newGroupName = groupUpdateEt.getText().toString();
+                                                if(newGroupName.length() >6){
+                                                    Toast.makeText(getActivity().getApplicationContext(),"6자 이내로 작성해주세요.",Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    updateGroupName(newGroupName,selectedGroup);
+                                                    groupRecyclerView.setAdapter(groupAdapter);
                                                 }
-                                            };
-                                            Log.d("group LongCLick1", String.valueOf(position));
-                                            GroupDeleteRequest groupDeleteRequest = new GroupDeleteRequest(mainActivity.userId, group, responseListener);
-                                            RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
-                                            queue.add(groupDeleteRequest);
-                                        }
-                                    },700);
+
+                                            }
+                                        }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                            }
+                                        }).show();
+                                break;
+                            //그룹 삭제
+                            case R.id.group_delete_menu:
+                                Log.d("group LongCLick",groupAdapter.getItem(position).getGroup());
+                                if(groupAdapter.getItem(position).getGroup().equals("전체")){
+                                    Toast.makeText(getContext(),"전체 그룹은 삭제할 수 없습니다.",Toast.LENGTH_SHORT).show();
+                                } else {
+                                    //안전을 위해서 다이얼로그 추가
+                                    AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(getActivity());
+                                    deleteBuilder.setTitle("정말 삭제하시겠습니까?\n그룹 내 데이터는 모두 삭제됩니다.")
+                                            .setPositiveButton("네", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    mainActivity.allCancelAlarm(loadItemURL,selectedGroup);
+                                                    groupAdapter.remove(position);
+                                                    Handler handler = new Handler();
+                                                    handler.postDelayed(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            Response.Listener<String> responseListener = new Response.Listener<String>() {
+                                                                @Override
+                                                                public void onResponse(String response) {
+                                                                    try {
+                                                                        JSONObject jsonObject = new JSONObject(response);
+                                                                        boolean success = jsonObject.getBoolean("success");
+                                                                        if (success) {
+                                                                            GroupLinearLayoutManager.scrollToPositionWithOffset(0,0); //그룹 리사이클러뷰 스크롤을 최상단으로 이동
+                                                                            Toast.makeText(getContext(), "삭제 완료", Toast.LENGTH_SHORT).show();
+                                                                            //첫번째 그룹 클릭
+                                                                            Handler handler = new Handler();
+                                                                            handler.postDelayed(new Runnable() {
+                                                                                @Override
+                                                                                public void run() {
+                                                                                    GroupLinearLayoutManager.scrollToPositionWithOffset(0,0); //그룹 리사이클러뷰 스크롤을 최상단으로 이동
+                                                                                    //화면에 보이는 그룹 리사이클러뷰의 첫번째 클릭
+                                                                                    groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
+                                                                                }
+                                                                            },15);
+
+                                                                        } else {
+                                                                            Toast.makeText(getContext(), "삭제 실패.", Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                    } catch (JSONException e) {
+                                                                        Toast.makeText(getContext(), "삭제 오류", Toast.LENGTH_SHORT).show();
+                                                                        StringWriter sw = new StringWriter();
+                                                                        e.printStackTrace(new PrintWriter(sw));
+                                                                        String exceptionAsStrting = sw.toString();
+                                                                        Log.e("삭제 오류", exceptionAsStrting);
+                                                                        e.printStackTrace();
+                                                                    }
+                                                                }
+                                                            };
+                                                            Log.d("group LongCLick1", String.valueOf(position));
+                                                            GroupDeleteRequest groupDeleteRequest = new GroupDeleteRequest(mainActivity.userId, selectedGroup, responseListener);
+                                                            RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
+                                                            queue.add(groupDeleteRequest);
+                                                        }
+                                                    },700);
+                                                }
+                                            })
+                                            .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    Log.d("Item delete event", "cancel");
+                                                }
+                                            }).show();
                                 }
-                            })
-                            .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    Log.d("Item delete event", "cancel");
-                                }
-                            }).show();
-                }
+                                break;
+                            default:
+                                break;
+                        }
+                        return false;
+                    }
+                });
+                popup.show();
+
             }
         });
 
@@ -253,7 +408,6 @@ public class HomeFragment extends Fragment  {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
-
                 //팝업 메뉴 생성
                 PopupMenu popup= new PopupMenu(getActivity().getApplicationContext(), view);//v는 클릭된 뷰를 의미
                 popup.getMenuInflater().inflate(R.menu.add_menu, popup.getMenu());
@@ -261,6 +415,7 @@ public class HomeFragment extends Fragment  {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
+                            //그룹 추가
                             case R.id.add_group_menu:
                                 final EditText groupEt = new EditText(getActivity());
                                 groupEt.setTextColor(Color.BLACK);
@@ -293,6 +448,7 @@ public class HomeFragment extends Fragment  {
                                             }
                                         }).show();
                                 break;
+                                //아이템 추가
                             case R.id.add_item_menu:
                                 mainActivity.onFragmentChange(1);
                                 break;
@@ -315,9 +471,12 @@ public class HomeFragment extends Fragment  {
                             Request.Method.POST,
                             url,
                 new Response.Listener<String>() {  //응답을 문자열로 받아서 여기다 넣어달란말임(응답을 성공적으로 받았을 떄 이메소드가 자동으로 호출됨
+                        @RequiresApi(api = Build.VERSION_CODES.O)
                         @Override
                         public void onResponse(String response) {
                             itemList.clear();
+                            search_list.clear();
+                            LocalDate now = LocalDate.now();
                             try {
                                 JSONArray jsonArray = new JSONArray(response);
                                 itemRecyclerView.setAdapter(homeAdapter);
@@ -331,18 +490,21 @@ public class HomeFragment extends Fragment  {
                                     int is_alarm_on = jsonObject.getInt("itemAlarmOn");
                                     String gender = jsonObject.getString("itemGender");
                                     int itemRequestCode = jsonObject.getInt("itemRequestCode");
+                                    //생일 D-day 구하기
+                                    long solarDday = getBirthDday(so_birth);
 
                                     if(gender.equals("남")){
-                                        ItemData itemData= new ItemData(name, group,R.drawable.profile_man_icon,so_birth, lu_birth, memo, is_alarm_on,"","",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
+                                        ItemData itemData= new ItemData(name, group,R.drawable.profile_man_icon,so_birth, lu_birth, memo,
+                                                is_alarm_on,"D-"+solarDday,"",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                                         itemList.add(itemData);
 
                                     } else {
-                                        ItemData itemData= new ItemData(name, group,R.drawable.profile_woman_icon,so_birth, lu_birth, memo, is_alarm_on,"","",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
+                                        ItemData itemData= new ItemData(name, group,R.drawable.profile_woman_icon,so_birth, lu_birth, memo,
+                                                is_alarm_on,"D-"+solarDday,"",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                                         itemList.add(itemData);
 
                                     }
                                     homeAdapter.notifyItemInserted(i);
-
 
                                 }
                             } catch (JSONException e) {
@@ -374,8 +536,9 @@ public class HomeFragment extends Fragment  {
         RequestQueue requestQueue= Volley.newRequestQueue(getActivity().getApplicationContext());
         //요청큐에 요청 객체 생성
         requestQueue.add(request);
-        Log.d("로드디비2","ㄱ");
+        Log.d("로드디비1","ㄱ");
     }
+    //그룹 DB로 추가하는 메소드
     public void addGroupToDB(String group){
         Response.Listener<String> responseListener = new Response.Listener<String>() {
             @Override
@@ -412,7 +575,7 @@ public class HomeFragment extends Fragment  {
         RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
         queue.add(groupAddRequest);
     }
-    //그룹 불러올때 랜덤으로 불러와서 뒤죽박죽임 나중에 해결 ㄱㄱ 23.02.27
+    //그룹을 DB로부터 가져오는 메소드
     public void loadGroupFromDB(String url){
         StringRequest request = new StringRequest(
                 Request.Method.POST,
@@ -467,6 +630,42 @@ public class HomeFragment extends Fragment  {
         requestQueue.add(request);
         Log.d("로드디비2","ㄱ");
     }
+    //그룹 이름 변경 메소드
+    public void updateGroupName(String group, String beforeName){
+        Response.Listener<String> responseListener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    boolean success = jsonObject.getBoolean("success");
+                    if(!group.equals("")){
+                        if(success){
+                            Toast.makeText(getContext(),"수정 완료",Toast.LENGTH_SHORT).show();
+                            loadGroupFromDB(loadGroupURL);
+                        } else{
+                            Toast.makeText(getContext(),"그룹이 중복되지 않도록 기입해주세요",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    } else {
+                        Toast.makeText(getContext(),"그룹을 입력하지 않았습니다",Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    Toast.makeText(getContext(),"그룹 추가 오류",Toast.LENGTH_SHORT).show();
+                    StringWriter sw = new StringWriter();
+                    e.printStackTrace(new PrintWriter(sw));
+                    String exceptionAsStrting = sw.toString();
+                    Log.e("그룹 추가 오류", exceptionAsStrting);
+                    e.printStackTrace();
+                }
+            }
+        };
+        GroupUpdateRequest groupUpdateRequest = new GroupUpdateRequest(mainActivity.userId,group,beforeName,responseListener);
+        RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
+        queue.add(groupUpdateRequest);
+    }
+
+
+    //모든 알람을 다시 설정하는 메소드(로그아웃시 다 없앴기 때문에 첫 로그인을 하면 이 메소드를 실행함)
     public void allAlarmStart(String url,String group){
         StringRequest request = new StringRequest(
                 Request.Method.POST,
@@ -475,10 +674,8 @@ public class HomeFragment extends Fragment  {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onResponse(String response) {
-                        itemList.clear();
                         try {
                             JSONArray jsonArray = new JSONArray(response);
-                            itemRecyclerView.setAdapter(homeAdapter);
                             LocalDate now = LocalDate.now();
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -529,7 +726,7 @@ public class HomeFragment extends Fragment  {
         requestQueue.add(request);
         Log.d("로드디비2","ㄱ");
     }
-    //그룹 첫번째를 클릭하는 메소드
+    //그룹 첫번째를 클릭하는 메소드. groupAdapter에서 recyclerview 바인딩이 끝나면 이 메소드 수행.
     public void clickFirstGroup(){
         //딜레이를 살짝 주지 않으면 클릭할 그룹이 없어서 오류남
         Handler handler = new Handler();
@@ -541,7 +738,70 @@ public class HomeFragment extends Fragment  {
                 groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
 
             }
-        },10);
+        },15);
+    }
+    //이름 오름차순 정렬
+    public void recyclerViewAcsSort(ArrayList<ItemData> item){
+        Collections.sort(item, new Comparator<ItemData>() {
+            @Override
+            public int compare(ItemData itemData, ItemData t1) {
+                return itemData.getTv_item_name().compareTo(t1.getTv_item_name());
+            }
+        });
+        HomeAdapter homeAdapter = new HomeAdapter(getActivity().getApplicationContext(),item);
+        itemRecyclerView.setAdapter(homeAdapter);
+    }
+    //이름 내림차순 정렬
+    public void recyclerViewDesSort(ArrayList<ItemData> item){
+        Collections.sort(item,new Comparator<ItemData>() {
+            @Override
+            public int compare(ItemData itemData, ItemData t1) {
+                return t1.getTv_item_name().compareTo(itemData.getTv_item_name());
+            }
+        });
+        HomeAdapter homeAdapter = new HomeAdapter(getActivity().getApplicationContext(),item);
+        itemRecyclerView.setAdapter(homeAdapter);
+    }
+    //임박한 생일 순으로 정렬
+    public void recyclerViewDaySort(ArrayList<ItemData> item){
+        Collections.sort(item,new Comparator<ItemData>() {
+            @Override
+            public int compare(ItemData itemData, ItemData t1) {
+                return itemData.getTv_item_so_dday().substring(2).compareTo(t1.getTv_item_so_dday().substring(2));
+            }
+        });
+        HomeAdapter homeAdapter = new HomeAdapter(getActivity().getApplicationContext(),item);
+        itemRecyclerView.setAdapter(homeAdapter);
+    }
+    //D-day 구하기 메소드
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public long getBirthDday(String birth){
+        long Dday=0;
+        LocalDate now = LocalDate.now();
+        birth = now.getYear()+birth.substring(4,8);
+        //dday 구하기
+        String nowMon = now.getDayOfMonth()+"";
+        String nowDay = now.getDayOfMonth()+"";
+        if(now.getMonthValue()<10){
+            nowMon = "0"+now.getMonthValue();
+        }
+        if(now.getDayOfMonth()<10){
+            nowDay = "0"+now.getDayOfMonth();
+        }
+        String today = now.getYear()+nowMon+nowDay;
+        try {
+            Date todayForm = new SimpleDateFormat("yyyyMMdd").parse(today);
+            Date birthForm = new SimpleDateFormat("yyyyMMdd").parse(birth);
+            Dday = (birthForm.getTime() - todayForm.getTime() ) / 1000 / (24*60*60);
+            if(Dday<0){
+                birth = (now.getYear()+1)+birth.substring(4,8);
+                birthForm = new SimpleDateFormat("yyyyMMdd").parse(birth);
+                Dday = (birthForm.getTime() - todayForm.getTime() ) / 1000 / (24*60*60);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return Dday;
     }
 
 }

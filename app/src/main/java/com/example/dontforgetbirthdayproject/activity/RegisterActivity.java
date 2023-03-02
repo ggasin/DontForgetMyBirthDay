@@ -340,7 +340,7 @@ public class RegisterActivity extends AppCompatActivity {
                     //받는 사람의 메일 주소
                     message.addRecipient(Message.RecipientType.TO, new InternetAddress(userEmail));
                     //메일 제목
-                    message.setSubject("잊지마 내생일 아이디 찾기 인증번호");
+                    message.setSubject("잊지마 내생일 회원가입 인증번호");
                     Log.d("userEmail in thre","");
                     //메일 내용
                     message.setText("인증번호는 " + content + " 입니다");

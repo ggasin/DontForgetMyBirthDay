@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/sort_asc_menu"
+        android:title="이름 오름차순" />
+    <item
+        android:id="@+id/sort_des_menu"
+        android:title="이름 내림차순"/>
+    <item
+        android:id="@+id/sort_dday_menu"
+        android:title="임박한 생일 순"/>
+
+</menu>

@@ -1,6 +1,9 @@
 package com.example.dontforgetbirthdayproject.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.dontforgetbirthdayproject.data.ItemData;
 import com.example.dontforgetbirthdayproject.OnItemClickListener;
 import com.example.dontforgetbirthdayproject.R;
+import com.google.android.material.color.ColorRoles;
 
 import java.util.ArrayList;
 
@@ -55,10 +59,17 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
             holder.tv_lu_birth.setText(arrayList.get(position).getTv_item_lunar_birth().substring(0,4)+"년 "+
                     arrayList.get(position).getTv_item_lunar_birth().substring(4,6)+"월 "+arrayList.get(position).getTv_item_lunar_birth().substring(6,8)+"일");
         }
-
         holder.tv_memo.setText(arrayList.get(position).getTv_item_memo());
         holder.tv_so_dday.setText(arrayList.get(position).getTv_item_so_dday());
         holder.tv_lu_dday.setText(arrayList.get(position).getTv_item_lu_dday());
+
+        //dday가 7일보다 아래면
+        if( Integer.parseInt(arrayList.get(position).getTv_item_so_dday().substring(2))<7){
+            holder.tv_so_dday.setTextColor(Color.parseColor("#FF0000")); //빨강
+
+        } else {
+            holder.tv_so_dday.setTextColor(-1979711488); //현재 기본 텍스트 색상
+        }
 
         holder.sw_alarm_on.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -92,6 +103,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
         } catch (IndexOutOfBoundsException e){
             e.printStackTrace();
         }
+    }
+
+    //검색 기능시 활용. 어댑터의 아이템을 인자로 받은 아이템으로 바꾸고 notify~를 통해 recyclerView에게 데이터가 변했다고 알림.
+    public void filterList(ArrayList<ItemData> list){
+        arrayList = list;
+        notifyDataSetChanged();
     }
 
     public void setOnItemClicklistener(OnItemClickListener listener){
