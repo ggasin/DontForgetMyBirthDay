@@ -88,11 +88,11 @@ public class LoginActivity extends AppCompatActivity {
                                     startActivity(intent);
 
                                 } else{
-                                    Toast.makeText(getApplicationContext(),"로그인 실패",Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(),"아이디 또는 비밀번호를 다시 확인해주세요.",Toast.LENGTH_SHORT).show();
                                     return;
                                 }
                             } else{
-                                Toast.makeText(getApplicationContext(),"로그인 실패",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(),"입력하지 않은 란이 있는지 확인해주세요.",Toast.LENGTH_SHORT).show();
                                 return;
                             }
 

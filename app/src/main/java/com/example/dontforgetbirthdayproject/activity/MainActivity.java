@@ -30,6 +30,7 @@ import com.example.dontforgetbirthdayproject.data.GroupData;
 import com.example.dontforgetbirthdayproject.fragment.AddItemFragment;
 import com.example.dontforgetbirthdayproject.BackKeyHandler;
 import com.example.dontforgetbirthdayproject.fragment.CalendarFragment;
+import com.example.dontforgetbirthdayproject.fragment.ChangePwdFragment;
 import com.example.dontforgetbirthdayproject.fragment.HomeFragment;
 import com.example.dontforgetbirthdayproject.fragment.ItemDetailFragment;
 import com.example.dontforgetbirthdayproject.fragment.MyPageFragement;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private AddItemFragment fragmentAddItem = new AddItemFragment();
     private ItemDetailFragment fragmentItemDetail = new ItemDetailFragment();
     private CalendarFragment fragmentCalendar = new CalendarFragment();
+    private ChangePwdFragment fragmentChangePwd = new ChangePwdFragment();
     private RadioButton mpAlarmOne, mpAlarmThree, mpAlarmSeven;
     public String userId,selectedGroup,itemName,itemSolarBirth,itemlunarBirth,itemMemo,itemGroup;
     public ArrayList<String> groupArr;
@@ -169,6 +171,8 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragmentItemDetail).commit();
         } else if(index==3){
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragmentCalendar).commit();
+        } else if(index==4){
+            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragmentChangePwd).commit();
         }
     }
 

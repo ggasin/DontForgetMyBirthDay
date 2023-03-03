@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +33,7 @@ import org.json.JSONObject;
 public class MyPageFragement extends Fragment {
     MainActivity mainActivity;
     private TextView logoutTextBtn,myName,myId,myEmail;
+    private Button goChangePwdBtn;
 
     //onAttach 는 fragment가 activity에 올라온 순간
     @Override
@@ -63,6 +65,13 @@ public class MyPageFragement extends Fragment {
         myId = rootView.findViewById(R.id.mp_id_v);
         myName = rootView.findViewById(R.id.mp_name_v);
         myEmail = rootView.findViewById(R.id.mp_email_v);
+        goChangePwdBtn =rootView.findViewById(R.id.mp_go_change_pwd_btn);
+        goChangePwdBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainActivity.onFragmentChange(4);
+            }
+        });
 
 
 

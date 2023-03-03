@@ -767,7 +767,12 @@ public class HomeFragment extends Fragment  {
         Collections.sort(item,new Comparator<ItemData>() {
             @Override
             public int compare(ItemData itemData, ItemData t1) {
-                return itemData.getTv_item_so_dday().substring(2).compareTo(t1.getTv_item_so_dday().substring(2));
+                int item1 = Integer.parseInt(itemData.getTv_item_so_dday().substring(2));
+                int item2 = Integer.parseInt(t1.getTv_item_so_dday().substring(2));
+                Log.d("임박 생일",itemData.getTv_item_so_dday().substring(2));
+                Log.d("임박 생일1",t1.getTv_item_so_dday().substring(2));
+                return item1>item2 ? 1 : item1<item2 ? -1 : 0;
+                //int compare(T o1, T o2) 로 두 객체의 특정 값을 연산해서 음수가 나오면, o1의 객체가 작다고 판단, 양수가 나오면 o2의 객체가 작다고 판단한다.
             }
         });
         HomeAdapter homeAdapter = new HomeAdapter(getActivity().getApplicationContext(),item);

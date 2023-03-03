@@ -42,10 +42,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -141,6 +144,7 @@ public class CalendarFragment extends Fragment {
                 Request.Method.POST,
                 url,
                 new Response.Listener<String>() {  //응답을 문자열로 받아서 여기다 넣어달란말임(응답을 성공적으로 받았을 떄 이메소드가 자동으로 호출됨
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onResponse(String response) {
                         itemList.clear();
@@ -157,13 +161,15 @@ public class CalendarFragment extends Fragment {
                                 int is_alarm_on = jsonObject.getInt("itemAlarmOn");
                                 String gender = jsonObject.getString("itemGender");
                                 int itemRequestCode = jsonObject.getInt("itemRequestCode");
+                                //생일 D-day 구하기
+                                long solarDday = getBirthDday(so_birth);
 
                                 if(gender.equals("남")){
-                                    ItemData itemData= new ItemData(name, group,R.drawable.profile_man_icon,so_birth, lu_birth, memo, is_alarm_on,"","",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
+                                    ItemData itemData= new ItemData(name, group,R.drawable.profile_man_icon,so_birth, lu_birth, memo, is_alarm_on,"D-"+solarDday,"",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                                     itemList.add(itemData);
 
                                 } else {
-                                    ItemData itemData= new ItemData(name, group,R.drawable.profile_woman_icon,so_birth, lu_birth, memo, is_alarm_on,"","",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
+                                    ItemData itemData= new ItemData(name, group,R.drawable.profile_woman_icon,so_birth, lu_birth, memo, is_alarm_on,"D-"+solarDday,"",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                                     itemList.add(itemData);
 
                                 }
@@ -259,6 +265,36 @@ public class CalendarFragment extends Fragment {
             }
         }
         return monthDay;
+    }
+    //D-day 구하기 메소드
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public long getBirthDday(String birth){
+        long Dday=0;
+        LocalDate now = LocalDate.now();
+        birth = now.getYear()+birth.substring(4,8);
+        //dday 구하기
+        String nowMon = now.getDayOfMonth()+"";
+        String nowDay = now.getDayOfMonth()+"";
+        if(now.getMonthValue()<10){
+            nowMon = "0"+now.getMonthValue();
+        }
+        if(now.getDayOfMonth()<10){
+            nowDay = "0"+now.getDayOfMonth();
+        }
+        String today = now.getYear()+nowMon+nowDay;
+        try {
+            Date todayForm = new SimpleDateFormat("yyyyMMdd").parse(today);
+            Date birthForm = new SimpleDateFormat("yyyyMMdd").parse(birth);
+            Dday = (birthForm.getTime() - todayForm.getTime() ) / 1000 / (24*60*60);
+            if(Dday<0){
+                birth = (now.getYear()+1)+birth.substring(4,8);
+                birthForm = new SimpleDateFormat("yyyyMMdd").parse(birth);
+                Dday = (birthForm.getTime() - todayForm.getTime() ) / 1000 / (24*60*60);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return Dday;
     }
 
 }
