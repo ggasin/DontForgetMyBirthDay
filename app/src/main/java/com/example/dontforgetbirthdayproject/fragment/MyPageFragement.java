@@ -8,12 +8,15 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +26,6 @@ import com.android.volley.toolbox.Volley;
 import com.example.dontforgetbirthdayproject.R;
 import com.example.dontforgetbirthdayproject.activity.LoginActivity;
 import com.example.dontforgetbirthdayproject.activity.MainActivity;
-import com.example.dontforgetbirthdayproject.request.LoginRequest;
 import com.example.dontforgetbirthdayproject.request.MyPageRequest;
 
 import org.json.JSONException;
@@ -33,7 +35,12 @@ import org.json.JSONObject;
 public class MyPageFragement extends Fragment {
     MainActivity mainActivity;
     private TextView logoutTextBtn,myName,myId,myEmail;
-    private Button goChangePwdBtn;
+    private Button goChangePwdBtn,goSettingAlarm,completeSettingAlarm;
+    private LinearLayout settingAlarmLy;
+    private RadioGroup alarmSettingRadioGroup;
+    private RadioButton allAlarmOnRadioBtn,allAlarmOffRadioBtn,notChoiceRadioBtn;
+    String settingAllAlarmResult="",whenStartAlarm="";
+    private Spinner alarmStartDaySpinner;
 
     //onAttach 는 fragment가 activity에 올라온 순간
     @Override
@@ -66,12 +73,50 @@ public class MyPageFragement extends Fragment {
         myName = rootView.findViewById(R.id.mp_name_v);
         myEmail = rootView.findViewById(R.id.mp_email_v);
         goChangePwdBtn =rootView.findViewById(R.id.mp_go_change_pwd_btn);
+        goSettingAlarm = rootView.findViewById(R.id.mp_go_setting_push_alarm_btn);
+        settingAlarmLy = rootView.findViewById(R.id.mp_alarm_setting_ly);
+        completeSettingAlarm = rootView.findViewById(R.id.mp_complete_setting_alarm_btn);
+        alarmSettingRadioGroup = rootView.findViewById(R.id.mp_alarm_setting_redio_group);
+        allAlarmOnRadioBtn = rootView.findViewById(R.id.mp_all_alarm_on_radio_btn);
+        allAlarmOffRadioBtn = rootView.findViewById(R.id.mp_all_alarm_off_radio_btn);
+        notChoiceRadioBtn = rootView.findViewById(R.id.mp_alarm_not_choice_radio_btn);
+        alarmStartDaySpinner = rootView.findViewById(R.id.mp_set_alarm_start_spinner);
+
+
+
         goChangePwdBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mainActivity.onFragmentChange(4);
             }
         });
+
+        goSettingAlarm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                settingAlarmLy.setVisibility(View.VISIBLE);
+            }
+        });
+
+        completeSettingAlarm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences alarmSettingPreferences = getActivity().getSharedPreferences("alarmSetting",Context.MODE_PRIVATE);
+                SharedPreferences.Editor alarmSetting = alarmSettingPreferences.edit();
+                alarmSetting.putString("settingAlarm", settingAllAlarmResult);
+                alarmSetting.putString("whenAlarmStart", alarmStartDaySpinner.getSelectedItem().toString());
+                alarmSetting.commit();
+                settingAlarmLy.setVisibility(View.GONE);
+            }
+        });
+        alarmSettingRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton rb = group.findViewById(checkedId);
+                settingAllAlarmResult = rb.getText().toString();
+            }
+        });
+
 
 
 

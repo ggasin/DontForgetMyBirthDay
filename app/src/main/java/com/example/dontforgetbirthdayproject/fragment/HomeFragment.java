@@ -2,8 +2,6 @@ package com.example.dontforgetbirthdayproject.fragment;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -25,9 +23,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethod;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -43,20 +39,18 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.dontforgetbirthdayproject.GetGroupPositionListener;
-import com.example.dontforgetbirthdayproject.OnGroupLongClickListener;
+import com.example.dontforgetbirthdayproject.listener.GetGroupPositionListener;
+import com.example.dontforgetbirthdayproject.listener.OnGroupLongClickListener;
 import com.example.dontforgetbirthdayproject.adapter.GroupAdapter;
 import com.example.dontforgetbirthdayproject.request.GroupAddRequest;
 import com.example.dontforgetbirthdayproject.data.GroupData;
 import com.example.dontforgetbirthdayproject.adapter.HomeAdapter;
 import com.example.dontforgetbirthdayproject.data.ItemData;
-import com.example.dontforgetbirthdayproject.OnItemClickListener;
+import com.example.dontforgetbirthdayproject.listener.OnItemClickListener;
 import com.example.dontforgetbirthdayproject.R;
 import com.example.dontforgetbirthdayproject.activity.MainActivity;
 import com.example.dontforgetbirthdayproject.request.GroupDeleteRequest;
 import com.example.dontforgetbirthdayproject.request.GroupUpdateRequest;
-import com.example.dontforgetbirthdayproject.request.ItemDeleteRequest;
-import com.example.dontforgetbirthdayproject.request.ItemUpdateRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -254,6 +248,11 @@ public class HomeFragment extends Fragment  {
                 mainActivity.profile_id = item.getIv_profile();
                 mainActivity.itemClickPosition = position;
                 mainActivity.itemRequestCode = item.getItem_request_code();
+                if(item.getItem_alarm_on()==1){
+                    mainActivity.itemAlarmOnoff = true;
+                } else{
+                    mainActivity.itemAlarmOnoff =false;
+                }
                 mainActivity.ifTrueCalenderElseHome = false;
                 searchEt.setText(""); //검색하고나서 나온 아이템을 클릭하고 상세정보에 갔다가 다시 메인으로 돌아오면 검색edit에 글씨가 남아있어서 어댑터가 엉뚱한 list를 잡음
                 for(int i=0;i<groupSpinnerArr.size();i++){
@@ -267,6 +266,7 @@ public class HomeFragment extends Fragment  {
                 Log.d("아이템 클릭","클릭");
             }
         });
+
 
         //그룹 클릭 시
         groupAdapter.setOnGroupClicklistener(new GetGroupPositionListener() {

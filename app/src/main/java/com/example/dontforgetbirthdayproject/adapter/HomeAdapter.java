@@ -2,8 +2,6 @@ package com.example.dontforgetbirthdayproject.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dontforgetbirthdayproject.data.ItemData;
-import com.example.dontforgetbirthdayproject.OnItemClickListener;
+import com.example.dontforgetbirthdayproject.listener.OnItemClickListener;
 import com.example.dontforgetbirthdayproject.R;
-import com.google.android.material.color.ColorRoles;
 
 import java.util.ArrayList;
 
@@ -28,6 +25,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
     private Context context;
     private ArrayList<ItemData> arrayList;
     OnItemClickListener listener;
+
 
     public HomeAdapter(Context context,ArrayList<ItemData> arrayList) {
         this.context = context;
@@ -63,6 +61,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
         holder.tv_so_dday.setText(arrayList.get(position).getTv_item_so_dday());
         holder.tv_lu_dday.setText(arrayList.get(position).getTv_item_lu_dday());
 
+
+
         //dday가 7일보다 아래면
         if( Integer.parseInt(arrayList.get(position).getTv_item_so_dday().substring(2))<7){
             holder.tv_so_dday.setTextColor(Color.parseColor("#FF0000")); //빨강
@@ -71,23 +71,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
             holder.tv_so_dday.setTextColor(-1979711488); //현재 기본 텍스트 색상
         }
 
-        holder.sw_alarm_on.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if(isChecked){
 
-                }else{
 
-                }
-            }
-        });
 
-        if(arrayList.get(position).getItem_alarm_on()==0){
-            holder.sw_alarm_on.setChecked(false);
-        } else {
-            holder.sw_alarm_on.setChecked(true);
-        }
-        holder.itemView.setTag(position);
 
     }
 
@@ -96,6 +82,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
         return (null != arrayList ? arrayList.size() : 0);
     }
 
+    //아이템 제거
     public void remove(int position){
         try {
             arrayList.remove(position);
@@ -111,9 +98,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
         notifyDataSetChanged();
     }
 
+    //아이템 클릭 리스너
     public void setOnItemClicklistener(OnItemClickListener listener){
         this.listener = listener;
     }
+
     @Override
     public void onItemClick(CustomViewHolder holder, View view, int position) {
         if(listener != null){
@@ -126,10 +115,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
         return arrayList.get(position);
     }
 
+
+
     public class CustomViewHolder extends RecyclerView.ViewHolder {
         protected ImageView iv_profile;
         protected TextView tv_group,tv_name,tv_memo,tv_so_birth,tv_lu_birth,tv_so_dday,tv_lu_dday;
-        protected Switch sw_alarm_on;
         public CustomViewHolder(@NonNull View itemView) {
             super(itemView);
             this.iv_profile = (ImageView) itemView.findViewById(R.id.recycler_item_profile_iv);
@@ -138,9 +128,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
             this.tv_so_birth = (TextView) itemView.findViewById(R.id.recycler_item_so_birth_tv);
             this.tv_lu_birth = (TextView) itemView.findViewById(R.id.recycler_item_lu_birth_tv);
             this.tv_memo = (TextView) itemView.findViewById(R.id.recycler_item_memo_tv);
-            this.sw_alarm_on = (Switch) itemView.findViewById(R.id.sw_alarm_btn);
             this.tv_so_dday = (TextView) itemView.findViewById(R.id.recycler_item_so_dday_tv);
             this.tv_lu_dday = (TextView) itemView.findViewById(R.id.recycler_item_lu_dday_tv);
+
 
             // 아이템 클릭 이벤트 처리.
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -152,6 +142,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
                     }
                 }
             });
+
 
 
 

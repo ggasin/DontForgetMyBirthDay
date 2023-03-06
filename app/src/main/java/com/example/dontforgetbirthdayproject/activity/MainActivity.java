@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     public int itemClickPosition,itemRequestCode;
     public int profile_id;
     public static boolean isPushAlarmSend = false;
-    public boolean firstLogin = false;
+    public boolean firstLogin = false , itemAlarmOnoff;
     public boolean ifTrueCalenderElseHome = true;
     //현재 시간,분 변수선언
     int currHour, currMinute;

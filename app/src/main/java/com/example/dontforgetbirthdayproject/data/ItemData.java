@@ -9,7 +9,6 @@ public class ItemData {
     private String tv_item_memo;
     private String tv_item_so_dday;
     private String tv_item_lu_dday;
-    private int item_alram_on;
     private int item_request_code;
     private int item_alarm_on;
     public int getItem_request_code() {
@@ -21,14 +20,6 @@ public class ItemData {
     }
 
 
-
-    public int getItem_alram_on() {
-        return item_alram_on;
-    }
-
-    public void setItem_alram_on(int item_alram_on) {
-        this.item_alram_on = item_alram_on;
-    }
 
     public int getIv_profile() {
         return iv_profile;

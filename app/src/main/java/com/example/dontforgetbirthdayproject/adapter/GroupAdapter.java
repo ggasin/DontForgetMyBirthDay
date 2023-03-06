@@ -9,11 +9,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.dontforgetbirthdayproject.GetGroupPositionListener;
-import com.example.dontforgetbirthdayproject.OnGroupLongClickListener;
+import com.example.dontforgetbirthdayproject.listener.GetGroupPositionListener;
+import com.example.dontforgetbirthdayproject.listener.OnGroupLongClickListener;
 import com.example.dontforgetbirthdayproject.data.GroupData;
 import com.example.dontforgetbirthdayproject.R;
 import com.example.dontforgetbirthdayproject.fragment.HomeFragment;
