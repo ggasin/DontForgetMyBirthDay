@@ -11,15 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageButton
-            android:id="@+id/mp_go_update_info_btn"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="?attr/actionBarItemBackground"
-            android:src="@drawable/edit_icon"
-            app:layout_constraintBottom_toTopOf="@+id/mp_info_ly"
-            app:layout_constraintEnd_toEndOf="parent" />
-
         <LinearLayout
             android:id="@+id/mp_info_ly"
             android:layout_width="match_parent"
@@ -167,7 +158,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/textView2"
@@ -194,13 +185,9 @@
                         android:id="@+id/mp_all_alarm_on_radio_btn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:checked="true"
                         android:text="전체 알람 켜기" />
 
-                    <RadioButton
-                        android:id="@+id/mp_alarm_not_choice_radio_btn"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="변경 안함" />
                 </RadioGroup>
 
                 <TextView
@@ -243,6 +230,17 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/mp_delete_account_text_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="40dp"
+            android:text="회원탈퇴"
+            android:clickable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

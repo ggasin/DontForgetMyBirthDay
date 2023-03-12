@@ -6,14 +6,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.RadioButton;
@@ -71,16 +76,14 @@ public class MainActivity extends AppCompatActivity {
     private ItemDetailFragment fragmentItemDetail = new ItemDetailFragment();
     private CalendarFragment fragmentCalendar = new CalendarFragment();
     private ChangePwdFragment fragmentChangePwd = new ChangePwdFragment();
-    private RadioButton mpAlarmOne, mpAlarmThree, mpAlarmSeven;
     public String userId,selectedGroup,itemName,itemSolarBirth,itemlunarBirth,itemMemo,itemGroup;
     public ArrayList<String> groupArr;
     public int itemClickPosition,itemRequestCode;
     public int profile_id;
-    public static boolean isPushAlarmSend = false;
+
     public boolean firstLogin = false , itemAlarmOnoff;
     public boolean ifTrueCalenderElseHome = true;
-    //현재 시간,분 변수선언
-    int currHour, currMinute;
+
     //시스템에서 알람 서비스를 제공하도록 도와주는 클래스
     //특정 시점에 알람이 울리도록 도와준다
     public static AlarmManager alarmManager;
@@ -108,22 +111,42 @@ public class MainActivity extends AppCompatActivity {
 
         //푸시알림을 보내기 위해, 시스템에서 알림 서비스를 생성해주는 코드
         alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        firstLogin = intent.getBooleanExtra("firstLogin",false);
+        Log.d("first Login",String.valueOf(firstLogin));
+
 
         //NotificationReceiver로부터 액션 등록(푸시알림이 울리고 나서 메인액티비티에서 다시 setNotice를 실행하기 위함)
+        /*
         registerReceiver(notificationReceiver,new IntentFilter("INTERNET_LOST"));
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("INTERNET_LOST");
-        firstLogin = intent.getBooleanExtra("firstLogin",false);
-        Log.d("first Login",String.valueOf(firstLogin));
+        */
+        /*
+        //배터리 절전모드 해제(알림이 백그라운드에서 작동하지 않는것 같아 추가했는데 필요 없어져서 주석처리)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && firstLogin) {
+            Intent wakeSleepModeIntent = new Intent();
+            String packageName = getPackageName();
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                wakeSleepModeIntent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                wakeSleepModeIntent.setData(Uri.parse("package:" + packageName));
+                startActivity(wakeSleepModeIntent);
+            }
+        }
+         */
+
+
+
     }
-    //푸시알림이 울리고 난 뒤 액션을 받고나서 실행되는 부분. setNotice 실행
+    //푸시알림이 울리고 난 뒤 액션을 받고나서 실행되는 부분. setNotice 실행(receiver에서 알림을 다시 실행시키는걸로 바꿈)
+    /*
     BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             int year = intent.getIntExtra("year",0);
             int month = intent.getIntExtra("month",0);
-            int alarmStartDay = intent.getIntExtra("alarmStartDay",0);
             int day = intent.getIntExtra("day",0);
+            int alarmStartDay = intent.getIntExtra("alarmStartDay",0);
             int hour = intent.getIntExtra("hour",0);
             int minute = intent.getIntExtra("minute",0);
             String content = intent.getStringExtra("content");
@@ -133,10 +156,11 @@ public class MainActivity extends AppCompatActivity {
             Log.d("year",String.valueOf(year));
         }
     };
+     */
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        unregisterReceiver(notificationReceiver);
+        //unregisterReceiver(notificationReceiver);
     }
     //프래그먼트 선택 리스너
     class ItemSelectedListener implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -173,12 +197,13 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragmentCalendar).commit();
         } else if(index==4){
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragmentChangePwd).commit();
+        } else if(index==5){
+            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragmentMyPage).commit();
         }
     }
 
     //알람매니저에 알람등록 처리
-
-    public void setNotice(int year, int month, int alarmStartDay,int day, int hour, int minute, int id, String content, int requestCode) {
+    public void setNotice(int year, int month, int alarmStartDay,int day, int id, String content, int requestCode) {
 
         //알람을 수신할 수 있도록 하는 리시버로 인텐트 요청
         Intent receiverIntent = new Intent(this, NotificationReceiver.class);
@@ -189,8 +214,8 @@ public class MainActivity extends AppCompatActivity {
         receiverIntent.putExtra("month",month);
         receiverIntent.putExtra("day",day);
         receiverIntent.putExtra("alarmStartDay",alarmStartDay);
-        receiverIntent.putExtra("hour",hour);
-        receiverIntent.putExtra("minute",minute);
+        receiverIntent.putExtra("hour",0);
+        receiverIntent.putExtra("minute",1);
 
         /**
          * PendingIntent란?
@@ -217,8 +242,8 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month - 1);
         calendar.set(Calendar.DATE, alarmStartDay);
-        calendar.set(Calendar.HOUR_OF_DAY,hour);
-        calendar.set(Calendar.MINUTE,minute);
+        calendar.set(Calendar.HOUR_OF_DAY,0);
+        calendar.set(Calendar.MINUTE,1);
 
 
         //알람시간 설정
@@ -302,6 +327,81 @@ public class MainActivity extends AppCompatActivity {
         //요청큐에 요청 객체 생성
         requestQueue.add(request);
     }
+    //모든 알람을 다시 설정하는 메소드(로그아웃시 다 없앴기 때문에 첫 로그인을 하면 이 메소드를 실행함)
+    public void allAlarmStart(String url,String group){
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                url,
+                new Response.Listener<String>() {  //응답을 문자열로 받아서 여기다 넣어달란말임(응답을 성공적으로 받았을 떄 이메소드가 자동으로 호출됨
+                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            LocalDate now = LocalDate.now();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                String name = jsonObject.getString("itemName"); //no가 문자열이라서 바꿔야함.
+                                String so_birth = jsonObject.getString("itemSolarBirth");
+                                String lu_birth = jsonObject.getString("itemLunarBirth");
+                                int itemRequestCode = jsonObject.getInt("itemRequestCode");
+                                int month = Integer.parseInt(so_birth.substring(4,6));
+                                int day = Integer.parseInt(so_birth.substring(6,8));
+
+                                //생일이 이미 지났다면 다음년도로 알림설정
+                                if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
+                                    setNotice(now.getYear()+1,month
+                                            ,day-getSharedWhenStartAlarm(),day,itemRequestCode,name+"님의 생일",itemRequestCode);
+                                } else {
+                                    setNotice(now.getYear(),month
+                                            ,day-getSharedWhenStartAlarm(),day,itemRequestCode,name+"님의 생일",itemRequestCode);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener(){ //에러발생시 호출될 리스너 객체
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+        ){
+            //만약 POST 방식에서 전달할 요청 파라미터가 있다면 getParams 메소드에서 반환하는 HashMap 객체에 넣어줍니다.
+            //이렇게 만든 요청 객체는 요청 큐에 넣어주는 것만 해주면 됩니다.
+            //POST방식으로 안할거면 없어도 되는거같다.
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("itemId", userId);
+                params.put("itemGroup",group);
+                Log.d("아이템아이디",userId);
+                return params;
+            }
+        };
+        //실제 요청 작업을 수행해주는 요청큐 객체 생성
+        RequestQueue requestQueue= Volley.newRequestQueue(getApplicationContext().getApplicationContext());
+        //요청큐에 요청 객체 생성
+        requestQueue.add(request);
+        Log.d("로드디비2","ㄱ");
+    }
+
+    //sharedPreference에 저장된 알림 시작 날짜 가져오기
+    public int getSharedWhenStartAlarm(){
+        //알람을 며칠전부터 울리는지 사용자가 설정한 대로 main에 있는 변수에 선언해두기
+        SharedPreferences alarmSettingPreferences = getSharedPreferences("alarmSetting", Activity.MODE_PRIVATE);
+        String whenAlarmStart = alarmSettingPreferences.getString("whenAlarmStart", null);
+        if(whenAlarmStart == null){
+            return 2;
+        } else {
+            return Integer.parseInt(whenAlarmStart);
+        }
+    }
+
+
 
 
 }

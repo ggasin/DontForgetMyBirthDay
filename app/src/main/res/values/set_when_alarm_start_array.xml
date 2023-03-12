@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="setWhenAlarmStartArray">
-        <item>선택X</item>
         <item>당 일</item>
         <item>1일전부터</item>
         <item>2일전부터</item>

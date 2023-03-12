@@ -36,6 +36,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.dontforgetbirthdayproject.data.GroupData;
 import com.example.dontforgetbirthdayproject.data.RequestCodeData;
 
 import com.example.dontforgetbirthdayproject.request.ItemUpdateRequest;
@@ -45,6 +46,7 @@ import com.example.dontforgetbirthdayproject.adapter.HomeAdapter;
 import com.example.dontforgetbirthdayproject.data.ItemData;
 import com.example.dontforgetbirthdayproject.request.ItemDeleteRequest;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
@@ -58,6 +60,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,9 +83,10 @@ public class ItemDetailFragment extends Fragment {
 
     boolean isValidBirth = false;
     String solarBirth,lunarBirth="";
-    private int itemRequestCode,requestCode;
-    private static int solarRequestCode;
-    private String itemRequestCodeURL = "http://dfmbd.ivyro.net/LoadItemRequestCode.php";
+    private int itemRequestCode,requestCode,lunarRequestCode;
+    String updatePersonAlarmURL = "http://dfmbd.ivyro.net/UpdatePersonAlarm.php";
+    ArrayList<String> lunarArr,solarArr;
+
 
     //onAttach 는 fragment가 activity에 올라온 순간
     @Override
@@ -151,7 +155,7 @@ public class ItemDetailFragment extends Fragment {
         itemDetailName.setText(mainActivity.itemName);
         itemDetailGroup.setText(mainActivity.itemGroup);
         itemDetailSolar.setText(changeBirthForm(mainActivity.itemSolarBirth));
-        if(mainActivity.itemlunarBirth.equals("--")){
+        if(mainActivity.itemlunarBirth.equals("--") || mainActivity.itemlunarBirth.equals("윤달")){
             itemDetailLunar.setText(mainActivity.itemlunarBirth);
         } else {
             itemDetailLunar.setText(changeBirthForm(mainActivity.itemlunarBirth));
@@ -205,24 +209,17 @@ public class ItemDetailFragment extends Fragment {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if(isChecked){
-                            LocalDate now = LocalDate.now();
                             int month = Integer.parseInt(mainActivity.itemSolarBirth.substring(4,6));
                             int day = Integer.parseInt(mainActivity.itemSolarBirth.substring(6,8));
-                            //추가하는 생일이 이미 지났다면 내년 생일 알림으로 등록
-                            if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
-                                //알람 추가(양력)
-                                mainActivity.setNotice(now.getYear()+1,month,day-2,day,0,0,requestCode,
-                                        mainActivity.itemName+"님의 생일",requestCode);
-                                Toast.makeText(getContext(), "알림 설정", Toast.LENGTH_SHORT).show();
-
-                            } else {
-                                //알람 추가(양력)
-                                mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,requestCode,
-                                        mainActivity.itemName+"님의 생일",requestCode);
-                                Toast.makeText(getContext(), "알림 설정", Toast.LENGTH_SHORT).show();
-                            }
+                            //알람세팅
+                           whenUpdateItemSetNotice(month,day,mainActivity.itemName);
+                            //db에 있는 알람 on off 값 변경
+                            alarmUpdateToDb(updatePersonAlarmURL,mainActivity.itemName,1);
+                            Toast.makeText(getContext(), "알림 설정", Toast.LENGTH_SHORT).show();
                         } else {
                             mainActivity.cancelAlarm(requestCode);
+                            //db에 있는 알람 on off 값 변경
+                            alarmUpdateToDb(updatePersonAlarmURL,mainActivity.itemName,0);
                             Toast.makeText(getContext(), "알림 해제", Toast.LENGTH_SHORT).show();
                         }
 
@@ -238,13 +235,14 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked && solarValidCheck()){
+                    LocalDate now = LocalDate.now();
                     Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                ArrayList<String> lunarArr = getLunar(itemDetailEditSolar.getText().toString().substring(0,4),
+                                lunarArr = getLunar(itemDetailEditSolar.getText().toString().substring(0,4),
                                         itemDetailEditSolar.getText().toString().substring(4,6),itemDetailEditSolar.getText().toString().substring(6,8));
-                                lunarBirth = lunarArr.get(2)+lunarArr.get(1)+lunarArr.get(0);
+                                Log.d("음력",lunarArr.get(3)+lunarArr.get(2)+lunarArr.get(1)+lunarArr.get(0)); // 년 , 월 , 윤달여부 , 일 순으로 저장되어있음
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 lunarBirth = "&&";
@@ -259,7 +257,26 @@ public class ItemDetailFragment extends Fragment {
                     {
                         e.printStackTrace();
                     }
-                    itemDetailLunar.setText(lunarBirth);
+                    if(lunarArr.get(1).equals("윤")){
+                        lunarBirth = "윤달";
+                    } else{
+                        Thread thread1 = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                solarArr = getSolar(String.valueOf(now.getYear()),lunarArr.get(2),lunarArr.get(0));
+                            }
+                        });
+                        thread1.start(); //음력 계산 스레드 시작
+                        try{
+                            thread1.join();  //음력 계산이 끝나면 아래 코드를 시행하도록 하는 join 메소드
+                        }catch (InterruptedException e)
+                        {
+                            e.printStackTrace();
+                        }
+                        lunarBirth = solarArr.get(2)+solarArr.get(1)+solarArr.get(0);
+                        itemDetailLunar.setText(lunarBirth);
+                    }
+
                     Log.d("루나1",itemDetailLunar.getText().toString());
 
                 } else if(isChecked && !isValidBirth) {
@@ -359,19 +376,11 @@ public class ItemDetailFragment extends Fragment {
                                JSONObject jsonObject = new JSONObject(response);
                                boolean success = jsonObject.getBoolean("success");
                                if (success) {
-                                   LocalDate now = LocalDate.now();
+
                                    int month = Integer.parseInt(solar.substring(4,6));
                                    int day = Integer.parseInt(solar.substring(6,8));
-
-                                   if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
-                                       //알람 추가(양력)
-                                       mainActivity.setNotice(now.getYear()+1,month,day-2,day,0,0,requestCode,
-                                               name+"님의 생일",requestCode);
-                                   } else {
-                                       //알람 추가(양력)
-                                       mainActivity.setNotice(now.getYear(),month,day-2,day,0,0,requestCode,
-                                               name+"님의 생일",requestCode);
-                                   }
+                                   //알람 세팅
+                                    whenUpdateItemSetNotice(month,day,name);
                                    Toast.makeText(getContext(), "수정 완료", Toast.LENGTH_SHORT).show();
                                    editModeOff();
 
@@ -451,7 +460,7 @@ public class ItemDetailFragment extends Fragment {
         itemDetailName.setVisibility(View.VISIBLE);
         itemDetailSolar.setVisibility(View.VISIBLE);
         itemDetailLunar.setVisibility(View.VISIBLE);
-        if(mainActivity.itemlunarBirth.equals("--")){
+        if(mainActivity.itemlunarBirth.equals("--") || mainActivity.itemlunarBirth.equals("윤달")){
             itemDetailLunar.setText(mainActivity.itemlunarBirth);
             Log.d("루나4",itemDetailLunar.getText().toString());
         } else {
@@ -476,6 +485,131 @@ public class ItemDetailFragment extends Fragment {
             }
         }
         return 0;
+    }
+
+    //생일 수정되면 알림 다시 재설정
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void whenUpdateItemSetNotice(int month,int day,String name){
+        LocalDate now = LocalDate.now();
+        lunarRequestCode = requestCode+1;
+
+        //음력 체크 되어있고 윤달이 아니라면 음력도 알림 설정
+        if(itemDetailLunarChkBox.isChecked() && !lunarBirth.equals("윤달")){
+            int lunarMonth = Integer.parseInt(lunarBirth.substring(4,6));
+            int lunarDay = Integer.parseInt(lunarBirth.substring(6,8));
+            //양력
+            if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
+                mainActivity.setNotice(now.getYear()+1,month,day-mainActivity.getSharedWhenStartAlarm(),day,requestCode,
+                        name+"님의 생일",requestCode);
+            } else {
+                mainActivity.setNotice(now.getYear(),month,day-mainActivity.getSharedWhenStartAlarm(),day,requestCode,
+                        name+"님의 생일",requestCode);
+            }
+            //음력
+            if(now.getMonthValue()>lunarMonth || (now.getMonthValue()==lunarMonth && now.getDayOfMonth()>lunarDay )){
+                mainActivity.setNotice(now.getYear()+1,lunarMonth,lunarDay-2,lunarDay,lunarRequestCode,
+                        name+"님의 음력 생일",lunarRequestCode);
+            } else {
+                mainActivity.setNotice(now.getYear(),lunarMonth,lunarDay-2,lunarDay,lunarRequestCode,
+                        name+"님의 음력 생일",lunarRequestCode);
+            }
+        } else {
+            if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
+                //알람 추가(양력)
+                mainActivity.setNotice(now.getYear()+1,month,day-mainActivity.getSharedWhenStartAlarm(),day,requestCode,
+                        name+"님의 생일",requestCode);
+            } else {
+                //알람 추가(양력)
+                mainActivity.setNotice(now.getYear(),month,day-mainActivity.getSharedWhenStartAlarm(),day,requestCode,
+                        name+"님의 생일",requestCode);
+            }
+        }
+    }
+    //생일을 보기 좋게 바꿈. ex) 19981208 -> 1998년 12월 08일
+    public String changeBirthForm(String birth){
+        String changeBirth = birth.substring(0,4)+"년 "+ birth.substring(4,6)+"월 "+ birth.substring(6,8)+"일";
+        return changeBirth;
+    }
+    //양력 유효성 체크
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public boolean solarValidCheck(){
+        boolean isValidBirth = false;
+        LocalDate now = LocalDate.now(); //현재 날짜 가져오기
+        String solarBirth = itemDetailEditSolar.getText().toString();
+        if(solarBirth.length()==8) {
+            int solarBirthYear = Integer.parseInt(solarBirth.substring(0, 4)); //생년 인트형 변환
+            int solarBirthMonth = Integer.parseInt(solarBirth.substring(4, 6));
+            int solarBirthDay = Integer.parseInt(solarBirth.substring(6, 8));
+            //유효한 생년월일인지 체크
+            //1850년보다 많고 오늘날의 연도보다 생년월일이 적어야하고, 달은 1보다 크고 12보다 작아야한다
+            if (solarBirthYear > 1850 && solarBirthYear <= now.getYear() && solarBirthMonth >= 1 && solarBirthMonth <= 12) {
+                //30일이 끝인 달은 생일이 30일보다 작아야 유효하다
+                if ((solarBirthMonth==4) || (solarBirthMonth==6) || (solarBirthMonth==9) || (solarBirthMonth==11)) {
+                    if (solarBirthDay >= 1 && solarBirthDay <= 30) {
+                        isValidBirth = true;
+                    }
+                } else if (solarBirthMonth == 2) {
+                    //생일이 2월인데 윤년이면 29일까지 허용
+                    if (((solarBirthYear % 4 == 0 && solarBirthYear % 100 != 0) || solarBirthYear % 400 == 0) && (solarBirthDay <= 29 && solarBirthDay >= 1)) {
+                        isValidBirth = true;
+                    } else if (solarBirthDay <= 28) {
+                        isValidBirth = true;
+                    }
+                } else if (solarBirthDay <= 31 && solarBirthDay >= 1) {
+                    Log.d("solarBirthMonth 30??",solarBirthMonth+"");
+                    isValidBirth = true;
+                }
+            }
+        }
+        return isValidBirth;
+    }
+
+    //알람 on/off 시 db 업데이트
+    public void alarmUpdateToDb(String url,String name,int onOff){
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                url,
+                new Response.Listener<String>() {  //응답을 문자열로 받아서 여기다 넣어달란말임(응답을 성공적으로 받았을 떄 이메소드가 자동으로 호출됨
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            boolean success = jsonObject.getBoolean("success");
+                            if(success){
+                            } else{
+                                Toast.makeText(getContext(),"알람 설정 오류.",Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener(){ //에러발생시 호출될 리스너 객체
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getActivity().getApplicationContext(), "UPDATE ALARMON ERROR", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ){
+            //만약 POST 방식에서 전달할 요청 파라미터가 있다면 getParams 메소드에서 반환하는 HashMap 객체에 넣어줍니다.
+            //이렇게 만든 요청 객체는 요청 큐에 넣어주는 것만 해주면 됩니다.
+            //POST방식으로 안할거면 없어도 되는거같다.
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("itemId", mainActivity.userId);
+                params.put("itemName", name);
+                params.put("onOff", onOff+"");
+                return params;
+            }
+        };
+        //실제 요청 작업을 수행해주는 요청큐 객체 생성
+        RequestQueue requestQueue= Volley.newRequestQueue(getActivity().getApplicationContext());
+        //요청큐에 요청 객체 생성
+        requestQueue.add(request);
+
     }
     //음력 받아오기
     public ArrayList<String> getLunar(String year,String month,String day) throws IOException {
@@ -514,6 +648,10 @@ public class ItemDetailFragment extends Fragment {
                             buffer.append("음력 일 : ");
                             xpp.next();
                             arr.add(xpp.getText());
+                        } else if(tag.equals("lunLeapmonth")){
+                            buffer.append("윤달 : ");
+                            xpp.next();
+                            arr.add(xpp.getText());
                         }
                         break;
 
@@ -533,48 +671,7 @@ public class ItemDetailFragment extends Fragment {
         return arr;
 
     }
-    //생일을 보기 좋게 바꿈. ex) 19981208 -> 1998년 12월 08일
-    public String changeBirthForm(String birth){
-        String changeBirth = birth.substring(0,4)+"년 "+ birth.substring(4,6)+"월 "+ birth.substring(6,8)+"일";
-        return changeBirth;
-    }
-
-    //양력 유효성 체크
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public boolean solarValidCheck(){
-        boolean isValidBirth = false;
-        LocalDate now = LocalDate.now(); //현재 날짜 가져오기
-        String solarBirth = itemDetailEditSolar.getText().toString();
-        if(solarBirth.length()==8) {
-            int solarBirthYear = Integer.parseInt(solarBirth.substring(0, 4)); //생년 인트형 변환
-            int solarBirthMonth = Integer.parseInt(solarBirth.substring(4, 6));
-            int solarBirthDay = Integer.parseInt(solarBirth.substring(6, 8));
-            //유효한 생년월일인지 체크
-            //1850년보다 많고 오늘날의 연도보다 생년월일이 적어야하고, 달은 1보다 크고 12보다 작아야한다
-            if (solarBirthYear > 1850 && solarBirthYear <= now.getYear() && solarBirthMonth >= 1 && solarBirthMonth <= 12) {
-                //30일이 끝인 달은 생일이 30일보다 작아야 유효하다
-                if ((solarBirthMonth==4) || (solarBirthMonth==6) || (solarBirthMonth==9) || (solarBirthMonth==11)) {
-                    if (solarBirthDay >= 1 && solarBirthDay <= 30) {
-                        isValidBirth = true;
-                    }
-                } else if (solarBirthMonth == 2) {
-                    //생일이 2월인데 윤년이면 29일까지 허용
-                    if (((solarBirthYear % 4 == 0 && solarBirthYear % 100 != 0) || solarBirthYear % 400 == 0) && (solarBirthDay <= 29 && solarBirthDay >= 1)) {
-                        isValidBirth = true;
-                    } else if (solarBirthDay <= 28) {
-                        isValidBirth = true;
-                    }
-                } else if (solarBirthDay <= 31 && solarBirthDay >= 1) {
-                    Log.d("solarBirthMonth 30??",solarBirthMonth+"");
-                    isValidBirth = true;
-                }
-            }
-        }
-        return isValidBirth;
-    }
-
     //양력 받아오기기
-    /*
     public ArrayList<String> getSolar(String year, String month, String day){
         StringBuffer buffer=new StringBuffer();
         String key="%2FFuD9koHUvAqYGTL1DrKzBYNcJcVxuraDgxxPn5TpZr%2B5m6YCmEc1Bf%2BJB1tEUn5MqMMXXxtZ6wr9ngFMyJOoQ%3D%3D";
@@ -626,6 +723,6 @@ public class ItemDetailFragment extends Fragment {
 
         return arr;
     }
-    */
+
 
 }

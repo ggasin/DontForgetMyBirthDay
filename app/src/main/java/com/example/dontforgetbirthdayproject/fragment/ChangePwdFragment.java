@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +59,7 @@ public class ChangePwdFragment extends Fragment {
     }
     private LinearLayout inputIdLy,inputPwdLy,inputNewPwdLy,inputNewPwdCheckLy;
     private Button nextBtn,completeBtn;
+    private ImageButton backBtn;
     private EditText inputIdEt,inputPwdEt,inputNewPwdEt,inputNewPwdCheckEt;
     private TextView infoText;
     private AlertDialog dialog; // 알림화면 띄우기
@@ -79,6 +81,7 @@ public class ChangePwdFragment extends Fragment {
         inputNewPwdLy = rootView.findViewById(R.id.change_pwd_input_new_pwd_layout);
         inputNewPwdCheckLy = rootView.findViewById(R.id.change_pwd_input_new_pwd_check_layout);
         nextBtn = rootView.findViewById(R.id.change_pwd_next_btn);
+        backBtn = rootView.findViewById(R.id.change_pwd_back_btn);
         completeBtn = rootView.findViewById(R.id.change_pwd_complete_btn);
         inputIdEt = rootView.findViewById(R.id.change_pwd_input_id_et);
         inputPwdEt = rootView.findViewById(R.id.change_pwd_input_pwd_et);
@@ -101,6 +104,12 @@ public class ChangePwdFragment extends Fragment {
                 if(inputPwdEt.getText().length()>=6){
                     nextBtn.setVisibility(View.VISIBLE);
                 }
+            }
+        });
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mainActivity.onFragmentChange(5); //마이페이지로 돌아가기
             }
         });
         nextBtn.setOnClickListener(new View.OnClickListener() {

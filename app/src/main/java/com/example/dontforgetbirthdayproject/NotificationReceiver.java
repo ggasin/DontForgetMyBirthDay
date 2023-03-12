@@ -1,6 +1,7 @@
 package com.example.dontforgetbirthdayproject;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -9,7 +10,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.SystemClock;
 import android.util.Log;
+
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -18,8 +21,7 @@ import com.example.dontforgetbirthdayproject.activity.MainActivity;
 import com.example.dontforgetbirthdayproject.fragment.HomeFragment;
 
 import java.time.LocalDate;
-
-
+import java.util.Calendar;
 
 
 public class NotificationReceiver extends BroadcastReceiver {
@@ -33,6 +35,7 @@ public class NotificationReceiver extends BroadcastReceiver {
     //오레오 이상은 반드시 채널을 설정해줘야 Notification이 작동함
     private static String CHANNEL_ID = "channel1";
     private static String CHANNEL_NAME = "Channel1";
+    public static AlarmManager alarmManager;
 
     //수신되는 인텐트 - The Intent being received.
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -50,10 +53,9 @@ public class NotificationReceiver extends BroadcastReceiver {
         int hour = intent.getIntExtra("hour",0);
         int minute = intent.getIntExtra("minute",0);
         int alarmStartDay = intent.getIntExtra("alarmStartDay",0);
+        //푸시알림을 보내기 위해, 시스템에서 알림 서비스를 생성해주는 코드
 
-
-
-        Log.e(TAG, "onReceive contentValue값 확인 : " + contentValue);
+        Log.e(TAG, "onReceive 리시버 확인 : " + contentValue);
 
         builder = null;
 
@@ -107,12 +109,53 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         //NotificationManager를 이용하여 푸시 알림 보내기
         manager.notify(id,notification);
-
         //생일날이 오기 전까지 다음날 알람 추가
+        //처음엔 알림이 울린 뒤에 receiver에서 mainActivity에 신호를 줘서 mainActivity에서 다음 날짜 알림을 설정하는 방식으로 했는데
+        //그렇게 하면 doze모드일때 background에서 작동을 안하는듯함. 그래서 reciever안에서 다음 날짜를 설정하는걸로 구현
         if(dday>0){
             Log.d("인수 확인",String.valueOf(year)+String.valueOf(month)+String.valueOf(day)+String.valueOf(hour)+String.valueOf(minute)
                     +String.valueOf(id)+contentValue+String.valueOf(requestCode));
             try{
+                Intent receiverIntent = new Intent(context, NotificationReceiver.class);
+                receiverIntent.putExtra("content", contentValue);
+                receiverIntent.putExtra("requestCode", requestCode);
+                receiverIntent.putExtra("id",id);
+                receiverIntent.putExtra("year",year);
+                receiverIntent.putExtra("month",month);
+                receiverIntent.putExtra("day",day);
+                receiverIntent.putExtra("alarmStartDay",alarmStartDay+1);
+                receiverIntent.putExtra("hour",hour);
+                receiverIntent.putExtra("minute",minute);
+                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    pendingIntent = PendingIntent.getBroadcast(context, requestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+                } else {
+                    pendingIntent = PendingIntent.getBroadcast(context, requestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                }
+                //date타입으로 변경된 알람시간을 캘린더 타임에 등록
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month - 1);
+                calendar.set(Calendar.DATE, alarmStartDay+1);
+                calendar.set(Calendar.HOUR_OF_DAY,hour);
+                calendar.set(Calendar.MINUTE,minute);
+
+                //알람시간 설정
+                //param 1)알람의 타입
+                //param 2)알람이 울려야 하는 시간(밀리초)을 나타낸다.
+                //param 3)알람이 울릴 때 수행할 작업을 나타냄
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),pendingIntent);
+
+                } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),pendingIntent);
+
+                } else {
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),pendingIntent);
+
+                }
+                /*
+                mainActivity에 신호를 주는 코드. 신호를 줄 필요가 없어져서 주석처리
                 Intent i = new Intent("INTERNET_LOST");
                 i.putExtra("year",year);
                 i.putExtra("month",month);
@@ -124,15 +167,17 @@ public class NotificationReceiver extends BroadcastReceiver {
                 i.putExtra("content",contentValue);
                 i.putExtra("requestCode",requestCode);
                 context.sendBroadcast(i); //푸시알림이 울리고나서 메인액티비티에 있는 메소드를 실행하기 위해 메인액티비티에 액션 전달
+                 */
                 Log.d("리시버에서 setNotice 호출 성공","");
             }catch (NullPointerException e){
                 Log.d("리시버에서 setNotice 호출 오류","");
 
             }
-
-
         }
+
     }
 
 
 }
+
+

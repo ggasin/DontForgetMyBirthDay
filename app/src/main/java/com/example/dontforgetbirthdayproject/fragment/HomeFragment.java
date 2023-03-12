@@ -2,9 +2,11 @@ package com.example.dontforgetbirthdayproject.fragment;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -70,6 +72,7 @@ import java.util.Map;
 
 
 public class HomeFragment extends Fragment  {
+
     MainActivity mainActivity;
     //onAttach 는 fragment가 activity에 올라온 순간
     @Override
@@ -82,9 +85,10 @@ public class HomeFragment extends Fragment  {
         super.onDetach();
         mainActivity = null;
     }
-    private ArrayList<ItemData> itemList,search_list;
+    // search_list 검색시 같은 이름이 있는 아이템이 담길 리스트
+    private ArrayList<ItemData> itemList, searchList;
     private ArrayList<GroupData> groupList;
-    // 검색시 같은 이름이 있는 아이템이 담길 리스트
+    //아이템 상세정보 들어가서 수정할때 현재 존재하는 그룹을 spinner에 바인딩 시키기 위해 groupSpinnerArr에 group을 db로부터 가져올때 추가.
     public static ArrayList<String> groupSpinnerArr;
     private HomeAdapter homeAdapter;
     private GroupAdapter groupAdapter;
@@ -97,6 +101,8 @@ public class HomeFragment extends Fragment  {
     String loadItemURL = "http://dfmbd.ivyro.net/LoadItemDB.php";
     String loadGroupURL = "http://dfmbd.ivyro.net/LoadGroupDB.php";
     String groupUpdateURL = "http://dfmbd.ivyro.net/GroupUpdate.php";
+    String allAlarmOnURL = "http://dfmbd.ivyro.net/AllAlarmOn.php";
+    String allAlarmOffURL = "http://dfmbd.ivyro.net/AllAlarmOff.php";
 
 
 
@@ -135,7 +141,7 @@ public class HomeFragment extends Fragment  {
 
         itemList = new ArrayList<>();
         groupList = new ArrayList<>();
-        search_list = new ArrayList<>();
+        searchList = new ArrayList<>();
         groupSpinnerArr = new ArrayList<>();
 
 
@@ -148,10 +154,27 @@ public class HomeFragment extends Fragment  {
         loadGroupFromDB(loadGroupURL);
 
 
+
         Log.d("home first Login",String.valueOf(mainActivity.firstLogin));
         //로그인을 처음 한 상태라면 로그아웃때 다 취소한 알람을 다시 설정해야함.
         if(mainActivity.firstLogin){
-            allAlarmStart(loadItemURL,"전체");
+            SharedPreferences alarmSettingPreferences = getActivity().getSharedPreferences("alarmSetting", Activity.MODE_PRIVATE);
+            String settingAlarm= alarmSettingPreferences.getString("settingAlarm", null);//
+            String whenAlarmStart = alarmSettingPreferences.getString("whenAlarmStart", null);
+            if(settingAlarm == null && whenAlarmStart ==null){
+                mainActivity.allAlarmStart(allAlarmOnURL,"전체");
+            } else {
+                switch (settingAlarm){
+                    case "전체 알람 끄기":
+                        mainActivity.allCancelAlarm(allAlarmOffURL,"전체");;
+                        break;
+                    case "전체 알람 켜기":
+                        mainActivity.allAlarmStart(allAlarmOnURL,"전체");;
+                        break;
+                    default:
+                        break;
+                }
+            }
             mainActivity.firstLogin=false;
         }
 
@@ -170,8 +193,9 @@ public class HomeFragment extends Fragment  {
             public void onClick(View view) {
                 upsideBtnLy.setVisibility(View.VISIBLE);
                 searchEt.setText("");
-                searchEditLy.setVisibility(View.INVISIBLE);
+                searchEditLy.setVisibility(View.GONE);
                 loadDB(loadItemURL,mainActivity.selectedGroup);
+                //올라가있던 키보드 내리는 코드
                 InputMethodManager imm = (InputMethodManager) getActivity().getApplicationContext().getSystemService(INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
@@ -187,16 +211,16 @@ public class HomeFragment extends Fragment  {
             @Override
             public void afterTextChanged(Editable editable) {
                 String searchText = searchEt.getText().toString();
-                search_list.clear();
+                searchList.clear();
                 if(searchText.equals("")){
                     homeAdapter.filterList(itemList);
                 } else {
                     for (int i = 0; i < itemList.size(); i++) {
                         if (itemList.get(i).getTv_item_name().toLowerCase().contains(searchText.toLowerCase())) {
-                            search_list.add(itemList.get(i));
+                            searchList.add(itemList.get(i));
                         }
                     }
-                    homeAdapter.filterList(search_list);
+                    homeAdapter.filterList(searchList);
                 }
             }
         });
@@ -215,6 +239,8 @@ public class HomeFragment extends Fragment  {
                             //이름 오름차순
                             case R.id.sort_asc_menu:
                                 recyclerViewAcsSort(itemList);
+
+
                                 break;
                                 //이름 내림차순
                             case R.id.sort_des_menu:
@@ -275,6 +301,7 @@ public class HomeFragment extends Fragment  {
                 loadDB(loadItemURL,groupAdapter.getItem(position).getGroup());
                 mainActivity.selectedGroup = groupAdapter.getItem(position).getGroup().toString();
                 Log.d("선택된 그룹",groupAdapter.getItem(position).getGroup().toString());
+
             }
         });
 
@@ -325,6 +352,7 @@ public class HomeFragment extends Fragment  {
                                         }).show();
                                 break;
                             //그룹 삭제
+                            //2023-03-11 여유 생기면 딜레이 왜 줬는지 체크
                             case R.id.group_delete_menu:
                                 Log.d("group LongCLick",groupAdapter.getItem(position).getGroup());
                                 if(groupAdapter.getItem(position).getGroup().equals("전체")){
@@ -402,7 +430,6 @@ public class HomeFragment extends Fragment  {
             }
         });
 
-
         //추가 아이콘 클릭 이벤트
         itemAddBtn.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
@@ -475,7 +502,7 @@ public class HomeFragment extends Fragment  {
                         @Override
                         public void onResponse(String response) {
                             itemList.clear();
-                            search_list.clear();
+                            searchList.clear();
                             LocalDate now = LocalDate.now();
                             try {
                                 JSONArray jsonArray = new JSONArray(response);
@@ -497,12 +524,10 @@ public class HomeFragment extends Fragment  {
                                         ItemData itemData= new ItemData(name, group,R.drawable.profile_man_icon,so_birth, lu_birth, memo,
                                                 is_alarm_on,"D-"+solarDday,"",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                                         itemList.add(itemData);
-
                                     } else {
                                         ItemData itemData= new ItemData(name, group,R.drawable.profile_woman_icon,so_birth, lu_birth, memo,
                                                 is_alarm_on,"D-"+solarDday,"",itemRequestCode); // 첫 번째 매개변수는 몇번째에 추가 될지, 제일 위에 오도록
                                         itemList.add(itemData);
-
                                     }
                                     homeAdapter.notifyItemInserted(i);
 
@@ -537,6 +562,7 @@ public class HomeFragment extends Fragment  {
         //요청큐에 요청 객체 생성
         requestQueue.add(request);
         Log.d("로드디비1","ㄱ");
+
     }
     //그룹 DB로 추가하는 메소드
     public void addGroupToDB(String group){
@@ -665,69 +691,11 @@ public class HomeFragment extends Fragment  {
     }
 
 
-    //모든 알람을 다시 설정하는 메소드(로그아웃시 다 없앴기 때문에 첫 로그인을 하면 이 메소드를 실행함)
-    public void allAlarmStart(String url,String group){
-        StringRequest request = new StringRequest(
-                Request.Method.POST,
-                url,
-                new Response.Listener<String>() {  //응답을 문자열로 받아서 여기다 넣어달란말임(응답을 성공적으로 받았을 떄 이메소드가 자동으로 호출됨
-                    @RequiresApi(api = Build.VERSION_CODES.O)
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            LocalDate now = LocalDate.now();
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                                String name = jsonObject.getString("itemName"); //no가 문자열이라서 바꿔야함.
-                                String so_birth = jsonObject.getString("itemSolarBirth");
-                                String lu_birth = jsonObject.getString("itemLunarBirth");
-                                int itemRequestCode = jsonObject.getInt("itemRequestCode");
-                                int month = Integer.parseInt(so_birth.substring(4,6));
-                                int day = Integer.parseInt(so_birth.substring(6,8));
 
-                                //생일이 이미 지났다면 다음년도로 알림설정
-                                if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
-                                    mainActivity.setNotice(now.getYear()+1,month,day-2
-                                            ,day,0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
-                                } else {
-                                    mainActivity.setNotice(now.getYear(),month,day-2
-                                            ,day,0,0,itemRequestCode,name+"님의 생일",itemRequestCode);
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener(){ //에러발생시 호출될 리스너 객체
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getActivity().getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
-
-                    }
-                }
-        ){
-            //만약 POST 방식에서 전달할 요청 파라미터가 있다면 getParams 메소드에서 반환하는 HashMap 객체에 넣어줍니다.
-            //이렇게 만든 요청 객체는 요청 큐에 넣어주는 것만 해주면 됩니다.
-            //POST방식으로 안할거면 없어도 되는거같다.
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("itemId", mainActivity.userId);
-                params.put("itemGroup",group);
-                Log.d("아이템아이디",mainActivity.userId);
-                return params;
-            }
-        };
-        //실제 요청 작업을 수행해주는 요청큐 객체 생성
-        RequestQueue requestQueue= Volley.newRequestQueue(getActivity().getApplicationContext());
-        //요청큐에 요청 객체 생성
-        requestQueue.add(request);
-        Log.d("로드디비2","ㄱ");
-    }
     //그룹 첫번째를 클릭하는 메소드. groupAdapter에서 recyclerview 바인딩이 끝나면 이 메소드 수행.
+    //이 메소드는 groupAdapter에서 사용
     public void clickFirstGroup(){
+        recyclerViewDaySort(itemList);
         //딜레이를 살짝 주지 않으면 클릭할 그룹이 없어서 오류남
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -736,6 +704,7 @@ public class HomeFragment extends Fragment  {
                 GroupLinearLayoutManager.scrollToPositionWithOffset(0,0); //그룹 리사이클러뷰 스크롤을 최상단으로 이동
                 //화면에 보이는 그룹 리사이클러뷰의 첫번째 클릭
                 groupRecyclerView.findViewHolderForLayoutPosition(GroupLinearLayoutManager.findFirstCompletelyVisibleItemPosition()).itemView.performClick();
+
 
             }
         },15);
@@ -748,7 +717,6 @@ public class HomeFragment extends Fragment  {
                 return itemData.getTv_item_name().compareTo(t1.getTv_item_name());
             }
         });
-        HomeAdapter homeAdapter = new HomeAdapter(getActivity().getApplicationContext(),item);
         itemRecyclerView.setAdapter(homeAdapter);
     }
     //이름 내림차순 정렬
@@ -759,7 +727,6 @@ public class HomeFragment extends Fragment  {
                 return t1.getTv_item_name().compareTo(itemData.getTv_item_name());
             }
         });
-        HomeAdapter homeAdapter = new HomeAdapter(getActivity().getApplicationContext(),item);
         itemRecyclerView.setAdapter(homeAdapter);
     }
     //임박한 생일 순으로 정렬
@@ -775,8 +742,10 @@ public class HomeFragment extends Fragment  {
                 //int compare(T o1, T o2) 로 두 객체의 특정 값을 연산해서 음수가 나오면, o1의 객체가 작다고 판단, 양수가 나오면 o2의 객체가 작다고 판단한다.
             }
         });
-        HomeAdapter homeAdapter = new HomeAdapter(getActivity().getApplicationContext(),item);
+
         itemRecyclerView.setAdapter(homeAdapter);
+        homeAdapter.notifyDataSetChanged();
+
     }
     //D-day 구하기 메소드
     @RequiresApi(api = Build.VERSION_CODES.O)

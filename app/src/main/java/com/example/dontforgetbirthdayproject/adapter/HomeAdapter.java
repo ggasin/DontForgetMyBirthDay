@@ -2,6 +2,7 @@ package com.example.dontforgetbirthdayproject.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,9 +52,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
         holder.tv_name.setText(arrayList.get(position).getTv_item_name());
         holder.tv_so_birth.setText(arrayList.get(position).getTv_item_solar_birth().substring(0,4)+"년 "+
                 arrayList.get(position).getTv_item_solar_birth().substring(4,6)+"월 "+arrayList.get(position).getTv_item_solar_birth().substring(6,8)+"일");
-        if(arrayList.get(position).getTv_item_lunar_birth().equals("--")){
+        if(arrayList.get(position).getTv_item_lunar_birth().equals("--") || arrayList.get(position).getTv_item_lunar_birth().equals("윤달") ){
             holder.tv_lu_birth.setText(arrayList.get(position).getTv_item_lunar_birth());
         } else {
+            Log.d("음력", arrayList.get(position).getTv_item_lunar_birth());
             holder.tv_lu_birth.setText(arrayList.get(position).getTv_item_lunar_birth().substring(0,4)+"년 "+
                     arrayList.get(position).getTv_item_lunar_birth().substring(4,6)+"월 "+arrayList.get(position).getTv_item_lunar_birth().substring(6,8)+"일");
         }
@@ -136,7 +138,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.CustomViewHold
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int position = getBindingAdapterPosition() ;
+                    int position = getAbsoluteAdapterPosition() ;
                     if(listener != null){
                         listener.onItemClick(CustomViewHolder.this, v, position);
                     }
