@@ -303,11 +303,11 @@ public class FindIdActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         try {
                             JSONArray jsonArray = new JSONArray(response);
-                            for (int i = 0; i < response.length(); i++) {
+                            for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                                 userIdArr.add(jsonObject.getString("userID")); //no가 문자열이라서 바꿔야함.
                             }
-                            if(response.length()  >0){
+                            if(jsonArray.length()  >0){
                                 Log.d("isSuccessSendEmail f1",userIdArr.get(0).toString());
                             }
                         } catch (JSONException e) {

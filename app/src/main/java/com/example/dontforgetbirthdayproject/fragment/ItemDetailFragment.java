@@ -36,9 +36,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.dontforgetbirthdayproject.data.GroupData;
-import com.example.dontforgetbirthdayproject.data.RequestCodeData;
+import com.example.dontforgetbirthdayproject.apiClass.GetLunarSolarApiManager;
 
+import com.example.dontforgetbirthdayproject.apiClass.IsSolarValidApiManager;
+import com.example.dontforgetbirthdayproject.apiClass.SetAlarmApiManager;
 import com.example.dontforgetbirthdayproject.request.ItemUpdateRequest;
 import com.example.dontforgetbirthdayproject.R;
 import com.example.dontforgetbirthdayproject.activity.MainActivity;
@@ -46,21 +47,14 @@ import com.example.dontforgetbirthdayproject.adapter.HomeAdapter;
 import com.example.dontforgetbirthdayproject.data.ItemData;
 import com.example.dontforgetbirthdayproject.request.ItemDeleteRequest;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,9 +66,9 @@ public class ItemDetailFragment extends Fragment {
     private HomeAdapter homeAdapter;
     private TextView itemDetailName,itemDetailSolar,itemDetailLunar,itemDetailGroup;
     private EditText itemDetailMemo,itemDetailEditSolar,itemDetailEditName;
-    private ImageButton itemDetailCloseBtn,itemDetailDeleteBtn,itemDetailAlterBtn;
+    private ImageButton itemDetailBackBtn,itemDetailDeleteBtn,itemDetailAlterBtn;
     private LinearLayout itemDetailMemoLy;
-    private Button itemDetailCompleteBtn,itemDetailCalcelBtn;
+    private Button itemDetailCompleteBtn, itemDetailCancelBtn;
     private LinearLayout itemDetailBtnLy,itemDetailEditNameLy;
     private ImageView itemDetailProfile;
     private CheckBox itemDetailLunarChkBox;
@@ -86,6 +80,9 @@ public class ItemDetailFragment extends Fragment {
     private int itemRequestCode,requestCode,lunarRequestCode;
     String updatePersonAlarmURL = "http://dfmbd.ivyro.net/UpdatePersonAlarm.php";
     ArrayList<String> lunarArr,solarArr;
+    GetLunarSolarApiManager getLunarSolarApiManager = new GetLunarSolarApiManager();
+    SetAlarmApiManager setAlarmApiManager = new SetAlarmApiManager();
+    IsSolarValidApiManager isSolarValidApiManager = new IsSolarValidApiManager();
 
 
     //onAttach 는 fragment가 activity에 올라온 순간
@@ -132,12 +129,12 @@ public class ItemDetailFragment extends Fragment {
         itemDetailLunar = rootView.findViewById(R.id.item_detail_lunar_tv);
         itemDetailMemo = rootView.findViewById(R.id.item_detail_memo_et);
         itemDetailGroup = rootView.findViewById(R.id.item_detail_group_tv);
-        itemDetailCloseBtn = rootView.findViewById(R.id.item_detail_close_btn);
+        itemDetailBackBtn = rootView.findViewById(R.id.item_detail_back_btn);
         itemDetailMemoLy = rootView.findViewById(R.id.item_detail_memo_ly);
         itemDetailAlterBtn = rootView.findViewById(R.id.item_detail_alter_btn);
         itemDetailDeleteBtn = rootView.findViewById(R.id.item_detail_delete_btn);
         itemDetailCompleteBtn = rootView.findViewById(R.id.item_detail_complete_btn);
-        itemDetailCalcelBtn = rootView.findViewById(R.id.item_detail_cancel_btn);
+        itemDetailCancelBtn = rootView.findViewById(R.id.item_detail_cancel_btn);
         itemDetailEditName = rootView.findViewById(R.id.item_detail_edit_name);
         itemDetailEditSolar = rootView.findViewById(R.id.item_detail_edit_solar);
         itemDetailLunarChkBox = rootView.findViewById(R.id.item_detail_lunar_chk_box);
@@ -208,16 +205,37 @@ public class ItemDetailFragment extends Fragment {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        //토글버튼 연타 못하도록
+                        buttonView.setEnabled(false);
+                        buttonView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                buttonView.setEnabled(true);
+                            }
+                        }, 1500);
+
                         if(isChecked){
                             int month = Integer.parseInt(mainActivity.itemSolarBirth.substring(4,6));
                             int day = Integer.parseInt(mainActivity.itemSolarBirth.substring(6,8));
-                            //알람세팅
-                           whenUpdateItemSetNotice(month,day,mainActivity.itemName);
+
+                            //음력 설정이 안된 사람이라면 lunarIsChecked를 false를 줘서 음력 설정 안된사람이라고 알림.
+                            if(mainActivity.itemlunarBirth.equals("--") || mainActivity.itemlunarBirth.equals("윤달")){
+                                Log.d("mainLunarBirth1",mainActivity.itemlunarBirth);
+                                //알람 세팅
+                                setAlarmApiManager.whenAddOrUpdateItemSetNotice(getActivity().getApplicationContext(), mainActivity.alarmManager,false,
+                                        month,day, mainActivity.getSharedWhenStartAlarm(),mainActivity.itemlunarBirth,mainActivity.itemName,requestCode);
+                            } else {
+                                Log.d("mainLunarBirth2",mainActivity.itemlunarBirth);
+                                //알람 세팅
+                                setAlarmApiManager.whenAddOrUpdateItemSetNotice(getActivity().getApplicationContext(), mainActivity.alarmManager,true,
+                                        month,day, mainActivity.getSharedWhenStartAlarm(),mainActivity.itemlunarBirth,mainActivity.itemName,requestCode);
+                            }
+
                             //db에 있는 알람 on off 값 변경
                             alarmUpdateToDb(updatePersonAlarmURL,mainActivity.itemName,1);
                             Toast.makeText(getContext(), "알림 설정", Toast.LENGTH_SHORT).show();
                         } else {
-                            mainActivity.cancelAlarm(requestCode);
+                            setAlarmApiManager.cancelAlarm(getActivity().getApplicationContext(), mainActivity.alarmManager, requestCode);
                             //db에 있는 알람 on off 값 변경
                             alarmUpdateToDb(updatePersonAlarmURL,mainActivity.itemName,0);
                             Toast.makeText(getContext(), "알림 해제", Toast.LENGTH_SHORT).show();
@@ -240,7 +258,7 @@ public class ItemDetailFragment extends Fragment {
                         @Override
                         public void run() {
                             try {
-                                lunarArr = getLunar(itemDetailEditSolar.getText().toString().substring(0,4),
+                                lunarArr = getLunarSolarApiManager.getLunar(itemDetailEditSolar.getText().toString().substring(0,4),
                                         itemDetailEditSolar.getText().toString().substring(4,6),itemDetailEditSolar.getText().toString().substring(6,8));
                                 Log.d("음력",lunarArr.get(3)+lunarArr.get(2)+lunarArr.get(1)+lunarArr.get(0)); // 년 , 월 , 윤달여부 , 일 순으로 저장되어있음
                             } catch (IOException e) {
@@ -259,11 +277,12 @@ public class ItemDetailFragment extends Fragment {
                     }
                     if(lunarArr.get(1).equals("윤")){
                         lunarBirth = "윤달";
+                        itemDetailLunar.setText(lunarBirth);
                     } else{
                         Thread thread1 = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                solarArr = getSolar(String.valueOf(now.getYear()),lunarArr.get(2),lunarArr.get(0));
+                                solarArr = getLunarSolarApiManager.getSolar(String.valueOf(now.getYear()),lunarArr.get(2),lunarArr.get(0));
                             }
                         });
                         thread1.start(); //음력 계산 스레드 시작
@@ -311,7 +330,7 @@ public class ItemDetailFragment extends Fragment {
                                             boolean success = jsonObject.getBoolean("success");
                                             if (success) {
                                                 Toast.makeText(getContext(), "삭제 완료", Toast.LENGTH_SHORT).show();
-                                                mainActivity.cancelAlarm(requestCode); //삭제된 아이템의 알림을 삭제
+                                                setAlarmApiManager.cancelAlarm(getActivity().getApplicationContext(), mainActivity.alarmManager, requestCode); //삭제된 아이템의 알림을 삭제
                                                 editModeOff();
                                                 mainActivity.onFragmentChange(0);
 
@@ -360,7 +379,6 @@ public class ItemDetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-               LocalDate now = LocalDate.now(); //현재 날짜 가져오기
                String name = itemDetailEditName.getText().toString();
                String group = groupSpinner.getSelectedItem().toString();
                String beforeName = itemDetailName.getText().toString();
@@ -376,11 +394,11 @@ public class ItemDetailFragment extends Fragment {
                                JSONObject jsonObject = new JSONObject(response);
                                boolean success = jsonObject.getBoolean("success");
                                if (success) {
-
                                    int month = Integer.parseInt(solar.substring(4,6));
                                    int day = Integer.parseInt(solar.substring(6,8));
-                                   //알람 세팅
-                                    whenUpdateItemSetNotice(month,day,name);
+                                   //생일이 수정되면 수정된 날짜로 알람 다시 설정
+                                   setAlarmApiManager.whenAddOrUpdateItemSetNotice(getActivity().getApplicationContext(), mainActivity.alarmManager
+                                           ,itemDetailLunarChkBox.isChecked(),month,day, mainActivity.getSharedWhenStartAlarm(),lunarBirth,name,requestCode);
                                    Toast.makeText(getContext(), "수정 완료", Toast.LENGTH_SHORT).show();
                                    editModeOff();
 
@@ -415,7 +433,7 @@ public class ItemDetailFragment extends Fragment {
            }
         });
         //취소 버튼
-        itemDetailCalcelBtn.setOnClickListener(new View.OnClickListener() {
+        itemDetailCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                editModeOff();
@@ -423,7 +441,7 @@ public class ItemDetailFragment extends Fragment {
             }
         });
         //닫기 버튼
-        itemDetailCloseBtn.setOnClickListener(new View.OnClickListener() {
+        itemDetailBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(mainActivity.ifTrueCalenderElseHome){ //캘린더에서 눌러서 상세화면으로 온거면 캘린더로 돌아가기
@@ -487,44 +505,7 @@ public class ItemDetailFragment extends Fragment {
         return 0;
     }
 
-    //생일 수정되면 알림 다시 재설정
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void whenUpdateItemSetNotice(int month,int day,String name){
-        LocalDate now = LocalDate.now();
-        lunarRequestCode = requestCode+1;
 
-        //음력 체크 되어있고 윤달이 아니라면 음력도 알림 설정
-        if(itemDetailLunarChkBox.isChecked() && !lunarBirth.equals("윤달")){
-            int lunarMonth = Integer.parseInt(lunarBirth.substring(4,6));
-            int lunarDay = Integer.parseInt(lunarBirth.substring(6,8));
-            //양력
-            if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
-                mainActivity.setNotice(now.getYear()+1,month,day-mainActivity.getSharedWhenStartAlarm(),day,requestCode,
-                        name+"님의 생일",requestCode);
-            } else {
-                mainActivity.setNotice(now.getYear(),month,day-mainActivity.getSharedWhenStartAlarm(),day,requestCode,
-                        name+"님의 생일",requestCode);
-            }
-            //음력
-            if(now.getMonthValue()>lunarMonth || (now.getMonthValue()==lunarMonth && now.getDayOfMonth()>lunarDay )){
-                mainActivity.setNotice(now.getYear()+1,lunarMonth,lunarDay-2,lunarDay,lunarRequestCode,
-                        name+"님의 음력 생일",lunarRequestCode);
-            } else {
-                mainActivity.setNotice(now.getYear(),lunarMonth,lunarDay-2,lunarDay,lunarRequestCode,
-                        name+"님의 음력 생일",lunarRequestCode);
-            }
-        } else {
-            if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
-                //알람 추가(양력)
-                mainActivity.setNotice(now.getYear()+1,month,day-mainActivity.getSharedWhenStartAlarm(),day,requestCode,
-                        name+"님의 생일",requestCode);
-            } else {
-                //알람 추가(양력)
-                mainActivity.setNotice(now.getYear(),month,day-mainActivity.getSharedWhenStartAlarm(),day,requestCode,
-                        name+"님의 생일",requestCode);
-            }
-        }
-    }
     //생일을 보기 좋게 바꿈. ex) 19981208 -> 1998년 12월 08일
     public String changeBirthForm(String birth){
         String changeBirth = birth.substring(0,4)+"년 "+ birth.substring(4,6)+"월 "+ birth.substring(6,8)+"일";
@@ -534,32 +515,13 @@ public class ItemDetailFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public boolean solarValidCheck(){
         boolean isValidBirth = false;
-        LocalDate now = LocalDate.now(); //현재 날짜 가져오기
         String solarBirth = itemDetailEditSolar.getText().toString();
         if(solarBirth.length()==8) {
             int solarBirthYear = Integer.parseInt(solarBirth.substring(0, 4)); //생년 인트형 변환
             int solarBirthMonth = Integer.parseInt(solarBirth.substring(4, 6));
             int solarBirthDay = Integer.parseInt(solarBirth.substring(6, 8));
             //유효한 생년월일인지 체크
-            //1850년보다 많고 오늘날의 연도보다 생년월일이 적어야하고, 달은 1보다 크고 12보다 작아야한다
-            if (solarBirthYear > 1850 && solarBirthYear <= now.getYear() && solarBirthMonth >= 1 && solarBirthMonth <= 12) {
-                //30일이 끝인 달은 생일이 30일보다 작아야 유효하다
-                if ((solarBirthMonth==4) || (solarBirthMonth==6) || (solarBirthMonth==9) || (solarBirthMonth==11)) {
-                    if (solarBirthDay >= 1 && solarBirthDay <= 30) {
-                        isValidBirth = true;
-                    }
-                } else if (solarBirthMonth == 2) {
-                    //생일이 2월인데 윤년이면 29일까지 허용
-                    if (((solarBirthYear % 4 == 0 && solarBirthYear % 100 != 0) || solarBirthYear % 400 == 0) && (solarBirthDay <= 29 && solarBirthDay >= 1)) {
-                        isValidBirth = true;
-                    } else if (solarBirthDay <= 28) {
-                        isValidBirth = true;
-                    }
-                } else if (solarBirthDay <= 31 && solarBirthDay >= 1) {
-                    Log.d("solarBirthMonth 30??",solarBirthMonth+"");
-                    isValidBirth = true;
-                }
-            }
+            isValidBirth = isSolarValidApiManager.solarValidCheck(solarBirth,solarBirthYear,solarBirthMonth,solarBirthDay);
         }
         return isValidBirth;
     }
@@ -611,118 +573,7 @@ public class ItemDetailFragment extends Fragment {
         requestQueue.add(request);
 
     }
-    //음력 받아오기
-    public ArrayList<String> getLunar(String year,String month,String day) throws IOException {
-        StringBuffer buffer=new StringBuffer();
-        String key="%2FFuD9koHUvAqYGTL1DrKzBYNcJcVxuraDgxxPn5TpZr%2B5m6YCmEc1Bf%2BJB1tEUn5MqMMXXxtZ6wr9ngFMyJOoQ%3D%3D";
-        ArrayList<String> arr = new ArrayList<>();
-        String queryUrl="http://apis.data.go.kr/B090041/openapi/service/LrsrCldInfoService/getLunCalInfo?solYear="+year+"&solMonth="+month+"&solDay="+day+"&ServiceKey="+key;
-        try{
-            URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
-            InputStream is= url.openStream(); //url위치로 입력스트림 연결
 
-            XmlPullParserFactory factory= XmlPullParserFactory.newInstance();//xml파싱을 위한
-            XmlPullParser xpp= factory.newPullParser();
-            xpp.setInput( new InputStreamReader(is, "UTF-8") ); //inputstream 으로부터 xml 입력받기
-
-            String tag;
-
-            xpp.next();
-            int eventType= xpp.getEventType();
-            while( eventType != XmlPullParser.END_DOCUMENT ){
-                switch( eventType ){
-                    case XmlPullParser.START_DOCUMENT:
-                        break;
-                    case XmlPullParser.START_TAG:
-                        tag= xpp.getName();//테그 이름 얻어오기
-                        if(tag.equals("item")) ;// 첫번째 검색결과
-                        else if(tag.equals("lunYear")){
-                            xpp.next();
-                            arr.add(xpp.getText());//title 요소의 TEXT 읽어와서 문자열버퍼에 추가
-                        }
-                        else if(tag.equals("lunMonth")){
-                            buffer.append("음력 달 : ");
-                            xpp.next();
-                            arr.add(xpp.getText());
-                        } else if(tag.equals("lunDay")){
-                            buffer.append("음력 일 : ");
-                            xpp.next();
-                            arr.add(xpp.getText());
-                        } else if(tag.equals("lunLeapmonth")){
-                            buffer.append("윤달 : ");
-                            xpp.next();
-                            arr.add(xpp.getText());
-                        }
-                        break;
-
-                    case XmlPullParser.TEXT:
-                        break;
-                    case XmlPullParser.END_TAG:
-                        break;
-                }
-
-                eventType= xpp.next();
-            }
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return arr;
-
-    }
-    //양력 받아오기기
-    public ArrayList<String> getSolar(String year, String month, String day){
-        StringBuffer buffer=new StringBuffer();
-        String key="%2FFuD9koHUvAqYGTL1DrKzBYNcJcVxuraDgxxPn5TpZr%2B5m6YCmEc1Bf%2BJB1tEUn5MqMMXXxtZ6wr9ngFMyJOoQ%3D%3D";
-        ArrayList<String> arr = new ArrayList<>();
-        String queryUrl="http://apis.data.go.kr/B090041/openapi/service/LrsrCldInfoService/getSolCalInfo?lunYear="+year+"&lunMonth="+month+"&lunDay="+day+"&ServiceKey="+key;
-        try{
-            URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
-            InputStream is= url.openStream(); //url위치로 입력스트림 연결
-            XmlPullParserFactory factory= XmlPullParserFactory.newInstance();//xml파싱을 위한
-            XmlPullParser xpp= factory.newPullParser();
-            xpp.setInput( new InputStreamReader(is, "UTF-8") ); //inputstream 으로부터 xml 입력받기
-
-            String tag;
-
-            xpp.next();
-            int eventType= xpp.getEventType();
-            while( eventType != XmlPullParser.END_DOCUMENT ){
-                switch( eventType ){
-                    case XmlPullParser.START_DOCUMENT:
-                        break;
-                    case XmlPullParser.START_TAG:
-                        tag= xpp.getName();//테그 이름 얻어오기
-                        if(tag.equals("item")) ;// 첫번째 검색결과
-                        else if(tag.equals("solYear")){
-                            xpp.next();
-                            arr.add(xpp.getText());//title 요소의 TEXT 읽어와서 문자열버퍼에 추가
-                        }
-                        else if(tag.equals("solMonth")){
-                            xpp.next();
-                            arr.add(xpp.getText());
-                        } else if(tag.equals("solDay")){
-                            xpp.next();
-                            arr.add(xpp.getText());
-                        }
-                        break;
-
-                    case XmlPullParser.TEXT:
-                        break;
-                    case XmlPullParser.END_TAG:
-                        break;
-                }
-
-                eventType= xpp.next();
-            }
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return arr;
-    }
 
 
 }

@@ -17,6 +17,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
@@ -76,17 +77,18 @@ public class MainActivity extends AppCompatActivity {
     private ItemDetailFragment fragmentItemDetail = new ItemDetailFragment();
     private CalendarFragment fragmentCalendar = new CalendarFragment();
     private ChangePwdFragment fragmentChangePwd = new ChangePwdFragment();
-    public String userId,selectedGroup,itemName,itemSolarBirth,itemlunarBirth,itemMemo,itemGroup;
+    private BottomNavigationView bottomNavigationView;
+    public String userId,selectedGroup,itemName,itemSolarBirth,itemlunarBirth,itemMemo,itemGroup,beforeFragment="";
     public ArrayList<String> groupArr;
-    public int itemClickPosition,itemRequestCode;
-    public int profile_id;
+    public int itemClickPosition,itemRequestCode,profile_id;
+
 
     public boolean firstLogin = false , itemAlarmOnoff;
     public boolean ifTrueCalenderElseHome = true;
 
     //시스템에서 알람 서비스를 제공하도록 도와주는 클래스
     //특정 시점에 알람이 울리도록 도와준다
-    public static AlarmManager alarmManager;
+    public AlarmManager alarmManager;
     public static PendingIntent pendingIntent;
 
 
@@ -105,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //하단바 설정
-        BottomNavigationView bottomNavigationView = findViewById(R.id.menu_bottom_navigation);
+        bottomNavigationView = findViewById(R.id.menu_bottom_navigation);
         bottomNavigationView.setOnItemSelectedListener(new ItemSelectedListener());
         bottomNavigationView.setSelectedItemId(R.id.home_menu);
 
@@ -134,9 +136,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
          */
-
-
-
     }
     //푸시알림이 울리고 난 뒤 액션을 받고나서 실행되는 부분. setNotice 실행(receiver에서 알림을 다시 실행시키는걸로 바꿈)
     /*
@@ -162,10 +161,34 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         //unregisterReceiver(notificationReceiver);
     }
+
     //프래그먼트 선택 리스너
     class ItemSelectedListener implements BottomNavigationView.OnNavigationItemSelectedListener {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+            // 선택한 메뉴를 활성화합니다.
+            menuItem.setChecked(true);
+            // 다른 메뉴를 1초 동안 비활성화합니다.
+            // 비활성화를 하지 않으면 두 메뉴를 계속 클릭하면 loadGroupFromDB에 문제 생김.
+            for (int i = 0; i < bottomNavigationView.getMenu().size(); i++) {
+                MenuItem otherMenuItem = bottomNavigationView.getMenu().getItem(i);
+                if (otherMenuItem.getItemId() != menuItem.getItemId()) {
+                    otherMenuItem.setEnabled(false);
+                }
+            }
+
+            // 1초 뒤에 다른 메뉴를 활성화합니다.
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < bottomNavigationView.getMenu().size(); i++) {
+                        MenuItem otherMenuItem = bottomNavigationView.getMenu().getItem(i);
+                        if (otherMenuItem.getItemId() != menuItem.getItemId()) {
+                            otherMenuItem.setEnabled(true);
+                        }
+                    }
+                }
+            }, 300);
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             switch (menuItem.getItemId()) {
                 case R.id.calander_menu:
@@ -177,7 +200,6 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.mypage_menu:
                     transaction.replace(R.id.frameLayout, fragmentMyPage).commitAllowingStateLoss();
                     break;
-
             }
 
             return true;
@@ -201,9 +223,20 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragmentMyPage).commit();
         }
     }
+    //sharedPreference에 저장된 알림 시작 날짜 가져오기
+    public int getSharedWhenStartAlarm(){
+        //알람을 며칠전부터 울리는지 사용자가 설정한 대로 main에 있는 변수에 선언해두기
+        SharedPreferences alarmSettingPreferences = getSharedPreferences("alarmSetting", Activity.MODE_PRIVATE);
+        String whenAlarmStart = alarmSettingPreferences.getString("whenAlarmStart", null);
+        if(whenAlarmStart == null){
+            return 2;
+        } else {
+            return Integer.parseInt(whenAlarmStart);
+        }
+    }
 
     //알람매니저에 알람등록 처리
-    public void setNotice(int year, int month, int alarmStartDay,int day, int id, String content, int requestCode) {
+    /*public void setNotice(int year, int month, int alarmStartDay,int day, int id, String content, int requestCode) {
 
         //알람을 수신할 수 있도록 하는 리시버로 인텐트 요청
         Intent receiverIntent = new Intent(this, NotificationReceiver.class);
@@ -216,21 +249,18 @@ public class MainActivity extends AppCompatActivity {
         receiverIntent.putExtra("alarmStartDay",alarmStartDay);
         receiverIntent.putExtra("hour",0);
         receiverIntent.putExtra("minute",1);
+        *//*
+          PendingIntent란?
+          - Notification으로 작업을 수행할 때 인텐트가 실행되도록 합니다.
+          Notification은 안드로이드 시스템의 NotificationManager가 Intent를 실행합니다.
+          즉 다른 프로세스에서 수행하기 때문에 Notification으로 Intent수행시 PendingIntent의 사용이 필수 입니다.
+          *//*
 
-        /**
-         * PendingIntent란?
-         * - Notification으로 작업을 수행할 때 인텐트가 실행되도록 합니다.
-         * Notification은 안드로이드 시스템의 NotificationManager가 Intent를 실행합니다.
-         * 즉 다른 프로세스에서 수행하기 때문에 Notification으로 Intent수행시 PendingIntent의 사용이 필수 입니다.
-         */
-
-        /**
-         * 브로드캐스트로 실행될 pendingIntent선언 한다.
-         * Intent가 새로 생성될때마다(알람을 등록할 때마다) intent값을 업데이트 시키기 위해, FLAG_UPDATE_CURRENT 플래그를 준다
-         * 이전 알람을 취소시키지 않으려면 requestCode를 다르게 줘야 한다.
-         * */
-
-
+        *//*
+          브로드캐스트로 실행될 pendingIntent선언 한다.
+          Intent가 새로 생성될때마다(알람을 등록할 때마다) intent값을 업데이트 시키기 위해, FLAG_UPDATE_CURRENT 플래그를 준다
+          이전 알람을 취소시키지 않으려면 requestCode를 다르게 줘야 한다.
+          *//*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             pendingIntent = PendingIntent.getBroadcast(this, requestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
         } else {
@@ -260,6 +290,9 @@ public class MainActivity extends AppCompatActivity {
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
         }
     }
+
+
+
     public void cancelAlarm(int requestCode){
         Log.d("all cancel success2","cancel");
         Intent receiverIntent = new Intent(this, NotificationReceiver.class);
@@ -284,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             JSONArray jsonArray = new JSONArray(response);
                             LocalDate now = LocalDate.now();
-                            for (int i = 0; i < response.length(); i++) {
+                            for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                                 String lu_birth = jsonObject.getString("itemLunarBirth");
                                 int itemRequestCode = jsonObject.getInt("itemRequestCode");
@@ -339,7 +372,7 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             JSONArray jsonArray = new JSONArray(response);
                             LocalDate now = LocalDate.now();
-                            for (int i = 0; i < response.length(); i++) {
+                            for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                                 String name = jsonObject.getString("itemName"); //no가 문자열이라서 바꿔야함.
                                 String so_birth = jsonObject.getString("itemSolarBirth");
@@ -347,14 +380,37 @@ public class MainActivity extends AppCompatActivity {
                                 int itemRequestCode = jsonObject.getInt("itemRequestCode");
                                 int month = Integer.parseInt(so_birth.substring(4,6));
                                 int day = Integer.parseInt(so_birth.substring(6,8));
+                                int lunarRequestCode = itemRequestCode+1;
 
-                                //생일이 이미 지났다면 다음년도로 알림설정
-                                if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
-                                    setNotice(now.getYear()+1,month
-                                            ,day-getSharedWhenStartAlarm(),day,itemRequestCode,name+"님의 생일",itemRequestCode);
+                                if(lu_birth.equals("--") || lu_birth.equals("윤달")){
+                                    if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
+                                        //알람 추가(양력)
+                                        setNotice(now.getYear()+1,month,day-getSharedWhenStartAlarm(),day,itemRequestCode,
+                                                name+"님의 생일",itemRequestCode);
+                                    } else {
+                                        //알람 추가(양력)
+                                        setNotice(now.getYear(),month,day-getSharedWhenStartAlarm(),day,itemRequestCode,
+                                                name+"님의 생일",itemRequestCode);
+                                    }
                                 } else {
-                                    setNotice(now.getYear(),month
-                                            ,day-getSharedWhenStartAlarm(),day,itemRequestCode,name+"님의 생일",itemRequestCode);
+                                    int lunarMonth = Integer.parseInt(lu_birth.substring(4,6));
+                                    int lunarDay = Integer.parseInt(lu_birth.substring(6,8));
+                                    //양력
+                                    if(now.getMonthValue()>month || (now.getMonthValue()==month && now.getDayOfMonth()>day)){
+                                        setNotice(now.getYear()+1,month,day-getSharedWhenStartAlarm(),day,itemRequestCode,
+                                                name+"님의 생일",itemRequestCode);
+                                    } else {
+                                        setNotice(now.getYear(),month,day-getSharedWhenStartAlarm(),day,itemRequestCode,
+                                                name+"님의 생일",itemRequestCode);
+                                    }
+                                    //음력
+                                    if(now.getMonthValue()>lunarMonth || (now.getMonthValue()==lunarMonth && now.getDayOfMonth()>lunarDay )){
+                                        setNotice(now.getYear()+1,lunarMonth,lunarDay-getSharedWhenStartAlarm(),lunarDay,lunarRequestCode,
+                                                name+"님의 음력 생일",lunarRequestCode);
+                                    } else {
+                                        setNotice(now.getYear(),lunarMonth,lunarDay-getSharedWhenStartAlarm(),lunarDay,lunarRequestCode,
+                                                name+"님의 음력 생일",lunarRequestCode);
+                                    }
                                 }
                             }
                         } catch (JSONException e) {
@@ -387,21 +443,6 @@ public class MainActivity extends AppCompatActivity {
         //요청큐에 요청 객체 생성
         requestQueue.add(request);
         Log.d("로드디비2","ㄱ");
-    }
-
-    //sharedPreference에 저장된 알림 시작 날짜 가져오기
-    public int getSharedWhenStartAlarm(){
-        //알람을 며칠전부터 울리는지 사용자가 설정한 대로 main에 있는 변수에 선언해두기
-        SharedPreferences alarmSettingPreferences = getSharedPreferences("alarmSetting", Activity.MODE_PRIVATE);
-        String whenAlarmStart = alarmSettingPreferences.getString("whenAlarmStart", null);
-        if(whenAlarmStart == null){
-            return 2;
-        } else {
-            return Integer.parseInt(whenAlarmStart);
-        }
-    }
-
-
-
+    }*/
 
 }

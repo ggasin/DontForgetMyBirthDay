@@ -7,9 +7,42 @@
     android:layout_height="match_parent"
     tools:context=".fragment.MyPageFragement">
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mp_main_conLy"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <!-- 로딩 화면을 표시할 View -->
+
+
+        <LinearLayout
+            android:id="@+id/progress_bar_ly"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="1dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/mp_progress_bar_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="작업이 끝날 때 까지 잠시만 기다려 주세요."
+                android:textColor="@color/white" />
+        </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/mp_info_ly"
@@ -98,6 +131,7 @@
             android:layout_height="2dp"
             android:layout_marginTop="10dp"
             android:background="@color/light_gray"
+            android:elevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mp_info_ly" />
@@ -119,24 +153,52 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
+            android:drawableRight="@drawable/back_btn"
             android:gravity="center|start"
             android:text="\t비밀번호 변경"
             android:textSize="18dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view"
-            android:drawableRight="@drawable/back_btn"/>
+            app:layout_constraintTop_toBottomOf="@+id/view" />
+
+        <Button
+            android:id="@+id/mp_set_lunar_now_year_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:drawableRight="@drawable/back_btn"
+            android:gravity="center|start"
+            android:text="\t올해로 음력 생일 초기화 "
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+
+        <Button
+            android:id="@+id/mp_go_privacy_policy"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:drawableRight="@drawable/back_btn"
+            android:gravity="center|start"
+            android:text="\t개인정보처리방침 "
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mp_set_lunar_now_year_btn" />
 
         <View
             android:id="@+id/view2"
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:background="@color/light_gray"
+            android:elevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mp_go_change_pwd_btn" />
 
         <LinearLayout
+            android:id="@+id/linearLayout5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -231,14 +293,35 @@
 
         </LinearLayout>
 
+        <View
+            android:id="@+id/view4"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/light_gray"
+            android:elevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/mp_set_lunar_now_year_btn" />
+
+        <View
+            android:id="@+id/view3"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/light_gray"
+            android:elevation="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/mp_set_lunar_now_year_btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mp_set_lunar_now_year_btn" />
+
         <TextView
             android:id="@+id/mp_delete_account_text_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginBottom="40dp"
-            android:text="회원탈퇴"
             android:clickable="true"
+            android:text="회원탈퇴"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 

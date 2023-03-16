@@ -64,6 +64,12 @@ public class CalendarFragment extends Fragment {
         super.onDetach();
         mainActivity = null;
     }
+    @Override
+    public void onStop() {
+        mainActivity.beforeFragment = "캘린더 페이지";
+        Log.d("beforeFragmentCal",mainActivity.beforeFragment);
+        super.onStop();
+    }
 
     private MaterialCalendarView calendarView;
     private ArrayList<ItemData> itemList;
@@ -118,6 +124,11 @@ public class CalendarFragment extends Fragment {
                 mainActivity.itemClickPosition = position;
                 mainActivity.itemRequestCode = item.getItem_request_code();
                 mainActivity.ifTrueCalenderElseHome = true;
+                if(item.getItem_alarm_on()==1){
+                    mainActivity.itemAlarmOnoff = true;
+                } else{
+                    mainActivity.itemAlarmOnoff =false;
+                }
                 mainActivity.onFragmentChange(2);
                 Log.d("아이템 클릭","클릭");
             }
@@ -149,7 +160,7 @@ public class CalendarFragment extends Fragment {
                         try {
                             JSONArray jsonArray = new JSONArray(response);
                             itemRecyclerView.setAdapter(homeAdapter);
-                            for (int i = 0; i < response.length(); i++) {
+                            for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                                 String name = jsonObject.getString("itemName"); //no가 문자열이라서 바꿔야함.
                                 String so_birth = jsonObject.getString("itemSolarBirth");
@@ -212,7 +223,7 @@ public class CalendarFragment extends Fragment {
                         try {
                             LocalDate now = LocalDate.now(); //현재 날짜 가져오기
                             JSONArray jsonArray = new JSONArray(response);
-                            for (int i = 0; i < response.length(); i++) {
+                            for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                                 String solarBirth = jsonObject.getString("itemSolarBirth");
                                 int month = Integer.parseInt(solarBirth.substring(4,6))-1;

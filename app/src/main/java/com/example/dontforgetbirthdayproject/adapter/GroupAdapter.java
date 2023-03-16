@@ -1,6 +1,7 @@
 package com.example.dontforgetbirthdayproject.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
     GetGroupPositionListener listener;
     OnGroupLongClickListener groupLongClickListener;
     private int selectedItemPosition = -1;
+    private int bindCount = 0;
 
 
 
@@ -43,8 +45,9 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        homeFragment.clickFirstGroup();
+        //homeFragment.clickFirstGroup(); homeFragment에서 loadGroupFromDb를 할 때 그 작업이 완료되면 콜백으로 작업이 완료되었다는걸 알린 후 loadDB를 하는 방식으로 바꿈.
     }
+
 
 
     @NonNull
@@ -52,7 +55,9 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
     public CustomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.group_recycler_item,parent,false);
         CustomViewHolder holder = new CustomViewHolder(view);
+
         return holder;
+
     }
 
 
@@ -76,6 +81,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.CustomViewHo
                 notifyDataSetChanged();
             }
         });
+
 
     }
 
