@@ -103,7 +103,7 @@
                     android:layout_height="25dp"
                     android:layout_marginRight="15dp"
                     android:background="?attr/actionBarItemBackground"
-                    android:src="@drawable/sort_24px_icon" />
+                    android:src="@drawable/sort_icon" />
 
                 <ImageButton
                     android:id="@+id/item_add_btn"
@@ -111,7 +111,7 @@
                     android:layout_height="25dp"
                     android:layout_marginRight="10dp"
                     android:background="?attr/actionBarItemBackground"
-                    android:src="@drawable/add_24px_icon" />
+                    android:src="@drawable/add_icon" />
             </LinearLayout>
 
         </LinearLayout>

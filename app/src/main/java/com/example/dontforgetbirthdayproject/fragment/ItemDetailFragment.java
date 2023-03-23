@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -21,9 +23,11 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +43,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.dontforgetbirthdayproject.apiClass.GetLunarSolarApiManager;
 
 import com.example.dontforgetbirthdayproject.apiClass.IsSolarValidApiManager;
+import com.example.dontforgetbirthdayproject.apiClass.LoadingApiManager;
 import com.example.dontforgetbirthdayproject.apiClass.SetAlarmApiManager;
 import com.example.dontforgetbirthdayproject.request.ItemUpdateRequest;
 import com.example.dontforgetbirthdayproject.R;
@@ -69,11 +74,13 @@ public class ItemDetailFragment extends Fragment {
     private ImageButton itemDetailBackBtn,itemDetailDeleteBtn,itemDetailAlterBtn;
     private LinearLayout itemDetailMemoLy;
     private Button itemDetailCompleteBtn, itemDetailCancelBtn;
-    private LinearLayout itemDetailBtnLy,itemDetailEditNameLy;
+    private LinearLayout itemDetailBtnLy,itemDetailEditNameLy,progressBarLy;
     private ImageView itemDetailProfile;
     private CheckBox itemDetailLunarChkBox;
     private Spinner groupSpinner;
     private ToggleButton alarmToggleBtn;
+    private ProgressBar loadingSpinner;
+
 
     boolean isValidBirth = false;
     String solarBirth,lunarBirth="";
@@ -83,6 +90,7 @@ public class ItemDetailFragment extends Fragment {
     GetLunarSolarApiManager getLunarSolarApiManager = new GetLunarSolarApiManager();
     SetAlarmApiManager setAlarmApiManager = new SetAlarmApiManager();
     IsSolarValidApiManager isSolarValidApiManager = new IsSolarValidApiManager();
+    LoadingApiManager loadingApiManager = new LoadingApiManager();
 
 
     //onAttach 는 fragment가 activity에 올라온 순간
@@ -145,6 +153,10 @@ public class ItemDetailFragment extends Fragment {
 
         itemDetailBtnLy = rootView.findViewById(R.id.item_detail_btn_ly);
         itemDetailMemo = rootView.findViewById(R.id.item_detail_memo_et);
+
+        loadingSpinner =rootView.findViewById(R.id.item_detail_progress_bar);
+        progressBarLy = rootView.findViewById(R.id.item_detail_progress_bar_ly);
+
 
 
         //사용자 정보 및 초기 세팅
@@ -247,57 +259,70 @@ public class ItemDetailFragment extends Fragment {
             }
         });
 
+        //핸들러 정의
+        Handler lunarHandler = new Handler(Looper.getMainLooper());
+        Handler solarHandler = new Handler(Looper.getMainLooper());
         //음력 체크박스
         itemDetailLunarChkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked && solarValidCheck()){
+                    loadingApiManager.showLoading(progressBarLy,loadingSpinner,getActivity());
                     LocalDate now = LocalDate.now();
-                    Thread thread = new Thread(new Runnable() {
+                    Thread lunarThread = new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            try {
-                                lunarArr = getLunarSolarApiManager.getLunar(itemDetailEditSolar.getText().toString().substring(0,4),
-                                        itemDetailEditSolar.getText().toString().substring(4,6),itemDetailEditSolar.getText().toString().substring(6,8));
-                                Log.d("음력",lunarArr.get(3)+lunarArr.get(2)+lunarArr.get(1)+lunarArr.get(0)); // 년 , 월 , 윤달여부 , 일 순으로 저장되어있음
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                lunarBirth = "&&";
-                                Log.d("스레드 예외 발생","1");
-                            }
+                            getLunarSolarApiManager.getLunar(itemDetailEditSolar.getText().toString().substring(0,4),
+                                    itemDetailEditSolar.getText().toString().substring(4,6),itemDetailEditSolar.getText().toString().substring(6,8), new GetLunarSolarApiManager.LunarCallback() {
+                                @Override
+                                public void onSuccess(ArrayList<String> result) {
+                                    // 결과값 처리
+                                    lunarArr = result; // 일 , 윤달여부, 월 , 년 순으로 저장되어있음
+                                    if(lunarArr.get(1).equals("윤")){
+                                        lunarBirth = "윤달";
+                                        itemDetailLunar.setText(lunarBirth);
+                                        mainActivity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                loadingApiManager.hideLoading(progressBarLy, loadingSpinner, getActivity());
+                                            }
+                                        });
+                                    } else{
+                                        //양력 계산 스레드
+                                        Thread solarThread = new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                solarArr = getLunarSolarApiManager.getSolar(String.valueOf(now.getYear()),lunarArr.get(2),lunarArr.get(0));
+                                                // 1월 초반 생일자가 음력체크를 할때 이번년도에 해당하는 음력이 없으면 양력으로 변환할때 다음년도로 넘어가서 계산하게 됨.
+                                                if (Integer.parseInt(solarArr.get(2)) > now.getYear()) {
+                                                    solarArr = getLunarSolarApiManager.getSolar(String.valueOf(now.getYear() - 1), lunarArr.get(2), lunarArr.get(0));
+                                                }
+                                                solarHandler.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        lunarBirth = solarArr.get(2)+solarArr.get(1)+solarArr.get(0);
+                                                        itemDetailLunar.setText(lunarBirth);
+                                                        loadingApiManager.hideLoading(progressBarLy,loadingSpinner,getActivity());
+                                                    }
+                                                });
+                                            }
+                                        });
+                                        solarThread.start(); // 양력 계산 스레드 시작
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    // 에러 처리
+                                    Log.e("GetLunarSolarApiManager", "음력 조회 실패: " + e.getMessage());
+                                }
+                            });
+
+
                         }
                     });
-                    thread.start(); //음력 계산 스레드 시작
-                    try{
-                        thread.join();  //음력 계산이 끝나면 아래 코드를 시행하도록 하는 join 메소드
-                    }catch (InterruptedException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    if(lunarArr.get(1).equals("윤")){
-                        lunarBirth = "윤달";
-                        itemDetailLunar.setText(lunarBirth);
-                    } else{
-                        Thread thread1 = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                solarArr = getLunarSolarApiManager.getSolar(String.valueOf(now.getYear()),lunarArr.get(2),lunarArr.get(0));
-                            }
-                        });
-                        thread1.start(); //음력 계산 스레드 시작
-                        try{
-                            thread1.join();  //음력 계산이 끝나면 아래 코드를 시행하도록 하는 join 메소드
-                        }catch (InterruptedException e)
-                        {
-                            e.printStackTrace();
-                        }
-                        lunarBirth = solarArr.get(2)+solarArr.get(1)+solarArr.get(0);
-                        itemDetailLunar.setText(lunarBirth);
-                    }
-
-                    Log.d("루나1",itemDetailLunar.getText().toString());
-
+                    lunarThread.start();
                 } else if(isChecked && !isValidBirth) {
                     itemDetailLunarChkBox.setChecked(false);
                     Toast.makeText(getContext(), "양력을 제대로 입력했는지 확인해주세요", Toast.LENGTH_SHORT).show();
@@ -421,7 +446,7 @@ public class ItemDetailFragment extends Fragment {
                        }
                    };
                    ItemUpdateRequest itemUpdateRequest = new ItemUpdateRequest(mainActivity.userId, group,name,
-                           beforeName,solar,lunar,memo,responseListener);
+                           beforeName,solar,lunar,memo,solarValidCheck(),responseListener);
                    RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
                    queue.add(itemUpdateRequest);
                    isValidBirth = false; //유효성 체크 boolean 값 다시 false로 초기화. 안하면 다음부턴 계속 true임

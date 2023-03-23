@@ -111,6 +111,7 @@ public class CalendarFragment extends Fragment {
         LoadAllSolarToDot(loadAllSolarToDot);
 
         //아이템 클릭 이벤트
+        //추후 수정-> 여기서 아이템 클릭하고 홈으로 돌아가게 되면 캘린더 아이콘이 검은색임
         homeAdapter.setOnItemClicklistener(new OnItemClickListener() {
             @Override
             public void onItemClick(HomeAdapter.CustomViewHolder holder, View view, int position) {

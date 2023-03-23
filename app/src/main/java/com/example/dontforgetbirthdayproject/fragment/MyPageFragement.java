@@ -2,23 +2,19 @@ package com.example.dontforgetbirthdayproject.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.RequiresApi;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
-import android.os.Message;
+import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -26,10 +22,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -37,7 +30,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +46,7 @@ import com.example.dontforgetbirthdayproject.apiClass.GetLunarSolarApiManager;
 import com.example.dontforgetbirthdayproject.R;
 import com.example.dontforgetbirthdayproject.activity.LoginActivity;
 import com.example.dontforgetbirthdayproject.activity.MainActivity;
+import com.example.dontforgetbirthdayproject.apiClass.LoadingApiManager;
 import com.example.dontforgetbirthdayproject.apiClass.SetAlarmApiManager;
 import com.example.dontforgetbirthdayproject.request.MyPageRequest;
 
@@ -68,13 +61,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 
 public class MyPageFragement extends Fragment {
     MainActivity mainActivity;
 
-    private TextView logoutTextBtn,deleteAccountBtn,myName,myId,myEmail;
-    private Button goChangePwdBtn,goSettingAlarm,completeSettingAlarm,setLunarNowYearBtn,goPrivatePolicy;
+    private TextView logoutTextBtn,myName,myId,myEmail;
+    private Button goChangePwdBtn,goSettingAlarm,completeSettingAlarm,setLunarNowYearBtn,goPrivatePolicy,deleteAccountBtn;
     private LinearLayout settingAlarmLy,progressBarLy;
     private FrameLayout mainLy;
     private RadioGroup alarmSettingRadioGroup;
@@ -87,14 +81,16 @@ public class MyPageFragement extends Fragment {
     String deleteAccountURL = "http://dfmbd.ivyro.net/DeleteAccount.php";
     String haveLunarPersonURL = "http://dfmbd.ivyro.net/LoadHaveLunarPerson.php";
     String updateNowYearLunarURL = "http://dfmbd.ivyro.net/UpdateNowYearLunar.php";
-    HashMap<String, String> haveLunarPersonLunarMap = new HashMap<String, String>();
+    HashMap<String, String> lunarResultMap = new HashMap<String, String>();
     HashMap<String, String> haveLunarPersonSolarMap = new HashMap<String, String>();
     HashMap<String, Integer> haveLunarPersonRequestCodeMap = new HashMap<String, Integer>();
     ArrayList<String> haveLunarPersonName = new ArrayList<>();
     GetLunarSolarApiManager getLunarSolarApiManager = new GetLunarSolarApiManager();
     SetAlarmApiManager setAlarmApiManager = new SetAlarmApiManager();
-    private static ArrayList<String> lunarArr = new ArrayList<>();
-    private static ArrayList<String> solarArr = new ArrayList<>();
+    LoadingApiManager loadingApiManager = new LoadingApiManager();
+    public static ArrayList<String> lunarArr = new ArrayList<String>();
+    public static ArrayList<String> nowYearLunarArr = new ArrayList<>();
+    public static ArrayList<String> solarArr = new ArrayList<>();
     String lunarBirth = "";
     private ProgressBar loadingSpinner;
     //onAttach 는 fragment가 activity에 올라온 순간
@@ -142,10 +138,10 @@ public class MyPageFragement extends Fragment {
         allAlarmOnRadioBtn = rootView.findViewById(R.id.mp_all_alarm_on_radio_btn);
         allAlarmOffRadioBtn = rootView.findViewById(R.id.mp_all_alarm_off_radio_btn);
         alarmStartDaySpinner = rootView.findViewById(R.id.mp_set_alarm_start_spinner);
-        deleteAccountBtn = rootView.findViewById(R.id.mp_delete_account_text_btn);
+        deleteAccountBtn = rootView.findViewById(R.id.mp_delete_account_btn);
         setLunarNowYearBtn = rootView.findViewById(R.id.mp_set_lunar_now_year_btn);
-        loadingSpinner = rootView.findViewById(R.id.progress_bar);
-        progressBarLy = rootView.findViewById(R.id.progress_bar_ly);
+        loadingSpinner = rootView.findViewById(R.id.mp_progress_bar);
+        progressBarLy = rootView.findViewById(R.id.mp_progress_bar_ly);
         mainLy = rootView.findViewById(R.id.mp_);
 
         SharedPreferences alarmSettingPreferences = getActivity().getSharedPreferences("alarmSetting", Activity.MODE_PRIVATE);
@@ -294,83 +290,93 @@ public class MyPageFragement extends Fragment {
 
         //정보 불러오기
         loadMyInfo();
-
+        Handler handler = new Handler(Looper.getMainLooper());
+        Handler handler1 = new Handler(Looper.getMainLooper());
 
         //올해 년도를 기준으로 음력 초기화 하는 버튼
+        //0318 handler 사용하는 방법으로 추후에 교체하기
         setLunarNowYearBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showLoading(); // 프로그레스바 보여주기
-                loadHaveLunarPersonFromDB(haveLunarPersonURL, new Runnable() {
-                    @RequiresApi(api = Build.VERSION_CODES.O)
-                    @Override
-                    public void run() {
-                        if (haveLunarPersonName.size() == 0) {
-                            Log.d("haveLunarPersonMap", "없음");
-                        } else {
-                            LocalDate now = LocalDate.now();
-                            for (int i = 0; i < haveLunarPersonName.size(); i++) {
-                                String solarBirth = haveLunarPersonSolarMap.get(haveLunarPersonName.get(i));
-                                Log.d("올해 양력", solarBirth);
-                                Log.d("haveLunarPerson",haveLunarPersonName.get(i)+"이름"+haveLunarPersonSolarMap.get(haveLunarPersonName.get(i))+"양력");
-                                Thread thread = new Thread(new Runnable() {
+                //안전을 위해서 다이얼로그 추가
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("올해로 음력생일들을 재설정 하시겠습니까?")
+                        .setPositiveButton("네", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                loadingApiManager.showLoading(progressBarLy,loadingSpinner,getActivity()); // 로딩 보여주기
+                                mainLy.setBackgroundColor(Color.parseColor("#E0E0E0")); //배경 회색으로
+                                //DB에서 유효한 음력생일을 가진 사람들 가져오기
+                                loadHaveLunarPersonFromDB(haveLunarPersonURL, new Runnable() {
                                     @RequiresApi(api = Build.VERSION_CODES.O)
                                     @Override
                                     public void run() {
-                                        try {
-                                            Log.d("올해 양력", solarBirth);
-                                            lunarArr = getLunarSolarApiManager.getLunar(solarBirth.substring(0, 4), solarBirth.substring(4, 6), solarBirth.substring(6, 8));
-                                            solarArr = getLunarSolarApiManager.getSolar(String.valueOf(now.getYear()), lunarArr.get(2), lunarArr.get(0));
-                                            //양력으로 변환했을 때 계산값이 올해보다 다음년도의 결과값이 나오면 전년도로 계산해야됨
-                                            // 1월 초반 생일자가 음력체크를 할때 이번년도에 해당하는 음력이 없으면 양력으로 변환할때 다음년도로 넘어가서 계산하게 됨.
-                                            if (Integer.parseInt(solarArr.get(2)) > now.getYear()) {
-                                                solarArr = getLunarSolarApiManager.getSolar(String.valueOf(now.getYear() - 1), lunarArr.get(2), lunarArr.get(0));
+                                        if (haveLunarPersonName.size() == 0) {
+                                            Log.d("haveLunarPersonMap", "없음");
+                                        } else {
+                                            LocalDate now = LocalDate.now();
+                                            Thread thread = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    for (int i=0; i < haveLunarPersonName.size(); i++) {
+                                                        String solarBirth = haveLunarPersonSolarMap.get(haveLunarPersonName.get(i));
+                                                        String name = haveLunarPersonName.get(i);
+                                                        Log.d("lunarTask","");
+                                                        //태어난 날 양력 기준으로 음력 구하기
+                                                        lunarArr = getLunarSolarApiManager.getLunarInMp(solarBirth.substring(0, 4), solarBirth.substring(4, 6), solarBirth.substring(6, 8));
+                                                        //구한 음력을 토대로 올해에서 해당하는 양력 구하기
+                                                        solarArr = getLunarSolarApiManager.getSolar(String.valueOf(now.getYear()), lunarArr.get(2), lunarArr.get(0));
+                                                        //양력으로 변환했을 때 계산값이 올해보다 다음년도의 결과값이 나오면 전년도로 계산해야됨
+                                                        // 1월 초반 생일자가 음력체크를 할때 이번년도에 해당하는 음력이 없으면 양력으로 변환할때 다음년도로 넘어가서 계산하게 됨.
+                                                        if (Integer.parseInt(solarArr.get(2)) > now.getYear()) {
+                                                            solarArr = getLunarSolarApiManager.getSolar(String.valueOf(now.getYear() - 1), lunarArr.get(2), lunarArr.get(0));
+                                                        }
+                                                        //lunarBirth라는 변수에 계산된 음력 값 저장
+                                                        lunarBirth = solarArr.get(2) + solarArr.get(1) + solarArr.get(0);
+                                                        lunarResultMap.put(name,lunarBirth);
+                                                        Log.d("lunarResult",lunarResultMap+"");
+                                                    }
+                                                }
+                                            });
+                                            thread.start();
+                                            try {
+                                                thread.join();
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
                                             }
-                                            lunarBirth = solarArr.get(2) + solarArr.get(1) + solarArr.get(0);
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                            lunarBirth = "&&";
-                                            Log.d("스레드 예외 발생", "1");
+                                            for(int i=0;i<haveLunarPersonName.size();i++){
+                                                String name = haveLunarPersonName.get(i);
+                                                //계산된 음력 db에 업데이트
+                                                updateNowYearLunarToDB(updateNowYearLunarURL,name,lunarResultMap.get(name));
+                                                int lunarMonth = Integer.parseInt(lunarResultMap.get(name).substring(4,6));
+                                                int lunarDay = Integer.parseInt(lunarResultMap.get(name).substring(6,8));
+                                                int whenAlarmStart = mainActivity.getSharedWhenStartAlarm();
+                                                //재설정된 음력으로 다시 알람 설정
+                                                setAlarmApiManager.setLunarAlarm(getActivity().getApplicationContext(),mainActivity.alarmManager,lunarMonth,
+                                                        whenAlarmStart,lunarDay,name,haveLunarPersonRequestCodeMap.get(name));
+                                                Log.d("lunarTaskResult", name+lunarBirth);
+                                            }
+                                            //작업이 모두 완료되었으므로 로딩 숨기기
+                                            loadingApiManager.hideLoading(progressBarLy,loadingSpinner,getActivity());
+                                            mainLy.setBackgroundColor(Color.TRANSPARENT); //배경 되돌리기
+                                            haveLunarPersonName.clear();
+                                            haveLunarPersonSolarMap.clear();
+                                            lunarResultMap.clear();
+                                            haveLunarPersonRequestCodeMap.clear();
+                                            nowYearLunarArr.clear();
+                                            solarArr.clear();
+                                            lunarArr.clear();
+                                            Toast.makeText(getActivity().getApplicationContext(),"초기화가 완료되었습니다.",Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 });
-                                thread.start(); //음력 계산 스레드 시작
-
-                                try{
-                                    thread.join();  //음력 계산이 끝나면 아래 코드를 시행하도록 하는 join 메소드
-                                }catch (InterruptedException e)
-                                {
-                                    e.printStackTrace();
-                                }
-                                haveLunarPersonLunarMap.put(haveLunarPersonName.get(i), lunarBirth);
-                                updateNowYearLunarToDB(updateNowYearLunarURL,haveLunarPersonName.get(i),lunarBirth);
-                                int lunarMonth = Integer.parseInt(lunarBirth.substring(4,6));
-                                int lunarDay = Integer.parseInt(lunarBirth.substring(6,8));
-                                int whenAlarmStart = mainActivity.getSharedWhenStartAlarm();
-                                Log.d("getShared",whenAlarmStart+"");
-                                Log.d("haveLunarPerson22",lunarBirth);
-                                //음력
-                                setAlarmApiManager.setLunarAlarm(getActivity().getApplicationContext(),mainActivity.alarmManager,lunarMonth,
-                                        whenAlarmStart,lunarDay,haveLunarPersonName.get(i),haveLunarPersonRequestCodeMap.get(haveLunarPersonName.get(i)));
-                                /*if(now.getMonthValue()>lunarMonth || (now.getMonthValue()==lunarMonth && now.getDayOfMonth()>lunarDay )){
-                                    mainActivity.setNotice(now.getYear()+1,lunarMonth,lunarDay-2,lunarDay,haveLunarPersonRequestCodeMap.get(haveLunarPersonName.get(i))+1,
-                                            haveLunarPersonName.get(i)+"님의 음력 생일",haveLunarPersonRequestCodeMap.get(haveLunarPersonName.get(i))+1);
-                                } else {
-                                    mainActivity.setNotice(now.getYear(),lunarMonth,lunarDay-2,lunarDay,haveLunarPersonRequestCodeMap.get(haveLunarPersonName.get(i))+1,
-                                            haveLunarPersonName.get(i)+"님의 음력 생일",haveLunarPersonRequestCodeMap.get(haveLunarPersonName.get(i))+1);
-                                }*/
-                                hideLoading(); // 프로그레스바 숨기기
-
-                                Log.d("올해 음력 계산", haveLunarPersonName.get(i) + "," + haveLunarPersonLunarMap.get(haveLunarPersonName.get(i))+1);
                             }
-
-                            Toast.makeText(getActivity().getApplicationContext(),"초기화가 완료되었습니다.",Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                });
-
-
+                        })
+                        .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                            }
+                        }).show();
 
             }
         });
@@ -521,21 +527,25 @@ public class MyPageFragement extends Fragment {
                 Request.Method.POST,
                 url,
                 new Response.Listener<String>() {  //응답을 문자열로 받아서 여기다 넣어달란말임(응답을 성공적으로 받았을 떄 이메소드가 자동으로 호출됨
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onResponse(String response) {
                         try {
                             JSONArray jsonArray = new JSONArray(response);
                             for (int i = 0; i < jsonArray.length(); i++) {
+
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                                 String name = jsonObject.getString("itemName"); //no가 문자열이라서 바꿔야함.
                                 String solarBirth = jsonObject.getString("itemSolarBirth");
-                                String lunarBirth = jsonObject.getString("itemLunarBirth");
                                 int itemRequestCode = jsonObject.getInt("itemRequestCode");
                                 haveLunarPersonName.add(i,name);
                                 haveLunarPersonSolarMap.put(name,solarBirth);
                                 Log.d("haveLunarSolar",haveLunarPersonSolarMap.get(name));
                                 haveLunarPersonRequestCodeMap.put(name,itemRequestCode);
                                 Log.d("haveLunarName",name);
+                                Log.d("lunarSolar",solarBirth);
+
+
                             }
                             if (callback != null) {
                                 callback.run();
@@ -624,7 +634,10 @@ public class MyPageFragement extends Fragment {
         //요청큐에 요청 객체 생성
         requestQueue.add(request);
     }
-    private void showLoading() {
+
+
+
+    /*private void showLoading() {
         progressBarLy.setVisibility(View.VISIBLE);
         loadingSpinner.setVisibility(View.VISIBLE);
         mainLy.setBackgroundColor(Color.parseColor("#E0E0E0"));
@@ -636,6 +649,6 @@ public class MyPageFragement extends Fragment {
         loadingSpinner.setVisibility(View.GONE);
         mainLy.setBackgroundColor(Color.TRANSPARENT);
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-    }
+    }*/
 
 }

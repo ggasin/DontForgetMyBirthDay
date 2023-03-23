@@ -14,7 +14,7 @@ public class ItemUpdateRequest extends StringRequest {
     //서버 url 설정(php 파일 연동)
     final static private String URL = "http://dfmbd.ivyro.net/ItemUpdate.php";
     private Map<String,String> map;
-    public ItemUpdateRequest(String itemId,String itemGroup ,String itemName, String itemBeforeName,String itemSolarBirth,String itemLunarBirth,String itemMemo,Response .Listener<String> listener){
+    public ItemUpdateRequest(String itemId,String itemGroup ,String itemName, String itemBeforeName,String itemSolarBirth,String itemLunarBirth,String itemMemo,boolean itemSolarValid,Response .Listener<String> listener){
         super(Method.POST, URL,listener,null);
         map = new HashMap<>();
         map.put("itemId",itemId);
@@ -24,6 +24,7 @@ public class ItemUpdateRequest extends StringRequest {
         map.put("itemSolarBirth",itemSolarBirth);
         map.put("itemLunarBirth",itemLunarBirth);
         map.put("itemMemo",itemMemo);
+        map.put("itemSolarValid",itemSolarValid+"");
     }
 
     @Nullable

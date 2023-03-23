@@ -20,6 +20,8 @@ public class IsSolarValidApiManager {
             if ((solarBirthMonth==4) || (solarBirthMonth==6) || (solarBirthMonth==9) || (solarBirthMonth==11)) {
                 if (solarBirthDay >= 1 && solarBirthDay <= 30) {
                     isValidBirth = true;
+                } else {
+                    isValidBirth = false;
                 }
             } else if (solarBirthMonth == 2) {
                 //생일이 2월인데 윤년이면 29일까지 허용
@@ -27,11 +29,17 @@ public class IsSolarValidApiManager {
                     isValidBirth = true;
                 } else if (solarBirthDay <= 28) {
                     isValidBirth = true;
+                } else {
+                    isValidBirth = false;
                 }
             } else if (solarBirthDay <= 31 && solarBirthDay >= 1) {
                 Log.d("solarBirthMonth 30??",solarBirthMonth+"");
                 isValidBirth = true;
+            } else {
+                isValidBirth = false;
             }
+        } else {
+            isValidBirth = false;
         }
 
         return isValidBirth;

@@ -16,7 +16,7 @@
 
 
         <LinearLayout
-            android:id="@+id/progress_bar_ly"
+            android:id="@+id/mp_progress_bar_ly"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:elevation="1dp"
@@ -27,7 +27,7 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <ProgressBar
-                android:id="@+id/progress_bar"
+                android:id="@+id/mp_progress_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
@@ -40,7 +40,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="작업이 끝날 때 까지 잠시만 기다려 주세요."
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                android:visibility="visible" />
         </LinearLayout>
 
 
@@ -70,7 +73,7 @@
                         android:id="@+id/imageView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/profile_icon" />
+                        android:src="@drawable/user_icon" />
 
                     <LinearLayout
                         android:id="@+id/mp_id_ly"
@@ -167,7 +170,7 @@
             android:layout_height="50dp"
             android:drawableRight="@drawable/back_btn"
             android:gravity="center|start"
-            android:text="\t올해로 음력 생일 초기화 "
+            android:text="\t올해로 음력 생일 재설정"
             android:textSize="18dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -186,6 +189,19 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mp_set_lunar_now_year_btn" />
+
+        <Button
+            android:id="@+id/mp_delete_account_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:drawableRight="@drawable/back_btn"
+            android:gravity="center|start"
+            android:text="\t회원탈퇴 "
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mp_go_privacy_policy" />
 
         <View
             android:id="@+id/view2"
@@ -314,16 +330,27 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mp_set_lunar_now_year_btn" />
 
-        <TextView
-            android:id="@+id/mp_delete_account_text_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginBottom="40dp"
-            android:clickable="true"
-            android:text="회원탈퇴"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+        <View
+            android:id="@+id/view5"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/light_gray"
+            android:elevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mp_go_privacy_policy" />
+
+        <View
+            android:id="@+id/view6"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/light_gray"
+            android:elevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mp_delete_account_btn" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
