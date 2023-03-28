@@ -11,10 +11,10 @@
         android:id="@+id/login_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="@dimen/login_title_margin_top"
         android:text="로그인"
         android:textColor="@color/title_blue"
-        android:textSize="50dp"
+        android:textSize="@dimen/title_text"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,13 +24,13 @@
 
     <Button
         android:id="@+id/login_btn"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/login_btn_width"
+        android:layout_height="@dimen/login_btn_height"
         android:layout_marginTop="50dp"
         android:background="@drawable/button_back"
         android:text="로그인"
         android:textColor="@color/white"
-        android:textSize="20dp"
+        android:textSize="@dimen/btn_text"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -70,9 +70,9 @@
 
     <LinearLayout
         android:id="@+id/login_id_layout"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="70dp"
+        android:layout_width="@dimen/login_edit_ly_width"
+        android:layout_height="@dimen/login_edit_ly_height"
+        android:layout_marginTop="@dimen/login_login_edit_ly_margin_top"
         android:background="@drawable/edit_border"
         android:gravity="center"
         android:orientation="horizontal"
@@ -82,8 +82,8 @@
 
         <EditText
             android:id="@+id/login_edit_id"
-            android:layout_width="200dp"
-            android:layout_height="match_parent"
+            android:layout_width="@dimen/login_edit_width"
+            android:layout_height="@dimen/login_edit_height"
             android:background="@android:color/transparent"
             android:hint="아이디"
             android:inputType="text"
@@ -92,8 +92,8 @@
 
     <LinearLayout
         android:id="@+id/login_pwd_layout"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/login_edit_ly_width"
+        android:layout_height="@dimen/login_edit_ly_height"
         android:layout_marginTop="20dp"
         android:background="@drawable/edit_border"
         android:gravity="center"
@@ -104,13 +104,25 @@
 
         <EditText
             android:id="@+id/login_edit_pwd"
-            android:layout_width="200dp"
-            android:layout_height="50dp"
+            android:layout_width="@dimen/login_edit_width"
+            android:layout_height="@dimen/login_edit_height"
             android:background="@android:color/transparent"
             android:ems="10"
             android:hint="비밀번호"
             android:inputType="textPassword"
             android:textSize="15dp" />
     </LinearLayout>
+    <!--광고 배너-->
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/login_adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-9033960220183550/2434507280"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -29,25 +29,22 @@
 
     </LinearLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_height="55dp"
             android:gravity="center|center_vertical"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:id="@+id/home_search_et_ly"
                 android:layout_width="300dp"
-                android:layout_height="40dp"
+                android:layout_height="35dp"
                 android:background="@drawable/item_detail_edit_not_border"
                 android:gravity="center"
                 android:orientation="horizontal"
@@ -62,10 +59,12 @@
                     android:background="@android:color/transparent"
                     android:backgroundTint="@color/more_gray"
                     android:drawableLeft="@drawable/search_icon"
+                    android:drawablePadding="10dp"
                     android:drawableTint="@color/more_gray"
                     android:maxLength="8"
                     android:maxLines="1"
                     android:visibility="visible" />
+
 
                 <ImageButton
                     android:id="@+id/home_search_close_btn"
@@ -83,7 +82,7 @@
             <LinearLayout
                 android:id="@+id/home_btn_ly"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="35dp"
                 android:gravity="right|center_vertical"
                 android:orientation="horizontal"
                 android:visibility="visible">
@@ -115,24 +114,18 @@
             </LinearLayout>
 
         </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/home_birth_rv"
+        <View
+            android:id="@+id/view8"
             android:layout_width="match_parent"
-            android:layout_height="600dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <LinearLayout
-            android:layout_width="409dp"
-            android:layout_height="106dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@+id/home_birth_rv"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+            android:orientation="vertical">
+
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/group_rv"
@@ -142,9 +135,27 @@
                 android:layout_marginRight="10dp"
                 android:foregroundGravity="center_vertical"
                 android:orientation="horizontal" />
+
         </LinearLayout>
 
+        <View
+            android:id="@+id/view7"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/home_birth_rv"
+            android:layout_width="match_parent"
+            android:layout_height="580dp">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical"></LinearLayout>
+
+    </LinearLayout>
 
 </FrameLayout>

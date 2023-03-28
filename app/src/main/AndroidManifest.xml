@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.dontforgetbirthdayproject">
+    package="com.dfmbd.dontforgetbirthdayproject">
 
-    <!--ACCESS_NETWORK_STATE 인터넷 연결 확인을 위해 추가-->
+    <!-- ACCESS_NETWORK_STATE 인터넷 연결 확인을 위해 추가 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <!--setExactAndAllowWhileIdle 때문에 안드로이드 12 이상 타겟팅 시 밑에 있는 권한 추가해야함-->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-    <!--REQUEST_IGNORE_BATTERY_OPTIMIZATIONS 배터리 최적화 해제하기 위해 추가-->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- setExactAndAllowWhileIdle 때문에 안드로이드 12 이상 타겟팅 시 밑에 있는 권한 추가해야함 -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- REQUEST_IGNORE_BATTERY_OPTIMIZATIONS 배터리 최적화 해제하기 위해 추가 -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
@@ -23,24 +21,23 @@
         android:theme="@style/Theme.DontForgetBirthDayProject"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
         <!-- usesCleartextTraffic 회원가입 db 작업후 버튼 무반응일경우 넣으라 함 -->
         <activity
-            android:name=".activity.MainActivity"
+            android:name="com.dfmbd.dontforgetbirthdayproject.activity.MainActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustNothing"
-            ></activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".activity.FindIdActivity"
-            android:exported="true"></activity>
+            android:name="com.dfmbd.dontforgetbirthdayproject.activity.FindIdActivity"
+            android:exported="true" />
         <activity
-            android:name=".activity.FindPwdActivity"
-            android:exported="true"></activity>
-
+            android:name="com.dfmbd.dontforgetbirthdayproject.activity.FindPwdActivity"
+            android:exported="true" />
         <activity
-            android:name=".activity.PrivatePolicyActivity"
-            android:exported="true"></activity>
+            android:name="com.dfmbd.dontforgetbirthdayproject.activity.PrivatePolicyActivity"
+            android:exported="true" />
         <activity
-            android:name=".activity.SplashActivity"
+            android:name="com.dfmbd.dontforgetbirthdayproject.activity.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,21 +46,32 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.LoginActivity"
-            android:exported="true"></activity>
-        <activity
-            android:name=".activity.RegisterActivity"
+            android:name="com.dfmbd.dontforgetbirthdayproject.activity.LoginActivity"
             android:exported="true" />
+        <activity
+            android:name="com.dfmbd.dontforgetbirthdayproject.activity.RegisterActivity"
+            android:exported="true" />
+
         <receiver
-            android:name=".NotificationReceiver"
+            android:name="com.dfmbd.dontforgetbirthdayproject.NotificationReceiver"
+            android:directBootAware="true"
             android:enabled="true"
-            android:exported="false"
-            android:directBootAware="true">
+            android:exported="false">
+
+        </receiver>
+        <receiver
+            android:name="com.dfmbd.dontforgetbirthdayproject.BootReceiver"
+            android:directBootAware="true"
+            android:enabled="true"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9033960220183550~1196042266"/>
     </application>
 
 </manifest>

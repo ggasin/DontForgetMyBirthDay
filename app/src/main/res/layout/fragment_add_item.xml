@@ -7,181 +7,200 @@
     android:layout_height="match_parent"
     tools:context=".fragment.AddItemFragment">
 
-    <LinearLayout
-        android:id="@+id/add_progress_bar_ly"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:elevation="1dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <ProgressBar
-            android:id="@+id/add_progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/requestCode_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TextView"
-            android:visibility="invisible" />
-
-        <TextView
-            android:id="@+id/add_group_t"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="40dp"
-            android:text="그룹"
-            android:textSize="30dp" />
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/add_name_ly"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/add_name_et"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:hint="이름(중복X, 최대 8글자)"
-                android:maxLength="8" />
-
-        </LinearLayout>
-
-        <RadioGroup
-            android:id="@+id/add_gender_radio_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/add_gender_man"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="남" />
-
-            <RadioButton
-                android:id="@+id/add_gender_woman"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:text="여" />
-        </RadioGroup>
-
-        <LinearLayout
-            android:id="@+id/add_birth_ly"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/add_solar_birth_et"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:hint="생일(양력) ex)19981208"
-                android:inputType="number"
-                android:maxLength="8" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/add_lunar_ly"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:orientation="horizontal">
-
-            <CheckBox
-                android:id="@+id/add_lunar_check_box"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:text="음력 추가"
-                android:textSize="15dp" />
-
-            <TextView
-                android:id="@+id/add_lunar_info_t"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:text="※체크시 자동으로 음력을 계산하여 기재합니다"
-                android:textColor="@android:color/holo_red_dark" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/add_memo_ly"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="20dp"
-            android:gravity="center|top"
-            android:orientation="horizontal">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/add_memo_et"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:gravity="top|left"
-                android:hint="메모(최대 200자 공백가능)"
-                android:inputType="text|textMultiLine"
-                android:maxLength="200" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/add_group_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="40dp"
+                    android:text="그룹"
+                    android:textSize="30dp" />
+
+
+                <LinearLayout
+                    android:id="@+id/add_name_ly"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/add_name_et"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:inputType="text"
+                        android:hint="이름(중복X, 최대 8글자)"
+                        android:maxLength="8" />
+
+                </LinearLayout>
+
+                <RadioGroup
+                    android:id="@+id/add_gender_radio_group"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/add_gender_man"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="남" />
+
+                    <RadioButton
+                        android:id="@+id/add_gender_woman"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:text="여" />
+                </RadioGroup>
+
+                <LinearLayout
+                    android:id="@+id/add_birth_ly"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/add_solar_birth_et"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:hint="생일(양력) ex)19981208"
+                        android:inputType="number"
+                        android:maxLength="8" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/add_lunar_info_t"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center"
+                    android:text="※체크시 자동으로 음력을 계산하여 기재합니다"
+                    android:textColor="@android:color/holo_red_dark" />
+
+                <LinearLayout
+                    android:id="@+id/add_progress_bar_ly"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:elevation="1dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <ProgressBar
+                        android:id="@+id/add_progress_bar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:layout_gravity="center"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/add_lunar_ly"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/add_lunar_check_box"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:text="음력 추가"
+                        android:textSize="15dp" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/memo_ly_height"
+                    android:layout_marginTop="20dp"
+                    android:layout_weight="0.85"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_ly"
+                        android:layout_width="@dimen/memo_ly_width"
+                        android:layout_height="match_parent"
+                        android:gravity="center|top"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/add_memo_et"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:gravity="top|left"
+                            android:hint="메모(최대 200자 공백가능)"
+                            android:inputType="text|textMultiLine"
+                            android:maxLength="200" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/add_btn_ly"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/add_complete_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_back"
+                        android:text="완료"
+                        android:textColor="@color/white"
+                        android:textSize="20dp" />
+
+                    <Button
+                        android:id="@+id/add_close_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="70dp"
+                        android:background="@drawable/button_back"
+                        android:text="닫기"
+                        android:textColor="@color/white"
+                        android:textSize="20dp" />
+                </LinearLayout>
+
+            </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/add_btn_ly"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/add_complete_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/button_back"
-                android:text="완료"
-                android:textColor="@color/white"
-                android:textSize="20dp" />
-
-            <Button
-                android:id="@+id/add_close_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="70dp"
-                android:background="@drawable/button_back"
-                android:text="닫기"
-                android:textColor="@color/white"
-                android:textSize="20dp" />
-        </LinearLayout>
-
-    </LinearLayout>
+    </ScrollView>
 
 </FrameLayout>

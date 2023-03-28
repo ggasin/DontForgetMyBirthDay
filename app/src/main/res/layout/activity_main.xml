@@ -6,28 +6,46 @@
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
-    <FrameLayout
-        android:id="@+id/frameLayout"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        app:layout_constraintBottom_toTopOf="@+id/menu_bottom_navigation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/menu_bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        app:backgroundTint="@color/title_blue"
-        app:itemIconSize="35dp"
-        app:itemIconTint="@drawable/menu_item_color"
-        app:labelVisibilityMode="unlabeled"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/menu" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        </FrameLayout>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/menu_bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/nevigation_bar_height"
+            app:backgroundTint="@color/title_blue"
+            app:itemIconSize="35dp"
+            app:itemIconTint="@drawable/menu_item_color"
+            app:labelVisibilityMode="unlabeled"
+            app:menu="@menu/menu">
+
+        </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/main_adView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.08"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-9033960220183550/2434507280"/>
+
+    </LinearLayout>
+
+    <!--광고 배너-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

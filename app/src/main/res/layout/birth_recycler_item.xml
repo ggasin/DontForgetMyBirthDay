@@ -10,7 +10,7 @@
     android:padding="8dp">
 
     <LinearLayout
-        android:layout_width="380dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/item_ly_border"
         android:orientation="vertical">
@@ -87,31 +87,34 @@
                                 android:layout_marginStart="20dp"
                                 android:layout_marginTop="10dp"
                                 android:text="이름 : "
-                                android:textSize="14dp" />
+                                android:textSize="@dimen/text" />
 
                             <TextView
                                 android:id="@+id/tv_so_birth_title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="20dp"
-                                android:layout_marginTop="2dp"
-                                android:text="양력 : " />
+                                android:layout_marginTop="@dimen/recycler_item_text_margin_top"
+                                android:text="양력 : "
+                                android:textSize="@dimen/text" />
 
                             <TextView
                                 android:id="@+id/tv_lu_birth_title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="20dp"
-                                android:layout_marginTop="2dp"
-                                android:text="음력 : " />
+                                android:layout_marginTop="@dimen/recycler_item_text_margin_top"
+                                android:text="음력 : "
+                                android:textSize="@dimen/text" />
 
                             <TextView
                                 android:id="@+id/tv_memo_title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="20dp"
-                                android:layout_marginTop="2dp"
-                                android:text="메모 : " />
+                                android:layout_marginTop="@dimen/recycler_item_text_margin_top"
+                                android:text="메모 : "
+                                android:textSize="@dimen/text" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -124,7 +127,8 @@
                                 android:layout_width="150dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
-                                android:text="류승민" />
+                                android:text="류승민"
+                                android:textSize="@dimen/text" />
 
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -133,17 +137,19 @@
 
                                 <TextView
                                     android:id="@+id/recycler_item_so_birth_tv"
-                                    android:layout_width="130dp"
+                                    android:layout_width="@dimen/recycler_item_text_width"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="1998년 12월 08일" />
+                                    android:layout_marginTop="@dimen/recycler_item_text_margin_top"
+                                    android:text="1998년 12월 08일"
+                                    android:textSize="@dimen/text" />
 
                                 <TextView
                                     android:id="@+id/recycler_item_so_dday_tv"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="D-364" />
+                                    android:layout_marginTop="@dimen/recycler_item_text_margin_top"
+                                    android:text="D-364"
+                                    android:textSize="@dimen/text" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -153,25 +159,28 @@
 
                                 <TextView
                                     android:id="@+id/recycler_item_lu_birth_tv"
-                                    android:layout_width="130dp"
+                                    android:layout_width="@dimen/recycler_item_text_width"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:text="1998.11.13" />
+                                    android:layout_marginTop="@dimen/recycler_item_text_margin_top"
+                                    android:text="1998.11.13"
+                                    android:textSize="@dimen/text" />
 
                                 <TextView
                                     android:id="@+id/recycler_item_lu_dday_tv"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="TextView" />
+                                    android:text="TextView"
+                                    android:textSize="@dimen/text" />
                             </LinearLayout>
 
                             <TextView
                                 android:id="@+id/recycler_item_memo_tv"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="@dimen/recycler_item_text_margin_top"
                                 android:maxLength="14"
-                                android:text="가나다라마바사아자차카타파하" />
+                                android:text="가나다라마바사아자차카타파하"
+                                android:textSize="@dimen/text" />
 
                         </LinearLayout>
 

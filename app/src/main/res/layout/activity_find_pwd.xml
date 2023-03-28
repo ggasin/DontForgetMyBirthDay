@@ -192,6 +192,18 @@
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/find_pwd_input_id_layout"
         app:layout_constraintTop_toBottomOf="@+id/find_pwd_info_t" />
+    <!--광고 배너-->
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/find_pwd_adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-9033960220183550/2434507280"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,291 +7,300 @@
     android:background="#F3F5F7"
     tools:context=".activity.RegisterActivity">
 
-    <LinearLayout
-        android:id="@+id/rg_check_pwd_ly"
-        android:layout_width="350dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/edit_border"
-        android:gravity="center"
-        android:orientation="horizontal"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/rg_pwd_validation_ly">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/rg_check_pwd_tily"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            app:hintEnabled="false"
-            app:passwordToggleEnabled="true">
-
-            <EditText
-                android:id="@+id/rg_check_pwd_et"
-                android:layout_width="300dp"
-                android:layout_height="50dp"
-                android:background="@android:color/transparent"
-                android:ems="10"
-                android:hint="비밀번호 확인"
-                android:inputType="textPassword"
-                android:textSize="15dp" />
-        </com.google.android.material.textfield.TextInputLayout>
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/rg_title_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="회원가입"
-        android:textColor="@color/title_blue"
-        android:textSize="50dp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/rg_id_ly"
-        android:layout_width="350dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_edit_nickname_ly">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:id="@+id/rg_edit_id_ly"
-            android:layout_width="260dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/edit_border"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/rg_id_et"
-                android:layout_width="210dp"
-                android:layout_height="50dp"
-                android:background="@android:color/transparent"
-                android:hint="아이디"
-                android:textSize="15dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
 
-            </EditText>
+                <ImageButton
+                    android:id="@+id/rg_back_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:background="?attr/actionBarItemBackground"
+                    android:src="@drawable/back_btn" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/rg_title_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/login_title_margin_top"
+                android:text="회원가입"
+                android:textColor="@color/title_blue"
+                android:textSize="@dimen/title_text"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/rg_edit_nickname_ly"
+                android:layout_width="@dimen/join_edit_ly_width"
+                android:layout_height="@dimen/join_edit_ly_height"
+                android:layout_marginTop="@dimen/join_nick_name_margin_top"
+                android:background="@drawable/edit_border"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/rg_nickname_et"
+                    android:layout_width="@dimen/join_edit_width"
+                    android:layout_height="@dimen/join_edit_height"
+                    android:background="@android:color/transparent"
+                    android:hint="닉네임"
+                    android:textSize="15dp">
+
+                </EditText>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rg_id_ly"
+                android:layout_width="@dimen/join_edit_ly_width"
+                android:layout_height="@dimen/join_edit_ly_height"
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/rg_edit_id_ly"
+                    android:layout_width="@dimen/join_edit_id_ly_width"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/edit_border"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/rg_id_et"
+                        android:layout_width="@dimen/join_edit_id_width"
+                        android:layout_height="@dimen/join_edit_ly_height"
+                        android:background="@android:color/transparent"
+                        android:hint="아이디"
+                        android:textSize="15dp">
+
+                    </EditText>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/rg_id_check_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/join_check_id_btn_height"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_back"
+                    android:text="중복확인"
+                    android:textColor="@color/white"
+                    android:textSize="15dp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rg_email_ly"
+                android:layout_width="@dimen/join_edit_ly_width"
+                android:layout_height="@dimen/join_edit_ly_height"
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/rg_edit_email_ly"
+                    android:layout_width="@dimen/join_edit_id_ly_width"
+                    android:layout_height="@dimen/join_edit_ly_height"
+                    android:background="@drawable/edit_border"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/rg_email_et"
+                        android:layout_width="@dimen/join_edit_id_width"
+                        android:layout_height="@dimen/join_edit_height"
+                        android:background="@android:color/transparent"
+                        android:hint="이메일"
+                        android:inputType="textEmailAddress"
+                        android:textSize="15dp">
+
+                    </EditText>
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/rg_send_email_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/join_check_id_btn_height"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_back"
+                    android:text="인 증"
+                    android:textColor="@color/white"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rg_email_certification_ly"
+                android:layout_width="@dimen/join_edit_ly_width"
+                android:layout_height="@dimen/join_edit_ly_height"
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/rg_edit_email_certification_ly"
+                    android:layout_width="@dimen/join_edit_id_ly_width"
+                    android:layout_height="@dimen/join_edit_ly_height"
+                    android:background="@drawable/edit_border"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/rg_email_certification_et"
+                        android:layout_width="@dimen/join_edit_id_width"
+                        android:layout_height="@dimen/join_edit_height"
+                        android:background="@android:color/transparent"
+                        android:hint="인증번호"
+                        android:inputType="textEmailAddress"
+                        android:textSize="15dp">
+
+                    </EditText>
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/rg_certification_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/join_check_id_btn_height"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_back"
+                    android:text="확 인"
+                    android:textColor="@color/white"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/rg_timer_title_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginTop="8dp"
+                    android:text="남은 시간 : "
+                    android:textSize="14dp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/rg_timer_value_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="TextView"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rg_edit_pwd_ly"
+                android:layout_width="@dimen/join_edit_ly_width"
+                android:layout_height="@dimen/join_edit_ly_height"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/edit_border"
+                android:gravity="center|center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/rg_pwd_tily"
+                    android:layout_width="@dimen/join_edit_width"
+                    android:layout_height="@dimen/join_edit_ly_height"
+                    app:hintAnimationEnabled="false"
+                    app:hintEnabled="false"
+                    app:passwordToggleEnabled="true">
+
+                    <EditText
+                        android:id="@+id/rg_pwd_et"
+                        android:layout_width="@dimen/join_edit_width"
+                        android:layout_height="@dimen/join_edit_ly_height"
+                        android:background="@android:color/transparent"
+                        android:ems="10"
+                        android:hint="비밀번호"
+                        android:inputType="textPassword"
+                        android:textSize="15dp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rg_pwd_validation_ly"
+                android:layout_width="@dimen/join_validation_text_ly_width"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+
+                >
+
+                <TextView
+                    android:id="@+id/rg_pwd_validation_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="6dp"
+                    android:text="비밀번호는 6-20글자입니다" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rg_check_pwd_ly"
+                android:layout_width="@dimen/join_edit_ly_width"
+                android:layout_height="@dimen/join_edit_ly_height"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/edit_border"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/rg_check_pwd_tily"
+                    android:layout_width="@dimen/join_edit_width"
+                    android:layout_height="@dimen/join_edit_ly_height"
+                    app:hintEnabled="false"
+                    app:passwordToggleEnabled="true">
+
+                    <EditText
+                        android:id="@+id/rg_check_pwd_et"
+                        android:layout_width="@dimen/join_edit_width"
+                        android:layout_height="@dimen/join_edit_ly_height"
+                        android:background="@android:color/transparent"
+                        android:ems="10"
+                        android:hint="비밀번호 확인"
+                        android:inputType="textPassword"
+                        android:textSize="15dp" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/rg_join_btn"
+                android:layout_width="@dimen/join_join_btn_width"
+                android:layout_height="@dimen/join_join_btn_height"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_back"
+                android:text="가입하기"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
         </LinearLayout>
-
-        <Button
-            android:id="@+id/rg_id_check_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="1"
-            android:background="@drawable/button_back"
-            android:text="중복확인"
-            android:textColor="@color/white"
-            android:textSize="15dp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/rg_join_btn"
-        android:layout_width="200dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/button_back"
-        android:text="가입하기"
-        android:textColor="@color/white"
-        android:textSize="20dp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_check_pwd_ly" />
-
-    <LinearLayout
-        android:id="@+id/rg_pwd_validation_ly"
-        android:layout_width="330dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/rg_check_pwd_tily"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_edit_pwd_ly">
-
-        <TextView
-            android:id="@+id/rg_pwd_validation_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="6dp"
-            android:text="비밀번호는 6-20글자입니다" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/rg_edit_nickname_ly"
-        android:layout_width="350dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/edit_border"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_title_text">
-
-        <EditText
-            android:id="@+id/rg_nickname_et"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:background="@android:color/transparent"
-            android:hint="닉네임"
-            android:textSize="15dp">
-
-        </EditText>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/rg_email_ly"
-        android:layout_width="350dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_id_ly">
-
-        <LinearLayout
-            android:id="@+id/rg_edit_email_ly"
-            android:layout_width="260dp"
-            android:layout_height="50dp"
-            android:background="@drawable/edit_border"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/rg_email_et"
-                android:layout_width="210dp"
-                android:layout_height="50dp"
-                android:background="@android:color/transparent"
-                android:hint="이메일"
-                android:inputType="textEmailAddress"
-                android:textSize="15dp">
-
-            </EditText>
-
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/rg_send_email_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="1"
-            android:background="@drawable/button_back"
-            android:text="인 증"
-            android:textColor="@color/white"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/rg_email_certification_ly"
-        android:layout_width="350dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_email_ly">
-
-        <LinearLayout
-            android:id="@+id/rg_edit_email_certification_ly"
-            android:layout_width="260dp"
-            android:layout_height="50dp"
-            android:background="@drawable/edit_border"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/rg_email_certification_et"
-                android:layout_width="210dp"
-                android:layout_height="50dp"
-                android:background="@android:color/transparent"
-                android:hint="인증번호"
-                android:inputType="textEmailAddress"
-                android:textSize="15dp">
-
-            </EditText>
-
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/rg_certification_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="1"
-            android:background="@drawable/button_back"
-            android:text="확 인"
-            android:textColor="@color/white"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/rg_edit_pwd_ly"
-        android:layout_width="350dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/edit_border"
-        android:gravity="center|center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_email_certification_ly">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/rg_pwd_tily"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            app:hintAnimationEnabled="false"
-            app:hintEnabled="false"
-            app:passwordToggleEnabled="true">
-
-            <EditText
-                android:id="@+id/rg_pwd_et"
-                android:layout_width="300dp"
-                android:layout_height="50dp"
-                android:background="@android:color/transparent"
-                android:ems="10"
-                android:hint="비밀번호"
-                android:inputType="textPassword"
-                android:textSize="15dp" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/rg_timer_title_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="8dp"
-        android:text="남은 시간 : "
-        android:textSize="14dp"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_email_certification_ly" />
-
-    <TextView
-        android:id="@+id/rg_timer_value_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="TextView"
-        android:visibility="gone"
-        app:layout_constraintStart_toEndOf="@+id/rg_timer_title_text"
-        app:layout_constraintTop_toBottomOf="@+id/rg_email_certification_ly" />
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

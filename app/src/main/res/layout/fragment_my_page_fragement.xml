@@ -51,7 +51,7 @@
             android:id="@+id/mp_info_ly"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="@dimen/my_page_profile_margin_top"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -139,22 +139,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mp_info_ly" />
 
-        <TextView
-            android:id="@+id/mp_logout_text_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="40dp"
-            android:clickable="true"
-            android:text="로그아웃"
-            android:textSize="15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
         <Button
             android:id="@+id/mp_go_change_pwd_btn"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="@dimen/my_page_btn_height"
             android:layout_marginTop="5dp"
             android:drawableRight="@drawable/back_btn"
             android:gravity="center|start"
@@ -167,7 +155,7 @@
         <Button
             android:id="@+id/mp_set_lunar_now_year_btn"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="@dimen/my_page_btn_height"
             android:drawableRight="@drawable/back_btn"
             android:gravity="center|start"
             android:text="\t올해로 음력 생일 재설정"
@@ -180,7 +168,7 @@
         <Button
             android:id="@+id/mp_go_privacy_policy"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="@dimen/my_page_btn_height"
             android:drawableRight="@drawable/back_btn"
             android:gravity="center|start"
             android:text="\t개인정보처리방침 "
@@ -193,7 +181,7 @@
         <Button
             android:id="@+id/mp_delete_account_btn"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="@dimen/my_page_btn_height"
             android:drawableRight="@drawable/back_btn"
             android:gravity="center|start"
             android:text="\t회원탈퇴 "
@@ -202,6 +190,19 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mp_go_privacy_policy" />
+
+        <Button
+            android:id="@+id/mp_logout_btn"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/my_page_btn_height"
+            android:drawableRight="@drawable/back_btn"
+            android:gravity="center|start"
+            android:text="\t로그아웃"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mp_delete_account_btn" />
 
         <View
             android:id="@+id/view2"
@@ -225,7 +226,7 @@
             <Button
                 android:id="@+id/mp_go_setting_push_alarm_btn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/my_page_btn_height"
                 android:drawableRight="@drawable/back_btn"
                 android:gravity="center|start"
                 android:text="\t푸시 알람 설정"
