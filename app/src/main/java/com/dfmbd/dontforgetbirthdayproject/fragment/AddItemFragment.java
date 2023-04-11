@@ -5,6 +5,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
@@ -43,6 +44,10 @@ import com.dfmbd.dontforgetbirthdayproject.data.RequestCodeData;
 import com.dfmbd.dontforgetbirthdayproject.request.ItemAddRequest;
 import com.dfmbd.dontforgetbirthdayproject.R;
 import com.dfmbd.dontforgetbirthdayproject.activity.MainActivity;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,6 +75,7 @@ public class AddItemFragment extends Fragment {
 
     private int userRequestCode;
     static int solarRequestCode;
+    int clickCount = 0;
 
     String selectedGroup,gender="남";
     String lunarBirth="--" , solarBirth;
@@ -235,11 +241,13 @@ public class AddItemFragment extends Fragment {
             }
         });
 
+
         //완료 버튼 이벤트
         addCompleteBtn.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
+                //완료 두번 하면 전명광고를 띄우기 위해 카운트
+                clickCount++;
                 String id = mainActivity.userId;
                 String name = addNameEt.getText().toString();
                 String group = addGroupT.getText().toString();
@@ -270,6 +278,20 @@ public class AddItemFragment extends Fragment {
                                     addSolarBirthEt.setText("");
                                     addMemoEt.setText("");
                                     mainActivity.onFragmentChange(0);
+
+                                    //카운트 2면 전면광고 띄우기
+                                    if (clickCount == 2) {
+                                        AdRequest adRequest = new AdRequest.Builder().build();
+                                        InterstitialAd.load(getActivity().getApplicationContext(), "ca-app-pub-9033960220183550/9748523546", adRequest, new InterstitialAdLoadCallback() {
+                                            @Override
+                                            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                                                interstitialAd.show(getActivity());
+                                            }
+                                            @Override
+                                            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {}
+                                        });
+                                        clickCount = 0;
+                                    }
                                 } else{
                                     Toast.makeText(getContext(),"이름이 중복되지 않도록 기입해주세요.",Toast.LENGTH_SHORT).show();
                                     return;
@@ -281,6 +303,7 @@ public class AddItemFragment extends Fragment {
                                     Toast.makeText(getContext(),"모든 항목에 입력값을 넣었는지 확인해주세요.",Toast.LENGTH_SHORT).show();
                                 }
                             }
+
                         } catch (JSONException e) {
                             Toast.makeText(getContext(),"오류",Toast.LENGTH_SHORT).show();
                             StringWriter sw = new StringWriter();

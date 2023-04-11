@@ -29,10 +29,11 @@
 
                 <ImageButton
                     android:id="@+id/rg_back_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_marginLeft="15dp"
                     android:background="?attr/actionBarItemBackground"
+                    android:contentDescription="뒤로 가기"
                     android:src="@drawable/back_btn" />
             </LinearLayout>
 
@@ -40,7 +41,7 @@
                 android:id="@+id/rg_title_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/login_title_margin_top"
+                android:layout_marginTop="@dimen/join_title_margin_top"
                 android:text="회원가입"
                 android:textColor="@color/title_blue"
                 android:textSize="@dimen/title_text"
@@ -61,7 +62,7 @@
                     android:layout_height="@dimen/join_edit_height"
                     android:background="@android:color/transparent"
                     android:hint="닉네임"
-                    android:textSize="15dp">
+                    android:textSize="15sp">
 
                 </EditText>
             </LinearLayout>
@@ -87,7 +88,7 @@
                         android:layout_height="@dimen/join_edit_ly_height"
                         android:background="@android:color/transparent"
                         android:hint="아이디"
-                        android:textSize="15dp">
+                        android:textSize="15sp">
 
                     </EditText>
                 </LinearLayout>
@@ -101,33 +102,50 @@
                     android:background="@drawable/button_back"
                     android:text="중복확인"
                     android:textColor="@color/white"
-                    android:textSize="15dp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rg_email_validation_ly"
+                android:layout_width="@dimen/join_validation_text_ly_width"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/rg_email_validation_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="6dp"
+                    android:textSize="18sp"
+                    android:text="유효한 이메일을 입력해 주세요" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/rg_email_ly"
                 android:layout_width="@dimen/join_edit_ly_width"
                 android:layout_height="@dimen/join_edit_ly_height"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
                 <LinearLayout
                     android:id="@+id/rg_edit_email_ly"
-                    android:layout_width="@dimen/join_edit_id_ly_width"
-                    android:layout_height="@dimen/join_edit_ly_height"
+                    android:layout_width="@dimen/join_edit_ly_width"
+                    android:layout_height="@dimen/join_edit_height"
                     android:background="@drawable/edit_border"
                     android:gravity="center"
                     android:orientation="horizontal">
 
                     <EditText
                         android:id="@+id/rg_email_et"
-                        android:layout_width="@dimen/join_edit_id_width"
+                        android:layout_width="@dimen/join_edit_width"
                         android:layout_height="@dimen/join_edit_height"
                         android:background="@android:color/transparent"
                         android:hint="이메일"
                         android:inputType="textEmailAddress"
-                        android:textSize="15dp">
+                        android:textSize="15sp">
 
                     </EditText>
 
@@ -142,7 +160,8 @@
                     android:background="@drawable/button_back"
                     android:text="인 증"
                     android:textColor="@color/white"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -228,7 +247,8 @@
                     android:layout_height="@dimen/join_edit_ly_height"
                     app:hintAnimationEnabled="false"
                     app:hintEnabled="false"
-                    app:passwordToggleEnabled="true">
+                    app:passwordToggleEnabled="true"
+                    app:passwordToggleContentDescription="비밀번호 보이기">
 
                     <EditText
                         android:id="@+id/rg_pwd_et"
@@ -238,7 +258,7 @@
                         android:ems="10"
                         android:hint="비밀번호"
                         android:inputType="textPassword"
-                        android:textSize="15dp" />
+                        android:textSize="15sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
@@ -274,7 +294,8 @@
                     android:layout_width="@dimen/join_edit_width"
                     android:layout_height="@dimen/join_edit_ly_height"
                     app:hintEnabled="false"
-                    app:passwordToggleEnabled="true">
+                    app:passwordToggleEnabled="true"
+                    app:passwordToggleContentDescription="비밀번호 보이기">
 
                     <EditText
                         android:id="@+id/rg_check_pwd_et"
@@ -284,7 +305,7 @@
                         android:ems="10"
                         android:hint="비밀번호 확인"
                         android:inputType="textPassword"
-                        android:textSize="15dp" />
+                        android:textSize="15sp" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -297,7 +318,7 @@
                 android:background="@drawable/button_back"
                 android:text="가입하기"
                 android:textColor="@color/white"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
         </LinearLayout>

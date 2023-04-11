@@ -3,7 +3,13 @@ package com.dfmbd.dontforgetbirthdayproject;
 import android.app.Activity;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
 //뒤로가기 한번 누르면 두번 눌러야 종료라고 알려주는 이벤트
 public class BackKeyHandler {

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,7 +42,8 @@ import javax.mail.internet.MimeMessage;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private Button joinCompleteBtn, idCheckBtn , sendEmailbtn , certificationBtn;
+    private Button joinCompleteBtn, idCheckBtn , sendEmailbtn , certificationBtn ;
+    private ImageButton backBtn;
     private EditText etId, etPwd, etName, etEmail, etPwdChk , etCertification;
     private TextView timerText,timerTitleText;
     private boolean isIdOk, isPwdOk, isEmailOk,emailValid= false;
@@ -51,7 +53,7 @@ public class RegisterActivity extends AppCompatActivity {
     private boolean isSuccessSendEmail=false;
     private String userEmail="";
     private CountDownTimer timer;
-    SendEmailThread sendEmailThread;
+
 
     @Override
     public void onDestroy() {
@@ -80,6 +82,16 @@ public class RegisterActivity extends AppCompatActivity {
         timerText = findViewById(R.id.rg_timer_value_text);
         timerTitleText = findViewById(R.id.rg_timer_title_text);
         certificationLy = findViewById(R.id.rg_email_certification_ly);
+        backBtn = findViewById(R.id.rg_back_btn);
+
+
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
 
@@ -158,12 +170,14 @@ public class RegisterActivity extends AppCompatActivity {
                 if(pattern.matcher(etEmail.getText()).matches()){
                     userEmail = etEmail.getText().toString();
                     emailValid = true;
-                    sendEmailbtn.setEnabled(true);
+                    //sendEmailbtn.setEnabled(true);
+                } else {
+                    emailValid = false;
                 }
             }
         });
 
-        sendEmailbtn.setOnClickListener(new View.OnClickListener() {
+       /* sendEmailbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //SMTP 서버 사용 정보를 담기 위한 객체
@@ -250,7 +264,7 @@ public class RegisterActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(),"인증번호를 확인해 주세요.",Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+        });*/
 
 
         etPwd.addTextChangedListener(new TextWatcher() {
@@ -291,7 +305,7 @@ public class RegisterActivity extends AppCompatActivity {
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             boolean success = jsonObject.getBoolean("success");
-                            if(isIdOk && isEmailOk &&userPwd.equals(userPwdCheck) && isPwdOk){
+                            if(isIdOk && emailValid &&userPwd.equals(userPwdCheck) && isPwdOk){
                                 if(success){
                                     Toast.makeText(getApplicationContext(),"가입 완료",Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
@@ -310,15 +324,15 @@ public class RegisterActivity extends AppCompatActivity {
                         }
                     }
                 };
-
-                RegisterRequest registerRequest = new RegisterRequest(userID,userPwd,userName,userEmail,group,responseListener);
+                Log.d("emailValid",emailValid+"");
+                RegisterRequest registerRequest = new RegisterRequest(userID,userPwd,userName,userEmail,group,emailValid,responseListener);
                 RequestQueue queue = Volley.newRequestQueue(RegisterActivity.this);
                 queue.add(registerRequest);
 
             }
         });
     }
-    public class SendEmailThread extends Thread{
+    /*public class SendEmailThread extends Thread{
 
         private Session session;
         private String userEmail;
@@ -359,5 +373,5 @@ public class RegisterActivity extends AppCompatActivity {
         Random random = new Random();
         int randomNum = random.nextInt(888888) + 111111;
         return randomNum;
-    }
+    }*/
 }

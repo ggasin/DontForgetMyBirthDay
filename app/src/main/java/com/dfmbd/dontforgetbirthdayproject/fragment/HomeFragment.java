@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -30,9 +32,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -99,7 +103,7 @@ public class HomeFragment extends Fragment  {
     private LinearLayoutManager ItemLinearLayoutManager,GroupLinearLayoutManager;
     private LinearLayout searchEditLy,upsideBtnLy,progressBarLy;
     private ProgressBar loadingSpinner;
-    private ImageButton itemAddBtn,searchBtn,searchCloseBtn,sortBtn;
+    private ImageButton itemAddBtn,searchBtn,searchCloseBtn,sortBtn , helpBtn;
     private EditText searchEt;
     SetAlarmApiManager setAlarmApiManager = new SetAlarmApiManager();
     String loadItemURL = "http://dfmbd.ivyro.net/LoadItemDB.php";
@@ -118,6 +122,7 @@ public class HomeFragment extends Fragment  {
                              Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup)inflater.inflate(R.layout.fragment_home, container, false);
 
+        helpBtn = rootView.findViewById(R.id.home_help_btn);
         searchBtn = rootView.findViewById(R.id.home_search_btn);
         searchEt = rootView.findViewById(R.id.home_search_et);
         searchEditLy = rootView.findViewById(R.id.home_search_et_ly);
@@ -195,6 +200,7 @@ public class HomeFragment extends Fragment  {
             mainActivity.firstLogin=false;
         }
 
+
         //검색 버튼 클릭 이벤트
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -239,6 +245,15 @@ public class HomeFragment extends Fragment  {
                     }
                     homeAdapter.filterList(searchList);
                 }
+            }
+        });
+
+        //도움말 버튼 클릭
+        helpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showHelpDialog();
+
             }
         });
 
@@ -810,6 +825,30 @@ public class HomeFragment extends Fragment  {
         progressBarLy.setVisibility(View.GONE);
         loadingSpinner.setVisibility(View.GONE);
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private void showHelpDialog() {
+        // Dialog 빌더를 생성합니다.
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        // Dialog 레이아웃을 생성합니다.
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View view = inflater.inflate(R.layout.help_dialog, null);
+
+        // Dialog 빌더에 Dialog 레이아웃을 설정합니다.
+        builder.setView(view);
+
+        // Dialog 빌더에 버튼을 추가합니다.
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        // Dialog 빌더를 사용하여 Dialog 를 생성하고 띄웁니다.
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 }

@@ -1,18 +1,24 @@
 package com.dfmbd.dontforgetbirthdayproject.activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -101,6 +107,14 @@ public class MainActivity extends AppCompatActivity {
         });
         AdRequest adRequest = new AdRequest.Builder().build();
         mainAdView.loadAd(adRequest);
+
+        //알림 권한이 허용되어 있지 않다면 권한 요청
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            if(!isNotificationPermissionGranted()){
+                requestNotificationPermission();
+            }
+        }
+
 
 
         //NotificationReceiver로부터 액션 등록(푸시알림이 울리고 나서 메인액티비티에서 다시 setNotice를 실행하기 위함)
@@ -219,6 +233,36 @@ public class MainActivity extends AppCompatActivity {
         } else {
             return Integer.parseInt(whenAlarmStart);
         }
+    }
+    //알림 권한 요청
+    private void requestNotificationPermission() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("알림 권한 요청")
+                .setMessage("알림 기능을 이용하기 위해선 알림 권한이 필요합니다.")
+                .setPositiveButton("설정 하러 가기", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 사용자가 OK를 누르면, 알림 권한 요청 팝업이 표시됩니다.
+                        Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                .putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton("닫기", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.create().show();
+    };
+    //알림 권한이 허용 되어있는지 아닌지 확인
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private boolean isNotificationPermissionGranted() {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        //반환 값이 true 면 권한 부여된거임
+        return notificationManager.areNotificationsEnabled();
     }
 
     //알람매니저에 알람등록 처리

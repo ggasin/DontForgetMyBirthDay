@@ -1,5 +1,7 @@
 package com.dfmbd.dontforgetbirthdayproject.request;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 import com.android.volley.AuthFailureError;
@@ -14,7 +16,7 @@ public class RegisterRequest extends StringRequest {
     //서버 url 설정(php 파일 연동)
     final static private String URL = "http://dfmbd.ivyro.net/Register.php";
     private Map<String,String> map;
-    public RegisterRequest(String userID, String userPassword , String userName, String userEmail, String myGroup,Response .Listener<String> listener){
+    public RegisterRequest(String userID, String userPassword , String userName, String userEmail, String myGroup,boolean emailValid,Response .Listener<String> listener){
         super(Method.POST, URL,listener,null);
         map = new HashMap<>();
         map.put("userID",userID);
@@ -22,6 +24,7 @@ public class RegisterRequest extends StringRequest {
         map.put("userName",userName);
         map.put("userEmail",userEmail);
         map.put("myGroup",myGroup);
+        map.put("emailValid",emailValid+"");
 
     }
 

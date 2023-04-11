@@ -7,8 +7,8 @@
 
     <LinearLayout
         android:id="@+id/find_id_email_layout"
-        android:layout_width="300dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/find_id_edit_ly_width"
+        android:layout_height="@dimen/find_id_edit_ly_height"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/edit_not_border"
@@ -19,12 +19,12 @@
 
         <EditText
             android:id="@+id/find_id_email_et"
-            android:layout_width="250dp"
+            android:layout_width="@dimen/find_id_edit_width"
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
             android:hint="이메일"
             android:inputType="textEmailAddress"
-            android:textSize="15dp" />
+            android:textSize="15sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -48,14 +48,15 @@
             android:hint="인증번호"
             android:inputType="number"
             android:maxLength="6"
-            android:textSize="15dp" />
+            android:textSize="15sp" />
     </LinearLayout>
 
     <ImageButton
         android:id="@+id/find_id_pwd_back_btn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="?attr/actionBarItemBackground"
+        android:contentDescription="뒤로 가기"
         app:layout_constraintStart_toStartOf="@+id/linearLayout2"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/back_btn" />
@@ -63,7 +64,7 @@
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -75,7 +76,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="아이디 찾기"
-            android:textSize="20dp"
+            android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -99,7 +100,7 @@
         android:background="@drawable/button_not_border_back"
         android:text="전 송"
         android:textColor="@color/white"
-        android:textSize="18dp"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/find_id_email_layout"
@@ -112,8 +113,9 @@
         android:layout_marginStart="15dp"
         android:layout_marginTop="15dp"
         android:clickable="true"
+        android:minHeight="48dp"
         android:text="> 비밀번호 찾기로 가기"
-        android:textSize="15dp"
+        android:textSize="18dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/find_id_timer_title_t" />
 
@@ -148,7 +150,7 @@
         android:background="@drawable/button_not_border_back"
         android:text="완 료"
         android:textColor="@color/white"
-        android:textSize="15dp"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"

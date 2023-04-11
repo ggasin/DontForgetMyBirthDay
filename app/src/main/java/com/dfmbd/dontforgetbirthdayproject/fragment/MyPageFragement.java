@@ -288,8 +288,6 @@ public class MyPageFragement extends Fragment {
 
         //정보 불러오기
         loadMyInfo();
-        Handler handler = new Handler(Looper.getMainLooper());
-        Handler handler1 = new Handler(Looper.getMainLooper());
 
         //올해 년도를 기준으로 음력 초기화 하는 버튼
         //0318 handler 사용하는 방법으로 추후에 교체하기
@@ -337,23 +335,34 @@ public class MyPageFragement extends Fragment {
                                                     }
                                                 }
                                             });
+                                            Thread thread1 = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    for(int i=0;i<haveLunarPersonName.size();i++){
+                                                        String name = haveLunarPersonName.get(i);
+                                                        //계산된 음력 db에 업데이트
+                                                        updateNowYearLunarToDB(updateNowYearLunarURL,name,lunarResultMap.get(name));
+                                                        int lunarMonth = Integer.parseInt(lunarResultMap.get(name).substring(4,6));
+                                                        int lunarDay = Integer.parseInt(lunarResultMap.get(name).substring(6,8));
+                                                        int whenAlarmStart = mainActivity.getSharedWhenStartAlarm();
+                                                        //재설정된 음력으로 다시 알람 설정
+                                                        setAlarmApiManager.setLunarAlarm(getActivity().getApplicationContext(),mainActivity.alarmManager,lunarMonth,
+                                                                whenAlarmStart,lunarDay,name,haveLunarPersonRequestCodeMap.get(name));
+                                                        Log.d("lunarTaskResult1", name+lunarBirth);
+                                                    }
+                                                }
+                                            });
                                             thread.start();
                                             try {
                                                 thread.join();
                                             } catch (InterruptedException e) {
                                                 e.printStackTrace();
                                             }
-                                            for(int i=0;i<haveLunarPersonName.size();i++){
-                                                String name = haveLunarPersonName.get(i);
-                                                //계산된 음력 db에 업데이트
-                                                updateNowYearLunarToDB(updateNowYearLunarURL,name,lunarResultMap.get(name));
-                                                int lunarMonth = Integer.parseInt(lunarResultMap.get(name).substring(4,6));
-                                                int lunarDay = Integer.parseInt(lunarResultMap.get(name).substring(6,8));
-                                                int whenAlarmStart = mainActivity.getSharedWhenStartAlarm();
-                                                //재설정된 음력으로 다시 알람 설정
-                                                setAlarmApiManager.setLunarAlarm(getActivity().getApplicationContext(),mainActivity.alarmManager,lunarMonth,
-                                                        whenAlarmStart,lunarDay,name,haveLunarPersonRequestCodeMap.get(name));
-                                                Log.d("lunarTaskResult", name+lunarBirth);
+                                            thread1.start();
+                                            try {
+                                                thread1.join();
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
                                             }
                                             //작업이 모두 완료되었으므로 로딩 숨기기
                                             loadingApiManager.hideLoading(progressBarLy,loadingSpinner,getActivity());
@@ -366,6 +375,7 @@ public class MyPageFragement extends Fragment {
                                             solarArr.clear();
                                             lunarArr.clear();
                                             Toast.makeText(getActivity().getApplicationContext(),"초기화가 완료되었습니다.",Toast.LENGTH_SHORT).show();
+
                                         }
                                     }
                                 });

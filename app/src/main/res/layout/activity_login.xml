@@ -36,7 +36,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_pwd_layout"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+
+        />
 
     <TextView
         android:id="@+id/go_join_text_btn"
@@ -44,8 +46,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:clickable="true"
+        android:minHeight="48dp"
         android:text="회원가입"
-        android:textSize="15dp"
+        android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.77"
@@ -59,8 +62,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:clickable="true"
+        android:minHeight="48dp"
         android:text="아이디/비밀번호 찾기"
-        android:textSize="15dp"
+        android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.276"
@@ -87,7 +91,7 @@
             android:background="@android:color/transparent"
             android:hint="아이디"
             android:inputType="text"
-            android:textSize="15dp" />
+            android:textSize="15sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -110,7 +114,7 @@
             android:ems="10"
             android:hint="비밀번호"
             android:inputType="textPassword"
-            android:textSize="15dp" />
+            android:textSize="15sp" />
     </LinearLayout>
     <!--광고 배너-->
     <com.google.android.gms.ads.AdView

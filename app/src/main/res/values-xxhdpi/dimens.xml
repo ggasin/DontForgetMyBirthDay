@@ -38,5 +38,12 @@
     <dimen name="my_page_btn_height">50dp</dimen>
     <dimen name="my_page_profile_margin_top">50dp</dimen>
 
+    <dimen name="find_id_edit_ly_width">300dp</dimen>
+    <dimen name="find_id_edit_ly_height">50dp</dimen>
+    <dimen name="find_pwd_edit_ly_width">300dp</dimen>
+    <dimen name="find_pwd_edit_ly_height">50dp</dimen>
+    <dimen name="find_id_edit_width">250dp</dimen>
+    <dimen name="find_pwd_edit_width">250dp</dimen>
+
 
 </resources>

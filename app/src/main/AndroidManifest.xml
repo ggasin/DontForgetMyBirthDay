@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.dfmbd.dontforgetbirthdayproject">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- ACCESS_NETWORK_STATE 인터넷 연결 확인을 위해 추가 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -9,6 +8,11 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- setExactAndAllowWhileIdle 때문에 안드로이드 12 이상 타겟팅 시 밑에 있는 권한 추가해야함 -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- REQUEST_IGNORE_BATTERY_OPTIMIZATIONS 배터리 최적화 해제하기 위해 추가 -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- Android13 이상은 광고추가를 위해 아래 코드를 추가해야한다함 -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <!-- 알림 권한 요청을 위해 아래 코드를 추가해야한다함 -->
+    <uses-permission android:name="android.permission.RECEIVE_NOTIFICATIONS" />
+
 
     <application
         android:allowBackup="true"
@@ -56,14 +60,14 @@
             android:name="com.dfmbd.dontforgetbirthdayproject.NotificationReceiver"
             android:directBootAware="true"
             android:enabled="true"
-            android:exported="false">
+            android:exported="true">
 
         </receiver>
         <receiver
             android:name="com.dfmbd.dontforgetbirthdayproject.BootReceiver"
             android:directBootAware="true"
             android:enabled="true"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
